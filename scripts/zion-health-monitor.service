@@ -1,0 +1,36 @@
+[Unit]
+Description=ZION TestNet Health Monitor
+Documentation=https://github.com/Maitreya-ZionNet/Zion-2.6-TestNet
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=maitreya
+Group=maitreya
+WorkingDirectory=/home/maitreya/Zion/zion
+ExecStart=/home/maitreya/Zion/zion/scripts/health-monitor.sh monitor
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=zion-health-monitor
+
+# Environment variables
+Environment=DISCORD_WEBHOOK_URL=
+Environment=LOG_LEVEL=INFO
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/tmp /var/log /home/maitreya/Zion/zion
+
+# Resource limits
+MemoryLimit=64M
+CPUQuota=10%
+
+[Install]
+WantedBy=multi-user.target
