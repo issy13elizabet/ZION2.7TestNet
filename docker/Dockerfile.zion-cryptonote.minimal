@@ -81,8 +81,18 @@ RUN useradd -m -u 1000 zion && \
 COPY --from=build /src/zion-cryptonote/build/src/zion* /usr/local/bin/
 COPY --from=build /src/zion-cryptonote/build/src/*d /usr/local/bin/
 
-# Copy configuration
-COPY config/prod.conf /config/zion.conf
+# Copy configuration files and select a default config
+COPY config/ /config/
+RUN if [ -f /config/prod.conf ]; then \
+        cp /config/prod.conf /config/zion.conf; \
+    elif [ -f /config/production-v2.conf ]; then \
+        cp /config/production-v2.conf /config/zion.conf; \
+    elif [ -f /config/mainnet.conf ]; then \
+        cp /config/mainnet.conf /config/zion.conf; \
+    else \
+        echo '# fallback zion.conf' > /config/zion.conf; \
+        echo 'rpc-bind-ip=127.0.0.1' >> /config/zion.conf; \
+    fi
 
 USER zion
 WORKDIR /data
