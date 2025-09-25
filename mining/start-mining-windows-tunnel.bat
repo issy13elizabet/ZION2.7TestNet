@@ -16,6 +16,7 @@ set SSH_USER=root
 REM If you have a dedicated key, set SSH_KEY to its full path (without extension if using agent); autodetect will try common defaults.
 set SSH_KEY=
 set LOCAL_ZION_SSH=%LOCALAPPDATA%\Zion\ssh
+set TUNNEL_VISIBLE=0
 
 REM --- SSH key autodetect (ed25519, then rsa) ---
 if not defined SSH_KEY (
@@ -28,20 +29,31 @@ if not defined SSH_KEY (
 	if exist "%USERPROFILE%\.ssh\id_rsa" set SSH_KEY=%USERPROFILE%\.ssh\id_rsa
 )
 
+REM If no SSH key resolved, prepare to show visible window for password entry
+if not defined SSH_KEY (
+    set TUNNEL_VISIBLE=1
+)
+
 REM Build SSH options: prefer publickey, but allow password fallback for convenience
 set SSH_OPTS=-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o PreferredAuthentications=publickey,password -o PasswordAuthentication=yes -o KbdInteractiveAuthentication=yes
 if defined SSH_KEY (
 	if exist "%SSH_KEY%" (
 		set SSH_OPTS=%SSH_OPTS% -i "%SSH_KEY%"
+		set TUNNEL_VISIBLE=0
 	) else (
 		echo ⚠️ SSH key path set but not found: %SSH_KEY%
 		echo    Please verify the file exists or unset SSH_KEY to use autodetect.
+		set TUNNEL_VISIBLE=1
 	)
 )
 
 echo 🧵 Starting SSH tunnel %LOCAL_HOST%:%LOCAL_PORT% -> %POOL_HOST%:%POOL_PORT% ...
-REM Start SSH tunnel in a minimized separate window with non-interactive publickey auth only
-start "ZION Tunnel :%LOCAL_PORT%" /min cmd /c "ssh %SSH_OPTS% -L %LOCAL_HOST%:%LOCAL_PORT%:127.0.0.1:%POOL_PORT% %SSH_USER%@%POOL_HOST% -N"
+REM Start SSH tunnel: visible window if password entry may be needed, otherwise minimized
+if "%TUNNEL_VISIBLE%"=="1" (
+	start "ZION Tunnel :%LOCAL_PORT%" cmd /k "ssh %SSH_OPTS% -L %LOCAL_HOST%:%LOCAL_PORT%:127.0.0.1:%POOL_PORT% %SSH_USER%@%POOL_HOST% -N"
+) else (
+	start "ZION Tunnel :%LOCAL_PORT%" /min cmd /c "ssh %SSH_OPTS% -L %LOCAL_HOST%:%LOCAL_PORT%:127.0.0.1:%POOL_PORT% %SSH_USER%@%POOL_HOST% -N"
+)
 
 REM Give the tunnel a moment to initialize and verify it is running
 set TUNNEL_OK=0
