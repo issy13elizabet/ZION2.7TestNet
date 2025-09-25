@@ -1,4 +1,4 @@
-version: ""3.8""
+version: "3.8"
 
 services:
   zion-node:
@@ -10,9 +10,9 @@ services:
     restart: unless-stopped
     # Expose only P2P publicly by default. RPC is internal; publish via reverse proxy if needed.
     ports:
-      - ""18080:18080""  # P2P
-      # - ""18081:18081""  # RPC (disabled by default)
-      # - ""8070:8070""    # Wallet daemon (disabled by default)
+      - "18080:18080"  # P2P
+      # - "18081:18081"  # RPC (disabled by default)
+      # - "8070:8070"    # Wallet daemon (disabled by default)
     volumes:
       - zion_data:/home/zion/.zion
       - ./logs:/var/log/zion
@@ -20,16 +20,16 @@ services:
       - .env
     environment:
       - ZION_MODE=daemon
-      - ZION_LOG_LEVEL=
-      - ZION_RPC_BIND=
-      - ZION_RPC_CORS_ORIGINS=
-      - RPC_PORT=
-      - P2P_PORT=
+      - ZION_LOG_LEVEL=${ZION_LOG_LEVEL:-info}
+      - ZION_RPC_BIND=${ZION_RPC_BIND:-127.0.0.1}
+      - ZION_RPC_CORS_ORIGINS=${ZION_RPC_CORS_ORIGINS:-}
+      - RPC_PORT=${RPC_PORT:-18081}
+      - P2P_PORT=${P2P_PORT:-18080}
     logging:
-      driver: ""json-file""
+      driver: "json-file"
       options:
-        max-size: ""100m""
-        max-file: ""5""
+        max-size: "100m"
+        max-file: "5"
 
   # Pool server (optional - enable with --profile pool)
   zion-pool:
@@ -39,23 +39,23 @@ services:
     container_name: zion-pool
     restart: unless-stopped
     ports:
-      - ""3334:3333""    # Host 3334 -> container 3333 (stratum)
+      - "3334:3333"    # Host 3334 -> container 3333 (stratum)
     volumes:
       - ./logs:/var/log/zion
     env_file:
       - .env
     environment:
-      - POOL_PORT=
+      - POOL_PORT=${POOL_PORT:-3334}
       - POOL_BIND=0.0.0.0
     depends_on:
       - zion-node
     profiles:
       - pool
     logging:
-      driver: ""json-file""
+      driver: "json-file"
       options:
-        max-size: ""100m""
-        max-file: ""5""
+        max-size: "100m"
+        max-file: "5"
 
 volumes:
   zion_data:
