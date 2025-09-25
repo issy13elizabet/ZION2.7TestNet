@@ -23,6 +23,75 @@ ZION v2.5 TestNet představuje **kompletní blockchain ecosystem** s unifikovano
 8. [🌍 Community & Governance](#-community--governance)
 9. [🔮 Roadmap & Next Steps](#-roadmap--next-steps)
 10. [🤝 Contributing](#-contributing)
+11. [📚 Git Setup & Development](#-git-setup--development)
+
+---
+
+## 📚 **GIT SETUP & DEVELOPMENT**
+
+### 🛠️ Inicializace projektu
+
+Projekt je již nastaven s Git repozitářem:
+
+```bash
+# Projekt obsahuje kompletní Git historii
+git log --oneline
+
+# Kontrola stavu
+git status
+```
+
+### 🔗 Připojení k Remote Repository
+
+```bash
+# Přidání remote repozitáře (GitHub/GitLab/Bitbucket)
+git remote add origin <URL_VAŠEHO_REPOZITÁŘE>
+
+# Například pro GitHub:
+git remote add origin https://github.com/username/zion-project.git
+
+# Nebo pomocí SSH:
+git remote add origin git@github.com:username/zion-project.git
+
+# Push počátečního commitu
+git push -u origin master
+
+# Ověření remote připojení
+git remote -v
+```
+
+### 🌿 Branching Strategy
+
+```bash
+# Vytvoření feature branch
+git checkout -b feature/nova-funkcnost
+
+# Development workflow
+git add .
+git commit -m "feat: přidána nová funkcnost"
+git push origin feature/nova-funkcnost
+
+# Vytvoření release branch
+git checkout -b release/v2.6.0
+```
+
+### 📋 Commit Conventions
+
+```bash
+# Struktura commit zpráv:
+feat: nová funkcnost
+fix: oprava chyby  
+docs: aktualizace dokumentace
+style: code formatting
+refactor: refaktoring kódu
+test: přidání testů
+chore: build/tool changes
+
+# Příklady:
+git commit -m "feat(mining): přidána podpora pro Autolykos algoritmus"
+git commit -m "fix(pool): oprava connection timeout"
+git commit -m "docs(readme): aktualizace deployment guide"
+```
 
 ---
 
