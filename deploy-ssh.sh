@@ -84,9 +84,9 @@ ssh $SERVER_USER@$SERVER_IP << 'EOF'
     tar -xzf /tmp/zion-ssh-deploy.tar.gz
     chmod +x *.sh
     
-    # Clone repository (core is vendored, no submodule init needed)
-    echo "📥 Cloning ZION repository..."
-    git clone https://github.com/Yose144/Zion.git zion-repo
+    # Clone repository (v2.6 sanitized export; core is vendored, no submodule init needed)
+    echo "📥 Cloning ZION repository (v2.6)..."
+    git clone https://github.com/Maitreya-ZionNet/Zion-2.6-TestNet.git zion-repo
     cd zion-repo
     
     # Copy deployment files
@@ -96,6 +96,25 @@ ssh $SERVER_USER@$SERVER_IP << 'EOF'
     cp ../*.sh .
     chmod +x *.sh
     
+    # Ensure minimal .env exists (safe defaults)
+    if [ ! -f .env ]; then
+        cat > .env << ENV_EOF
+ZION_LOG_LEVEL=info
+ZION_RPC_BIND=127.0.0.1
+ZION_RPC_CORS_ORIGINS=
+RPC_PORT=18081
+P2P_PORT=18080
+POOL_PORT=3333
+POOL_DIFFICULTY=1000
+POOL_FEE=1
+# Optional payout addresses (fill real Z3 addresses later)
+POOL_ADDRESS=
+DEV_ADDRESS=
+CORE_DEV_ADDRESS=
+ENV_EOF
+        echo ".env created with minimal defaults"
+    fi
+
     # Deploy ZION
     echo "🚀 Deploying ZION services with mining pool..."
     docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
@@ -105,10 +124,10 @@ ssh $SERVER_USER@$SERVER_IP << 'EOF'
     echo "⏳ Waiting for services..."
     sleep 20
     
-    # Verify deployment
-    if curl -s http://localhost:18081/getinfo | grep -q '"status":"OK"'; then
+    # Verify deployment (RPC is internal-only; check from inside the container)
+    if docker exec zion-production sh -lc "apk add --no-cache curl >/dev/null 2>&1 || true; curl -s http://127.0.0.1:18081/getinfo | grep -q '\"status\":\"OK\"'"; then
         echo "✅ ZION deployment successful!"
-        echo "🌐 RPC: http://$(curl -s ifconfig.me):18081"
+        echo "🌐 RPC: internal (not exposed)"
         echo "🔗 P2P: Port 18080"
         echo "⛏️  Mining Pool: stratum+tcp://$(curl -s ifconfig.me):3333"
         echo ""
