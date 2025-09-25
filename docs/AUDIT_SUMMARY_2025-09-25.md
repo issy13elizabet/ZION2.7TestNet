@@ -19,5 +19,5 @@ Tento dokument sumarizuje audit, bezpečnostní úpravy a operace provedené př
 - Nasazení na 91.98.122.165: node OK, P2P 18080 OK; pool port 3333 kolize (řešit uvolněním portu či přemapováním, viz níže).
 
 ## Doporučení
-- Pool port: přemapovat na 3334 a upravit UFW pravidla, nebo uvolnit 3333.
+- Pool port: přemapováno na 3334 (host) -> 3333 (container). Upravena UFW pravidla.
 - Git LFS: přidat pro velké binární soubory (např. `*.mp4`).

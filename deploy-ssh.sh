@@ -65,7 +65,7 @@ ssh $SERVER_USER@$SERVER_IP << 'EOF'
     ufw allow 22/tcp comment 'SSH'
     ufw allow 18080/tcp comment 'ZION P2P'
     ufw allow 18081/tcp comment 'ZION RPC'
-    ufw allow 3333/tcp comment 'ZION Mining Pool'
+    ufw allow 3334/tcp comment 'ZION Mining Pool'
     ufw --force enable
     
     # Install Git
@@ -104,7 +104,7 @@ ZION_RPC_BIND=127.0.0.1
 ZION_RPC_CORS_ORIGINS=
 RPC_PORT=18081
 P2P_PORT=18080
-POOL_PORT=3333
+POOL_PORT=3334
 POOL_DIFFICULTY=1000
 POOL_FEE=1
 # Optional payout addresses (fill real Z3 addresses later)
@@ -141,14 +141,14 @@ ENV_EOF
         echo "✅ ZION deployment successful!"
         echo "🌐 RPC: internal (not exposed)"
         echo "🔗 P2P: Port 18080"
-        echo "⛏️  Mining Pool: stratum+tcp://$(curl -s ifconfig.me):3333"
+    echo "⛏️  Mining Pool: stratum+tcp://$(curl -s ifconfig.me):${POOL_PORT}"
         echo ""
         echo "📊 Pool Connection Test:"
-        echo "   nc -zv $(curl -s ifconfig.me) 3333"
+    echo "   nc -zv $(curl -s ifconfig.me) ${POOL_PORT}"
         echo ""
         echo "🔧 SSH Tunnel for Local Mining:"
-        echo "   ssh -L 3333:localhost:3333 root@$(curl -s ifconfig.me)"
-        echo "   Then mine to: stratum+tcp://localhost:3333"
+    echo "   ssh -L ${POOL_PORT}:localhost:${POOL_PORT} root@$(curl -s ifconfig.me)"
+    echo "   Then mine to: stratum+tcp://localhost:${POOL_PORT}"
         
         # Create systemd service
         cat > /etc/systemd/system/zion.service << SYSTEMD_EOF
@@ -194,11 +194,11 @@ echo ""
 echo "🌟 SSH Deployment Complete!"
 echo "=========================="
 echo "🌐 Server URL: http://$SERVER_IP:18081"
-echo "⛏️  Mining Pool: stratum+tcp://$SERVER_IP:3333"
+echo "⛏️  Mining Pool: stratum+tcp://$SERVER_IP:3334"
 echo ""
 echo "� Management Commands:"
 echo "�📊 Check status: ssh $SERVER_USER@$SERVER_IP 'docker ps'"
 echo "🔧 Monitor: ssh $SERVER_USER@$SERVER_IP 'cd /opt/zion/zion-repo && ./prod-monitor.sh monitor'"
-echo "🌉 SSH Tunnel: ssh -L 3333:localhost:3333 $SERVER_USER@$SERVER_IP"
+echo "🌉 SSH Tunnel: ssh -L 3334:localhost:3334 $SERVER_USER@$SERVER_IP"
 echo ""
-echo "💎 Happy Mining! Connect your miners to port 3333!"
+echo "💎 Happy Mining! Connect your miners to port 3334!"
