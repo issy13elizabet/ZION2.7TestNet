@@ -50,7 +50,7 @@ services:
     environment:
       - ZION_MODE=pool
       - ZION_LOG_LEVEL=${ZION_LOG_LEVEL:-info}
-      - POOL_PORT=${POOL_PORT:-3333}
+      - POOL_PORT=${POOL_PORT:-3334}
       - POOL_DIFFICULTY=${POOL_DIFFICULTY:-1000}
       - POOL_FEE=${POOL_FEE:-1}
       - ZION_RPC_BIND=${ZION_RPC_BIND:-127.0.0.1}
