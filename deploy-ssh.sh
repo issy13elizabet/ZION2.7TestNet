@@ -117,7 +117,9 @@ ENV_EOF
 
     # Deploy ZION
     echo "🚀 Deploying ZION services with mining pool..."
-    docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
+    # Clean up any previous containers with fixed names to avoid name conflicts
+    docker rm -f zion-pool zion-production >/dev/null 2>&1 || true
+    docker-compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
     docker-compose -f docker-compose.prod.yml --profile pool up -d
     
     # Wait for startup
@@ -125,7 +127,17 @@ ENV_EOF
     sleep 20
     
     # Verify deployment (RPC is internal-only; check from inside the container)
-    if docker exec zion-production sh -lc "apk add --no-cache curl >/dev/null 2>&1 || true; curl -s http://127.0.0.1:18081/getinfo | grep -q '\"status\":\"OK\"'"; then
+    echo "⏳ Waiting for RPC to become ready..."
+    tries=0
+    until docker exec zion-production sh -lc "(command -v curl >/dev/null 2>&1 || (which apk >/dev/null 2>&1 && apk add --no-cache curl >/dev/null 2>&1) || true) && curl -s http://127.0.0.1:18081/getinfo | grep -q '\"status\":\"OK\"'"; do
+        tries=$((tries+1))
+        if [ $tries -gt 30 ]; then
+            break
+        fi
+        sleep 3
+    done
+
+    if [ $tries -le 30 ]; then
         echo "✅ ZION deployment successful!"
         echo "🌐 RPC: internal (not exposed)"
         echo "🔗 P2P: Port 18080"
@@ -165,7 +177,10 @@ SYSTEMD_EOF
         
     else
         echo "❌ Deployment verification failed"
-        docker-compose -f docker-compose.prod.yml logs
+        echo "📋 docker ps:" && docker ps -a
+        echo "\n📋 docker-compose ps:" && docker-compose -f docker-compose.prod.yml ps
+        echo "\n📋 Last 100 lines of zion-production logs:" && docker logs --tail=100 zion-production 2>/dev/null || true
+        echo "\n📋 Last 100 lines of zion-pool logs:" && docker logs --tail=100 zion-pool 2>/dev/null || true
     fi
     
     # Cleanup
