@@ -1,16 +1,16 @@
 @echo off
 REM ZION Mining Startup Script with SSH Tunnel - Windows
-REM Opens a local SSH tunnel 127.0.0.1:3333 -> 91.98.122.165:3333 and starts XMRig against the tunnel
+REM Opens a local SSH tunnel 127.0.0.1:3334 -> 91.98.122.165:3334 and starts XMRig against the tunnel
 
 setlocal ENABLEDELAYEDEXPANSION
 
 set POOL_HOST=91.98.122.165
-set POOL_PORT=3333
+set POOL_PORT=3334
 set LOCAL_HOST=127.0.0.1
-set LOCAL_PORT=3333
+set LOCAL_PORT=3334
 set WALLET=ajmqontZjiVUmtNjQu1RNUYq1RZgd5EDodX3qgjcaTMoMzG8EkG4bVPgLhEgudBoH82fQU1iZVw6XPfddKWAHDdA3x92ToH4uo
 set RIG=MAITREYA-Ryzen-1
-set LOGFILE=xmrig-3333-tunnel.log
+set LOGFILE=xmrig-3334-tunnel.log
 set THREADS=10
 set SSH_USER=root
 REM If you have a dedicated key, set SSH_KEY to its full path (without extension if using agent); autodetect will try common defaults.
@@ -28,8 +28,8 @@ if not defined SSH_KEY (
 	if exist "%USERPROFILE%\.ssh\id_rsa" set SSH_KEY=%USERPROFILE%\.ssh\id_rsa
 )
 
-REM Build SSH options: enforce publickey-only and non-interactive to avoid password prompts
-set SSH_OPTS=-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o BatchMode=yes
+REM Build SSH options: prefer publickey, but allow password fallback for convenience
+set SSH_OPTS=-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o PreferredAuthentications=publickey,password -o PasswordAuthentication=yes -o KbdInteractiveAuthentication=yes
 if defined SSH_KEY (
 	if exist "%SSH_KEY%" (
 		set SSH_OPTS=%SSH_OPTS% -i "%SSH_KEY%"
