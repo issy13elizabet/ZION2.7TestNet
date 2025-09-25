@@ -92,3 +92,53 @@ Number of platforms: 3
 
 ---
 **Poznámka**: CPU mining běží a těží. Po restartu by mělo GPU mining také fungovat.
+
+## 🔄 25. září 2025 – Čistá reinstallace AMD OpenCL a příprava na restart
+
+Po diskusi jsme zvolili cestu čistého prostředí s originálním AMD OpenCL a bez překryvů Mesa/rusticl. Provedené kroky:
+
+### 1) Zastavení minerů a audit stavu
+- Zastaveny běžící procesy `SRBMiner-MULTI` a `xmrig`.
+- Ověřeny skupiny uživatele: přidán do `video, render` (aplikuje se po relogu/restartu).
+- Zkontrolovány ICD soubory v `/etc/OpenCL/vendors`.
+
+### 2) Odstranění konfliktů (Mesa/ROCm/DKMS)
+- Odinstalovány balíky: `amdgpu-dkms*`, `mesa-opencl-icd`, `rocm-opencl*`, `rocm-core`, `hsa-rocr`, `comgr`, `ocl-icd-opencl-dev`, `opencl-headers*` atd.
+- `autoremove` odstranil nadbytečné závislosti.
+
+### 3) Instalace AMD OpenCL userland (bez DKMS)
+- Pokus o `--opencl=pal` bez DKMS nebyl podporován na této kombinaci; nainstalován ROCm OpenCL userland z AMD repozitáře:
+  - `amdgpu-core`, `rocm-core`, `rocm-opencl`, `rocm-opencl-runtime`, `rocm-opencl-icd-loader`, `hsa-rocr`, `comgr` atd.
+- Deaktivovány ne-AMD ICD: `mesa.icd`, `rusticl.icd` byly odstraněny/zakázány.
+- Aktuální stav vendors: pouze `amdocl64_60204_139.icd` s obsahem `libamdocl64.so`.
+
+### 4) clinfo před restartem (očekávané)
+```
+Platformy: 1 (AMD Accelerated Parallel Processing)
+Zařízení: 0 (očekávané před restartem)
+ICD loader: Khronos 3.0.6
+```
+
+### 5) Další plán
+- Restart systému, poté:
+  1. `clinfo` – očekáváme GPU pod AMD APP
+  2. `./SRBMiner-MULTI --list-devices` – detekce RX 5600 XT
+  3. Spuštění KawPow: `--algorithm kawpow --pool 91.98.122.165:3334 --wallet <addr> --disable-cpu`
+
+Pozn.: Mesa/rusticl ICD jsme záměrně deaktivovali, aby SRBMiner používal AMD ICD.
+
+---
+## 🟦 25. září 2025 – Test na Windows 11 a další kroky
+
+- Proveden test CPU mineru (XMRig) na Ubuntu: miner se spustí, ale neudrží spojení s pool serverem (91.98.122.165:3333), přestože port je otevřený a pool odpovídá na Stratum JSON-RPC login.
+- Ověřeno, že problém není v síti ani v poolu (ruční login funguje, port otevřený).
+- Pravděpodobná příčina: problém v build/kompatibilitě XMRig na Ubuntu 25.04 nebo v interakci s knihovnami (libuv, OpenSSL, hwloc).
+- Další krok: Otestovat mining na Windows 11 (W11) – pokud tam XMRig funguje, problém je čistě linuxový/kompatibilitní.
+- Po testu na W11 logovat výsledek a pushnout tento log na git.
+
+### TODO po W11 testu:
+- [ ] Pokud mining na W11 funguje, otevřít issue pro Ubuntu build/debug.
+- [ ] Pokud nefunguje ani na W11, zkontrolovat pool server a jeho logy.
+
+---
+_Log aktualizován: 25. září 2025_
