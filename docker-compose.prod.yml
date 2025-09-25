@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  zion-node:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-cryptonote.minimal
+    image: zion:production-fixed
+    container_name: zion-production
+    restart: unless-stopped
+    # Expose only P2P publicly by default. RPC is internal; publish via reverse proxy if needed.
+    ports:
+      - "18080:18080"  # P2P
+      # - "18081:18081"  # RPC (disabled by default)
+      # - "8070:8070"    # Wallet daemon (disabled by default)
+    volumes:
+      - zion_data:/home/zion/.zion
+      - ./logs:/var/log/zion
+    env_file:
+      - .env
+    environment:
+      - ZION_MODE=daemon
+      - ZION_LOG_LEVEL=${ZION_LOG_LEVEL:-info}
+      - ZION_RPC_BIND=${ZION_RPC_BIND:-127.0.0.1}
+      - ZION_RPC_CORS_ORIGINS=${ZION_RPC_CORS_ORIGINS:-}
+      - RPC_PORT=${RPC_PORT:-18081}
+      - P2P_PORT=${P2P_PORT:-18080}
+    # Use container entrypoint; avoid overriding with command to preserve security flags
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # Pool server (optional - enable with --profile pool)
+  zion-pool:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-cryptonote.prod
+    image: zion:production-fixed
+    container_name: zion-pool
+    restart: unless-stopped
+    ports:
+      - "3333:3333"    # Stratum pool
+    volumes:
+      - zion_pool_data:/home/zion/.zion
+      - ./logs:/var/log/zion
+    env_file:
+      - .env
+    environment:
+      - ZION_MODE=pool
+      - ZION_LOG_LEVEL=${ZION_LOG_LEVEL:-info}
+      - POOL_PORT=${POOL_PORT:-3333}
+      - POOL_DIFFICULTY=${POOL_DIFFICULTY:-1000}
+      - POOL_FEE=${POOL_FEE:-1}
+      - ZION_RPC_BIND=${ZION_RPC_BIND:-127.0.0.1}
+      - ZION_RPC_CORS_ORIGINS=${ZION_RPC_CORS_ORIGINS:-}
+      - RPC_PORT=${RPC_PORT:-18081}
+      - P2P_PORT=${P2P_PORT:-18080}
+    depends_on:
+      - zion-node
+    profiles:
+      - pool
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+volumes:
+  zion_data:
+    driver: local
+  zion_pool_data:
+    driver: local
+
+networks:
+  default:
+    external: true
+    name: zion-seeds

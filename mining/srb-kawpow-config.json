@@ -1,0 +1,21 @@
+{
+    "description": "SRBMiner-Multi KawPow Configuration for AMD RX 5600 XT",
+    "pools": [
+        {
+            "pool": "91.98.122.165:3334",
+            "wallet": "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1",
+            "password": "miner-ryzen-gpu-kawpow"
+        }
+    ],
+    "algorithm": "kawpow",
+    "gpu_id": "0",
+    "gpu_intensity": 23,
+    "gpu_worksize": 256,
+    "gpu_threads": 18,
+    "gpu_boost": 100,
+    "disable_cpu": true,
+    "api_enable": true,
+    "api_port": 21555,
+    "retry_time": 10,
+    "gpu_adl_type": 1
+}

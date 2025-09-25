@@ -1,0 +1,31 @@
+{
+    "autosave": true,
+    "cpu": {"enabled": false},
+    "opencl": {
+        "enabled": true,
+        "platform": "AMD",
+        "adl": true
+    },
+    "pools": [
+        {
+            "algo": "octopus",
+            "coin": "CFX",
+            "url": "localhost:3337",
+            "user": "ZION-GPU-OCTOPUS-RX5600XT",
+            "pass": "multi-algo-octopus",
+            "enabled": true
+        }
+    ],
+    "print-time": 20,
+    "log-file": "zion-octopus-mining.log",
+    "opencl-threads": {
+        "octopus": [
+            {
+                "index": 0,
+                "intensity": 2097152,
+                "worksize": 256,
+                "threads": [-1, -1]
+            }
+        ]
+    }
+}

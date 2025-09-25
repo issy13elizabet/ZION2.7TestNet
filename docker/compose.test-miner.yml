@@ -1,0 +1,20 @@
+version: "3.8"
+
+networks:
+  zion-seeds:
+    external: true
+    name: zion-seeds
+
+services:
+  xmrig-test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.xmrig
+    image: zion:xmrig
+    container_name: zion-xmrig-test
+    restart: unless-stopped
+    command: ["-c","/config/xmrig.config.json"]
+    volumes:
+      - ./xmrig.config.json:/config/xmrig.config.json:ro
+    networks:
+      - zion-seeds

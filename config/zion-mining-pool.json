@@ -1,0 +1,42 @@
+{
+    "zion-mining-pool": {
+        "pool_wallet": "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1",
+        "pool_fee": 2.5,
+        "min_payout": 0.1,
+        "network": "zion-mainnet-v2",
+        "blockchain_rpc": {
+            "host": "localhost",
+            "port": 18080,
+            "username": "zion-pool",
+            "password": "secure-rpc-password-2025"
+        },
+        "stratum_ports": {
+            "randomx": 3333,
+            "kawpow": 3334, 
+            "ethash": 3335,
+            "cryptonight": 3336,
+            "octopus": 3337,
+            "ergo": 3338
+        },
+        "difficulty_targets": {
+            "randomx": 100000,
+            "kawpow": 50000000,
+            "ethash": 4000000000,
+            "cryptonight": 1000000,
+            "octopus": 800000000,
+            "ergo": 1500000000
+        },
+        "block_rewards": {
+            "randomx": 2.5,
+            "kawpow": 2.5,
+            "ethash": 2.5,
+            "cryptonight": 2.5,
+            "octopus": 2.5,
+            "ergo": 2.5
+        },
+        "payout_addresses": {
+            "pool_operator": "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1",
+            "dev_fund": "Z3B1A6AEA813825404D8FFA19821EE6CF2BBB8C3ECF38E8CD27DBE81E7144338932B0F8D7F62D752C3BAB727DADB"
+        }
+    }
+}

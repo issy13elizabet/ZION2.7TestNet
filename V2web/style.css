@@ -1,0 +1,642 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
+
+/* Základní nastavení */
+* {
+  color: azure;
+  text-align: center;
+  background-color: black;
+  padding: 0;
+  margin: 0;
+  font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+img {
+  width: 90%;
+  margin: 0 auto;
+  display: block;
+  border-radius: 10px;
+}
+
+body {
+  height: 1000vh;
+}
+
+#header {
+  position: fixed;
+      top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+      /* pozadí headeru aby obsah nebyl viditelně přes průhledný pruh (upravte barvu dle potřeby) */
+      #header .container {
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(4px);
+      }
+
+
+header {
+  transition: 0.6s ease-in-out;
+  background-color: #060606;
+  position: none;
+  top: 5;
+  width: 100%;
+  z-index: 2;
+}
+
+a {
+  color: #acacac;
+  text-decoration: none;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 70%;
+  margin: 0 auto;
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/*.img-container {
+  border-radius: 10px;
+}
+*/
+
+.subcontainer {
+  width: 75%;
+  margin: auto;
+}
+
+.navbar-container {
+  min-height: 70px;
+  display: flex;
+}
+
+.navbar-left {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 50px;
+}
+
+.navbar-left span {
+  color: green;
+  font-weight: bold;
+}
+
+.nav-branding-1,
+.nav-branding-2 {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.nav-branding-2 {
+  opacity: 0;
+  display: none;
+  padding: 15px 0;
+  width: 100%;
+  border-bottom: 1px solid rgba(211, 211, 211, 0.2);
+}
+
+.nav-menu {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 40px;
+}
+
+.nav-link {
+  width: 100%;
+  transition: 0.3s;
+  padding: 20px 0;
+}
+
+.nav-link:hover {
+  color: green;
+}
+
+.login-link {
+  display: none;
+}
+
+.hamburger {
+  display: none;
+  cursor: pointer;
+}
+
+.bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.navbar-right {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-right button {
+  padding: 10px;
+  border-radius: 15px;
+  width: 100px;
+  color: white;
+  border: none;
+  font-weight: bold;
+  font-family: inherit;
+  display: block;
+  background-image: linear-gradient(90deg, #6549d5, #e33fa1, #fb5343);
+}
+
+@media (max-width: 1600px) {
+  .container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 868px) {
+  .hamburger {
+    display: block;
+  }
+
+  .hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .hamburger.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .nav-menu {
+    position: fixed;
+    width: 300px;
+    left: -340px;
+    top: 0;
+    min-height: 100vh;
+    padding: 0 20px;
+    flex-direction: column;
+    gap: 0;
+    transition: 0.3s;
+    background-color: #060606;
+    z-index: 10;
+  }
+
+  .nav-branding-2.active {
+    opacity: 1;
+    display: block;
+  }
+
+  .nav-link {
+    padding: 15px 0;
+  }
+
+  .login-link {
+    display: block;
+  }
+
+  .navbar-right button {
+    display: none;
+  }
+
+  .nav-menu.active {
+    left: 0;
+  }
+
+  .showcase-header {
+    width: 100%;
+    margin: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-menu {
+    width: 200px;
+    left: -240px;
+  }
+}
+
+.container-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+p {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+footer {
+  color: #fff;
+  padding: 5px;
+  text-align: center;
+  border-radius: 15px;
+  margin: 0 auto;
+}
+
+footer#siteFooter {
+  position: relative;
+  z-index: 10;
+}
+
+/* overlay má vysoký z-index pouze pokud je zobrazený */
+#videoOverlay[style*="display: flex"] { z-index: 9999; }
+
+/* ...existing code... */
+
+.footer-content {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  width: 35%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.social-icons img {
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  padding: 5px;
+}
+
+.footer-bottom {
+  margin-top: 15px;
+}
+
+
+/* Rotate */
+
+.image1 {
+  position: none;
+  top: 50%;
+  left: 0;
+  transform: rotate(0deg);
+  transition: transform 3s;
+}
+
+.image2 {
+  position: none;
+  top: 50%;
+  right: 0;
+  transform: rotate(0deg);
+  transition: transform 3s;
+}
+
+.image1:hover {
+  transform: rotate(360deg);
+}
+
+.image2:hover {
+  transform: rotate(-360deg);
+}
+
+.zoom {
+  transition: transform 0.5s ease; /* Přechod pro efekt zvětšení */
+}
+
+.zoom:hover {
+  transform: scale(1.1); /* Zvětšení na 110% */
+}
+
+.image-link {
+  display: inline-block; /* Umožňuje aplikaci efektu na odkaz */
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #111;
+  color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #00059c;
+  outline: none;
+}
+
+/* Vylepšení tlačítka */
+button {
+  display: inline-block;
+  width: auto;
+  min-width: 150px;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #6549d5, #e33fa1);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: transform 0.3s ease, opacity 0.3s;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #7659e5, #f34fb1);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Oprava chybových zpráv */
+.error {
+  color: #ff4444;
+  font-size: 0.9em;
+  margin-top: 5px;
+  background-color: transparent;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+table {
+  width: 80%;
+  border-collapse: collapse;
+  border-radius: 10px; /* Kulaté rohy tabulky */
+  overflow: hidden; /* Skryje přetékající obsah */
+}
+
+th, td {
+  border: 0.1px solid;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #00059c;
+}
+
+/* Responsivní design */
+@media (max-width: 600px) {
+  table {
+    width: 100%; /* Tabulka zabere 100% šířky obrazovky */
+    display: block; /* Umožní posouvání tabulky na menších obrazovkách */
+    overflow-x: auto; /* Přidá horizontální posuvník */
+  }
+
+  th, td {
+    padding: 10px; /* Upraví padding pro menší obrazovky */
+    display: block; /* Každá buňka se chová jako blokový prvek */
+    text-align: left; /* Zarovná text vlevo pro lepší čitelnost */
+  }
+
+  th {
+    background-color: #00059c; /* Zachování barvy pozadí pro hlavičky */
+  }
+
+  /* Skrytí původních borderů na menších obrazovkách */
+  th, td {
+    border: none;
+  }
+}
+
+/* Responsivní úpravy */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.quote-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+/* Styly citátů - společné vlastnosti */
+[class*="-quote"] {
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    margin: 15px 0;
+    position: relative;
+    font-family: 'Georgia', serif;
+    padding: 20px;
+}
+
+/* Citáty Ježíše */
+.jesus-quote {
+    border-left: 4px solid #4a90e2;
+    background: linear-gradient(to right, rgba(74,144,226,0.1), transparent);
+    color: #e0e0e0;
+}
+
+/* Citáty o království */
+.kingdom-quote {
+    border-left: 4px solid goldenrod;
+    background: linear-gradient(to right, rgba(218,165,32,0.1), transparent);
+    font-style: italic;
+}
+
+/* Citáty Gándhího */
+.gandhi-quote {
+    border-left: 4px solid #ff9933;
+    background: linear-gradient(to right, rgba(255,153,51,0.1), transparent);
+}
+
+/* Citáty Buddhy */
+.buddha-quote {
+    border-left: 4px solid #ffd700;
+    background: linear-gradient(to right, rgba(255,215,0,0.1), transparent);
+}
+
+.buddha-quote::before {
+    content: '☸';
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 24px;
+    opacity: 0.2;
+    color: #ffd700;
+}
+
+/* Citáty Krišny */
+.krishna-quote {
+    border-left: 4px solid #0066cc;
+    background: linear-gradient(to right, rgba(0,102,204,0.1), transparent);
+}
+
+.krishna-quote::before {
+    content: '☮';
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 24px;
+    opacity: 0.2;
+    color: #0066cc;
+}
+
+/* Rámování citátů */
+.frame-quote {
+    border: 2px solid #c0c0c0;
+    border-radius: 10px;
+    padding: 25px;
+    margin: 30px 0;
+    background: linear-gradient(145deg, rgba(192,192,192,0.05) 0%, rgba(0,0,0,0) 100%);
+    box-shadow: 0 0 15px rgba(192,192,192,0.1);
+}
+
+/* Efekty při najetí myší */
+[class*="-quote"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.frame-quote:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(192,192,192,0.2);
+    border-color: #d4d4d4;
+}
+
+/* Responsivní design */
+@media (max-width: 768px) {
+    [class*="-quote"] {
+        margin: 10px 0;
+        padding: 15px;
+    }
+    
+    .frame-quote {
+        padding: 20px;
+        margin: 20px 0;
+    }
+}
+
+/* Efekt při najetí myší */
+[class*="-quote"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* Společné styly pro všechny citáty */
+[class*="-quote"] {
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    margin: 15px 0;
+    position: relative;
+}
+
+[class*="-quote"]::before {
+    content: '"';
+    font-size: 3em;
+    opacity: 0.1;
+    position: absolute;
+    left: 10px;
+    top: -10px;
+}
+
+.frame-quote {
+    border: 2px solid #c0c0c0;  /* Stříbrná - symbolizuje čistotu */
+    border-radius: 10px;
+    padding: 25px;
+    margin: 30px 0;
+    position: relative;
+    background: linear-gradient(145deg, rgba(192,192,192,0.05) 0%, rgba(0,0,0,0) 100%);
+    box-shadow: 0 0 15px rgba(192,192,192,0.1);
+}
+
+.frame-quote::before,
+.frame-quote::after {
+    content: '❦';  /* Ozdobný symbol */
+    position: absolute;
+    font-size: 20px;
+    color: #c0c0c0;
+}
+
+.frame-quote::before {
+    top: -10px;
+    left: 20px;
+    transform: rotate(180deg);
+}
+
+.frame-quote::after {
+    bottom: -10px;
+    right: 20px;
+}
+
+.frame-quote:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(192,192,192,0.2);
+    border-color: #d4d4d4;
+}
+
+/* Přidání ozdobných rohů */
+.frame-quote-corners::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-top: 2px solid #c0c0c0;
+    border-left: 2px solid #c0c0c0;
+}
+
+.frame-quote-corners::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    border-bottom: 2px solid #c0c0c0;
+    border-right: 2px solid #c0c0c0;
+}

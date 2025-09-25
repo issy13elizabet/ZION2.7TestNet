@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  zion-node:
+    build:  # umožní spustit i bez předchozího build skriptu; skript ale použije explicitní build pro lepší kontrolu
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: zion:node-latest
+    container_name: zion-node
+    restart: unless-stopped
+    ports:
+      - "18080:18080"   # P2P
+      - "18081:18081"   # RPC
+    volumes:
+      - ./node/config:/zion/config:ro
+      - ./node/data:/zion/data
+      - ./node/logs:/zion/logs
+    command: ["--config=/zion/config/zion.conf", "--datadir=/zion/data"]

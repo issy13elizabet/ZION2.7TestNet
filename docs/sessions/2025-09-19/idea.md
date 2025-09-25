@@ -1,0 +1,3 @@
+prosimte jeste jenom zapis do logu , budouci plany na rozsireni blockachainu, solana, stellar, tron, carnado ... stvoreni dApp, nas web je www.newearth.cz, prozkoumej stranky, projekt v portugalsku i blog, cele jako koncept pomoci vytvorit novy raj s ekosystemem na bazy projektu Venus, hlavni myslenkou je Dalajlamuv , Alturuismus, pomoc bliznimu svemu a vytvorit hojnost pro vsechny
+
+prosimte vsechno zase logni, pushni, uklid po sobe cash,pamet,disky ... tohle automaticky pro priste, prosim pokud to nejde jinak neuploaduj, mam pomalej up 0.5 mb/s ... do logu napis poznamku , ze stargate 3333 stale nejni open a ready 

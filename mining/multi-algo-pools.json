@@ -1,0 +1,107 @@
+{
+    "multi-algo-config": {
+        "enabled": true,
+        "switching-interval": 300,
+        "profitability-check": true,
+        "algorithms": {
+            "randomx": {
+                "enabled": true,
+                "priority": 1,
+                "pool": "localhost:3333",
+                "intensity": 256,
+                "expected_hashrate": "1200 H/s"
+            },
+            "kawpow": {
+                "enabled": true, 
+                "priority": 2,
+                "pool": "localhost:3334",
+                "intensity": 4718592,
+                "expected_hashrate": "8.5 MH/s"
+            },
+            "octopus": {
+                "enabled": true,
+                "priority": 3,
+                "pool": "localhost:3337",
+                "intensity": 2097152,
+                "expected_hashrate": "45 MH/s"
+            },
+            "ergo": {
+                "enabled": true,
+                "priority": 4,
+                "pool": "localhost:3338", 
+                "intensity": 1048576,
+                "expected_hashrate": "85 MH/s"
+            },
+            "ethash": {
+                "enabled": true,
+                "priority": 5, 
+                "pool": "localhost:3335",
+                "intensity": 1024,
+                "expected_hashrate": "22 MH/s"
+            },
+            "cryptonight": {
+                "enabled": true,
+                "priority": 6,
+                "pool": "localhost:3336", 
+                "intensity": 864,
+                "expected_hashrate": "950 H/s"
+            }
+        }
+    },
+    "pools": [
+        {
+            "name": "ZION-RandomX",
+            "algo": "rx/0",
+            "coin": "ZION",
+            "url": "localhost:3333",
+            "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "pass": "miner-ryzen-gpu-randomx",
+            "enabled": true
+        },
+        {
+            "name": "ZION-KawPow", 
+            "algo": "kawpow",
+            "coin": "ZION",
+            "url": "localhost:3334",
+            "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "pass": "miner-ryzen-gpu-kawpow",
+            "enabled": true
+        },
+        {
+            "name": "ZION-Octopus",
+            "algo": "octopus", 
+            "coin": "ZION",
+            "url": "localhost:3337",
+            "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "pass": "miner-ryzen-gpu-octopus",
+            "enabled": true
+        },
+        {
+            "name": "ZION-Ergo",
+            "algo": "autolykos2",
+            "coin": "ZION", 
+            "url": "localhost:3338",
+            "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "pass": "miner-ryzen-gpu-ergo",
+            "enabled": true
+        },
+        {
+            "name": "ZION-Ethash",
+            "algo": "ethash", 
+            "coin": "ZION",
+            "url": "localhost:3335",
+            "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "pass": "miner-ryzen-gpu-ethash",
+            "enabled": true
+        },
+        {
+            "name": "ZION-CryptoNight",
+            "algo": "cn/2",
+            "coin": "ZION",
+            "url": "localhost:3336", 
+            "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "pass": "miner-ryzen-gpu-cryptonight",
+            "enabled": true
+        }
+    ]
+}

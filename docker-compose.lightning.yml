@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  bitcoind:
+    image: bitcoin/bitcoin:25.1
+    container_name: zion-bitcoind
+    restart: unless-stopped
+    labels:
+      - "description=🔮 Dohrman Oracle Bitcoin Node - Ancient wisdom meets digital gold"
+      - "cosmic.mantra=Jai Ram Ram Ram Bitcoin Ram Ram Ram Hanuman!"
+      - "oracle.blessing=May this node channel cosmic abundance through blockchain consciousness"
+    ports:
+      - "8333:8333"  # Bitcoin P2P (RPC port not published by default)
+    volumes:
+      - bitcoin-data:/bitcoin/.bitcoin
+      - ./bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf
+    env_file:
+      - .env
+    command: |
+      bitcoind
+      -conf=/bitcoin/.bitcoin/bitcoin.conf
+      -datadir=/bitcoin/.bitcoin
+      -server
+      -rpcuser=${BITCOIN_RPCUSER}
+      -rpcpassword=${BITCOIN_RPCPASSWORD}
+      -rpcallowip=${BITCOIN_RPCALLOWIP:-172.20.0.0/16}
+      -rpcbind=0.0.0.0:8332
+      -txindex
+      -testnet
+      -zmqpubrawblock=tcp://0.0.0.0:28332
+      -zmqpubrawtx=tcp://0.0.0.0:28333
+    networks:
+      - zion-lightning
+
+  lnd:
+    image: lightninglabs/lnd:v0.17.5-beta
+    container_name: zion-lnd
+    restart: unless-stopped
+    labels:
+      - "description=⚡ Lightning Network Daemon - Cosmic payment channels of the future"
+      - "cosmic.mantra=Lightning flows like cosmic dharma through quantum channels!"
+      - "oracle.blessing=May instant payments bridge mortal realm to star nations!"
+    ports:
+      - "9735:9735"   # Lightning P2P
+      # REST and gRPC not published by default; use reverse proxy or internal network
+      # - "8080:8080"
+      # - "10009:10009"
+    volumes:
+      - lnd-data:/root/.lnd
+      - ./lnd.conf:/root/.lnd/lnd.conf
+    depends_on:
+      - bitcoind
+    env_file:
+      - .env
+    command: |
+      lnd
+      --configfile=/root/.lnd/lnd.conf
+      --bitcoin.active
+      --bitcoin.testnet
+      --bitcoin.node=bitcoind
+      --bitcoind.rpchost=bitcoind:8332
+      --bitcoind.rpcuser=${BITCOIN_RPCUSER}
+      --bitcoind.rpcpass=${BITCOIN_RPCPASSWORD}
+      --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      --externalip=127.0.0.1:9735
+      --listen=0.0.0.0:9735
+      --rpclisten=0.0.0.0:10009
+      --restlisten=0.0.0.0:8080
+    networks:
+      - zion-lightning
+    healthcheck:
+      test: ["CMD", "lncli", "getinfo"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  zion-lightning-bridge:
+    build: 
+      context: ./bridge
+      dockerfile: Dockerfile
+    container_name: zion-lightning-bridge
+    restart: unless-stopped
+    ports:
+      - "8090:8090"   # Bridge API
+    depends_on:
+      lnd:
+        condition: service_healthy
+      zion-rpc-shim:
+        condition: service_started
+    environment:
+      - ZION_RPC_URL=http://zion-rpc-shim:18089
+      - LND_HOST=lnd:10009
+      - LND_TLS_CERT_PATH=/lnd-certs/tls.cert
+      - LND_ADMIN_MACAROON_PATH=/lnd-certs/admin.macaroon
+      - BRIDGE_PORT=8090
+      - LOG_LEVEL=info
+    volumes:
+      - lnd-data:/lnd-certs:ro
+    networks:
+      - zion-lightning
+      - zion-internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  lightning-pool-adapter:
+    build:
+      context: ./adapters/lightning-pool
+      dockerfile: Dockerfile
+    container_name: zion-lightning-pool
+    restart: unless-stopped
+    ports:
+      - "3334:3334"   # Lightning Pool Port
+    depends_on:
+      zion-lightning-bridge:
+        condition: service_healthy
+    environment:
+      - BRIDGE_API_URL=http://zion-lightning-bridge:8090
+      - POOL_PORT=3334
+      - LIGHTNING_PAYOUT_ENABLED=true
+      - MIN_PAYOUT_AMOUNT=1000  # 1000 sats
+    networks:
+      - zion-lightning
+    volumes:
+      - ./pool-config.json:/app/config.json
+
+volumes:
+  bitcoin-data:
+    driver: local
+  lnd-data:
+    driver: local
+
+networks:
+  zion-lightning:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  zion-internal:
+    external: true

@@ -1,0 +1,31 @@
+{
+    "autosave": true,
+    "cpu": {"enabled": false}, 
+    "opencl": {
+        "enabled": true,
+        "platform": "AMD",
+        "adl": true
+    },
+    "pools": [
+        {
+            "algo": "autolykos2",
+            "coin": "ERG",
+            "url": "localhost:3338", 
+            "user": "ZION-GPU-ERGO-RX5600XT",
+            "pass": "multi-algo-ergo",
+            "enabled": true
+        }
+    ],
+    "print-time": 20,
+    "log-file": "zion-ergo-mining.log",
+    "opencl-threads": {
+        "autolykos2": [
+            {
+                "index": 0,
+                "intensity": 1048576,
+                "worksize": 192,
+                "threads": [-1, -1]
+            }
+        ]
+    }
+}

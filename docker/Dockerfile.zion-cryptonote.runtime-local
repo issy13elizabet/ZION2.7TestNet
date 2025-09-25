@@ -1,0 +1,40 @@
+# Runtime-only image using locally built binaries to avoid heavy compilation
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN echo 'Acquire::CompressionTypes::Order { "gz"; };' > /etc/apt/apt.conf.d/99use-gzip && \
+    (apt-get update || (sleep 3 && apt-get update)) && \
+    apt-get install -y --no-install-recommends \
+        libboost-system1.74.0 \
+        libboost-filesystem1.74.0 \
+        libboost-thread1.74.0 \
+        libboost-date-time1.74.0 \
+        libboost-chrono1.74.0 \
+        libboost-regex1.74.0 \
+        libboost-serialization1.74.0 \
+        libboost-program-options1.74.0 \
+        libssl3 \
+        libminiupnpc17 \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user and dirs
+RUN useradd -m -u 1000 zion && \
+    mkdir -p /data /config && \
+    chown -R zion:zion /data /config
+
+# Copy prebuilt binaries from local workspace build output
+COPY build/ziond /usr/local/bin/ziond
+COPY build/zion_wallet /usr/local/bin/zion_wallet
+COPY build/zion_walletd /usr/local/bin/zion_walletd
+
+USER zion
+WORKDIR /data
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:18081/getinfo || exit 1
+
+EXPOSE 18080 18081
+
+CMD ["ziond", "--config-file=/config/zion.conf", "--data-dir=/data"]

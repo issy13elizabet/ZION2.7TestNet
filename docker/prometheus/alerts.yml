@@ -1,0 +1,29 @@
+groups:
+  - name: zion
+    rules:
+      - alert: ZionHeightStall
+        expr: time() - (zion_shim_last_height > 0) * time() > 0 and ( (time() - (timestamp(zion_shim_last_height) * 0 + time())) > 0 )
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Zion height appears stalled"
+          description: "Height not advancing for > 10m"
+
+      - alert: ZionSubmitErrorsHigh
+        expr: rate(zion_shim_submit_error_total[10m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High submit error rate"
+          description: "submitblock errors > 0.1/s over 10m"
+
+      - alert: AdapterErrorsHigh
+        expr: rate(zion_adapter_requests_total[5m]) > 0 and absent(zion_adapter_route_requests_total)
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Adapter anomaly"
+          description: "Adapter receiving requests but missing route metrics"

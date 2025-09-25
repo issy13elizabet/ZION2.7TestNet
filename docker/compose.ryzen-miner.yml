@@ -1,0 +1,21 @@
+version: "3.8"
+
+networks:
+  zion-seeds:
+    external: true
+    name: zion-seeds
+
+services:
+  xmrig-ryzen:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.xmrig
+    image: zion:xmrig
+    container_name: zion-xmrig-ryzen
+    restart: unless-stopped
+    # Použijeme vlastní Ryzen config a explicitní long-form parametr
+    command: ["--config=/config/xmrig.config.json"]
+    volumes:
+      - ./xmrig.ryzen.json:/config/xmrig.config.json:ro
+    networks:
+      - zion-seeds

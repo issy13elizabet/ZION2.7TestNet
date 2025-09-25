@@ -1,0 +1,21 @@
+{
+    "description": "SRBMiner-Multi Octopus Configuration for AMD RX 5600 XT", 
+    "pools": [
+        {
+            "pool": "localhost:3337",
+            "wallet": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+            "password": "miner-ryzen-gpu-octopus"
+        }
+    ],
+    "algorithm": "octopus",
+    "gpu_id": "0",
+    "gpu_intensity": 21,
+    "gpu_worksize": 256,
+    "gpu_threads": 18,
+    "gpu_boost": 100,
+    "disable_cpu": true,
+    "api_enable": true,
+    "api_port": 21556,
+    "retry_time": 10,
+    "gpu_adl_type": 1
+}

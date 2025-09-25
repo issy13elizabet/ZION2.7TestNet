@@ -1,0 +1,279 @@
+/* Scoped SCSS module for Stargate page */
+
+$accent: #00ffff;
+$accent2: #9d5fff;
+$bg: #000;
+$panel: rgba(0, 0, 0, 0.9);
+$border: #7e7f81;
+
+.stargatePage {
+  /* Use global app background; keep container transparent */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+.tabNav {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 300;
+  background: $panel;
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid $border;
+}
+
+.tabBtn {
+  background: linear-gradient(45deg, #001122, #003366);
+  color: $accent;
+  border: 1px solid $accent;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 5px $accent;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+
+  &:hover {
+    background: linear-gradient(45deg, #003366, #004488);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    background: linear-gradient(45deg, #7e4fff, #9d5fff);
+    color: #fff;
+    border-color: $accent2;
+    text-shadow: 0 0 10px $accent2;
+    box-shadow: 0 0 25px rgba(157, 95, 255, 0.8);
+  }
+}
+
+.tabBtnActive {
+  background: linear-gradient(45deg, #7e4fff, #9d5fff);
+  color: #fff;
+  border-color: $accent2;
+  text-shadow: 0 0 10px $accent2;
+  box-shadow: 0 0 25px rgba(157, 95, 255, 0.8);
+}
+
+.healthWrap {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(960px, 92vw);
+  z-index: 280;
+}
+
+.portalContainer {
+  /* Center the gate vertically, and place status panel below it */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100dvh; /* allow content below gate */
+  padding: 100px 20px 40px; /* keep clear of fixed tabs/top health */
+  box-sizing: border-box;
+  background: transparent;
+}
+.swapContainer, .radioContainer {
+  width: 100%; height: 100vh; padding: 80px 20px 20px; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center;
+}
+
+.gate {
+  opacity: .35; display:flex; justify-content:center; align-items:center; text-align:center;
+  width: min(92vmin, 640px); height: min(92vmin, 640px); border-radius: 50%; position:relative; margin:auto;
+  background-image: radial-gradient(circle at center center, #000 0%, hsl(0, 0%, 0%) 54%, #7e7f81 54%, #7e7f81 56%, hsl(216, 1%, 55%) 56%, hsl(216, 1%, 55%) 63%, #727374 63%, #727374 65%, #7e7f81 65%, #656667 75%);
+  
+  &:before { content: ""; position:absolute; z-index:-1; top:50%; left:50%; transform:translateX(-50%) rotateX(-80deg); width:40%; height:40%; border-radius:100%; background: rgba(0,0,0,.15); box-shadow: 0 0 20vmin 10vmin rgba(0,0,0,.15); }
+}
+
+.container { position:relative; width:100%; height:100%; margin:0; padding:0; display:flex; justify-content:center; align-items:center; text-align:center; border-radius:50%; }
+
+.glyphs { position:absolute; inset:0; animation: spin 10s linear infinite; animation-play-state: paused; }
+.gate:hover .glyphs { animation-play-state: running; }
+
+.glyph { font-family: 'Kokonor', 'Noto Sans Tibetan', 'Noto Serif Tibetan', 'Stargate SG-1 Address Glyphs', monospace; position:absolute; bottom:50%; left:50%; height:43%; transform-origin:center bottom; font-size:1.8vmin; text-align:center; width:6.5%; color:#fff; text-shadow: rgba(0,0,0,.4) 0 2px 2px; }
+
+.gate img { width:100%; height:auto; position:absolute; border-radius:100%; top:50%; left:50%; transform: translate(-50%, -50%); }
+.lightningRing { transition: all .3s ease; &:hover { opacity:1 !important; transform: translate(-50%, -50%) scale(1.05) !important; } }
+
+/* Optimized state classes for rings */
+.ringOnline { filter: hue-rotate(25deg) brightness(1.1); }
+.ringOffline { filter: grayscale(100%); opacity: .2 !important; animation-play-state: paused; }
+
+@keyframes rotate-right { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes rotate-left  { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(-360deg); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Rotations */
+/* Revert to original faster pattern (no ultra-long 8k–33k s periods) */
+.rotate1{ width:44%;  opacity:.8;  animation: rotate-right 33s linear infinite;  z-index:1; }
+.rotate2{ width:29%;  opacity:.8;  animation: rotate-left 128s linear infinite; }
+.rotate3{ width:34%;  opacity:.9;  animation: rotate-right 66s linear infinite; }
+.rotate4{ width:29%;  opacity:.9;  animation: rotate-left 256s linear infinite; }
+.rotate5{ width:34%;  opacity:1;   animation: rotate-right 132s linear infinite; }
+.rotate6{ width:29%;  opacity:1;   animation: rotate-left 512s linear infinite; }
+.rotate7{ width:34%;  opacity:.7;  animation: rotate-right 264s linear infinite; }
+.rotate8{ width:29%;  opacity:.7;  animation: rotate-left 528s linear infinite; }
+.rotate9{ width:34%;  opacity:.6;  animation: rotate-right 528s linear infinite; }
+.rotate10{ width:29%; opacity:.6;  animation: rotate-left 264s linear infinite; }
+.rotate11{ width:29%; opacity:.5;  animation: rotate-right 256s linear infinite; }
+.rotate12{ width:29%; opacity:.5;  animation: rotate-left 132s linear infinite; }
+.rotate13{ width:29%; opacity:.45; animation: rotate-right 128s linear infinite; }
+.rotate14{ width:34%;  opacity:.45; animation: rotate-left 66s linear infinite; }
+.rotate15{ width:29%; opacity:.7;  animation: rotate-right 64s linear infinite; }
+.rotate16{ width:34%;  opacity:.7;  animation: rotate-left 33s linear infinite; }
+.rotate17{ width:29%; opacity:.35; animation: rotate-right 64s linear infinite; }
+.rotate18{ width:34%;  opacity:.35; animation: rotate-left 66s linear infinite; }
+.rotate19{ width:29%; opacity:.3;  animation: rotate-right 128s linear infinite; }
+.rotate20{ width:34%;  opacity:.3;  animation: rotate-left 132s linear infinite; }
+.rotate21{ width:29%; opacity:.2;  animation: rotate-right 256s linear infinite; }
+.rotate22{ width:34%;  opacity:.2;  animation: rotate-left 264s linear infinite; }
+.rotate23{ width:49%;  opacity:.1; animation: rotate-left 33s linear infinite; }
+.rotate24{ width:49%;  opacity:.1; animation: rotate-right 128s linear infinite; }
+.rotate25{ width:49%;  opacity:.1; animation: rotate-left 256s linear infinite; }
+.rotate26{ width:49%;  opacity:.1; animation: rotate-right 256s linear infinite; }
+.rotate27{ width:49%;  opacity:.1; animation: rotate-left 128s linear infinite; }
+.rotate28{ width:49%;  opacity:.1; animation: rotate-right 33s linear infinite; }
+
+/* Panels */
+.lightningPanel { position:fixed; top:20px; right:20px; background: rgba(0,0,0,.95); backdrop-filter: blur(15px); border-radius: 15px; padding: 20px; color:#fff; font-family:'Courier New', monospace; font-size:14px; min-width:300px; border:2px solid #ffff00; box-shadow:0 0 30px rgba(255,255,0,.5); z-index:200; 
+  h3{ margin:0 0 15px 0; color:#ffff00; text-shadow:0 0 10px #ffff00; }
+  .nodeDetails p{ margin:8px 0; font-size:12px; }
+  .closePanel{ background:#f00; color:#fff; border:none; border-radius:5px; padding:8px 15px; cursor:pointer; float:right; margin-top:10px; }
+}
+
+.statusDashboard { position:static; margin: 20px auto 0; background:$panel; backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; color:#fff; font-family:'Courier New', monospace; font-size:14px; width: min(960px, 90vw); border:1px solid $border; box-shadow: 0 4px 20px rgba(0,255,255,.3); 
+  .statusTitle{ text-align:center; margin:0 0 15px; color:$accent; font-weight:bold; text-shadow:0 0 10px $accent; }
+  .servicesGrid{ margin-top: 10px; }
+  .lightningStats{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:15px; padding:10px; background: rgba(255,255,0,.1); border-radius:8px; 
+    .statItem{ display:flex; flex-direction:column; align-items:center; text-align:center; font-size:12px; 
+      span:first-child{ color:#ccc; margin-bottom:5px; }
+      span:last-child{ font-weight:bold; font-size:14px; }
+    }
+  }
+  .serviceItem { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #333; &:last-child{ border-bottom:none; } }
+  .serviceStatus{ font-weight:bold; }
+  .refreshWrap{ text-align:center; margin-top:15px; }
+  .refreshBtn{ background: linear-gradient(45deg, #001122, #003366); color:$accent; border:1px solid $accent; border-radius:8px; padding:10px 20px; cursor:pointer; font-family:'Courier New', monospace; font-weight:bold; transition: all .3s ease; text-shadow:0 0 5px $accent; box-shadow:0 0 10px rgba(0,255,255,.3);
+    &:hover{ background: linear-gradient(45deg, #003366, #004488); box-shadow:0 0 20px rgba(0,255,255,.6); transform: translateY(-2px); }
+    &:active{ transform: scale(.95); }
+  }
+}
+
+.portalEnergy{ margin-top:12px; background: rgba(0,0,0,.6); border: 1px solid #00ffff66; border-radius:10px; padding:10px; 
+  .energyBar{ width:100%; height:10px; background:#003a44; border-radius:6px; overflow:hidden; box-shadow: inset 0 0 10px #00ffff33; 
+    .fill{ height:100%; background: linear-gradient(90deg, #004466, #00ffff); box-shadow: 0 0 12px #00ffff; transition: width .5s ease; }
+  }
+  .energyInfo{ display:flex; justify-content:space-between; gap:10px; margin-top:8px; font-family:'Courier New', monospace; color:#9dfcff; }
+}
+
+@media (max-width: 768px){
+  .stargatePage{ background-attachment: scroll; }
+  .tabNav{ gap:6px; padding:8px; }
+  .tabBtn{ padding:8px 12px; font-size:12px; }
+  .healthWrap{ top:70px; width:94vw; }
+  .portalContainer{ padding: 90px 12px 24px; }
+  .gate{ width: min(94vmin, 520px); height: min(94vmin, 520px); }
+  .statusDashboard{ width:auto; min-width:300px; font-size:12px; }
+  .lightningPanel{ top:10px; right:10px; min-width:250px; font-size:12px; }
+  .lightningStats{ grid-template-columns: 1fr !important; gap:5px; }
+}
+
+/* Chevrons (outer and inner) */
+.chevrons, .chevronInners {
+  position: absolute;
+  top: -1%;
+  left: -1%;
+  width: 102%;
+  height: 102%;
+  border-radius: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.chevron, .chevronInner {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 0.5vmin 0.5vmin rgba(0, 0, 0, 0.2));
+}
+
+.chevron {
+  width: 8vmin;
+  border: 3vmin transparent solid;
+  border-bottom: 26vmin transparent solid;
+  border-top: 5vmin #909192 solid;
+}
+
+.chevron:before, .chevronInner:before, .chevron:after, .chevronInner:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 2.2vmin;
+  background: hsl(180, 83%, 39%);
+  box-shadow: 0 0 0.8vmin hsl(0, 0%, 100%) inset, 0 0 0.8vmin hsl(0, 0%, 100%);
+  width: 100%;
+  height: 2vmin;
+  transform: translateX(1.2vmin) skewX(-30deg);
+}
+
+.chevron:after, .chevronInner:after {
+  transform: translateX(-1.2vmin) skewX(30deg);
+}
+
+.chevronInners {
+  top: -2%;
+  left: -2%;
+  width: 104%;
+  height: 104%;
+}
+
+.chevronInner {
+  width: 6vmin;
+  border-left-width: 2.5vmin;
+  border-right-width: 2.5vmin;
+  border-bottom-width: 27.5vmin;
+  filter: drop-shadow(0 0.5vmin 0 #727374);
+}
+
+.chevronInner:before {
+  left: 50%;
+  width: 230%;
+  bottom: 2.8vmin;
+  transform: translateX(-50%);
+  border-radius: 0.4vmin;
+}
+
+.chevronInner:after { display: none; }
+
+/* 9-way distribution */
+.chevron:nth-of-type(9n+1), .chevronInner:nth-of-type(9n+1) { transform: translateX(-50%) rotate(0deg); }
+.chevron:nth-of-type(9n+2), .chevronInner:nth-of-type(9n+2) { transform: translateX(-50%) rotate(40deg); }
+.chevron:nth-of-type(9n+3), .chevronInner:nth-of-type(9n+3) { transform: translateX(-50%) rotate(80deg); }
+.chevron:nth-of-type(9n+4), .chevronInner:nth-of-type(9n+4) { transform: translateX(-50%) rotate(120deg); }
+.chevron:nth-of-type(9n+5), .chevronInner:nth-of-type(9n+5) { transform: translateX(-50%) rotate(160deg); }
+.chevron:nth-of-type(9n+6), .chevronInner:nth-of-type(9n+6) { transform: translateX(-50%) rotate(200deg); }
+.chevron:nth-of-type(9n+7), .chevronInner:nth-of-type(9n+7) { transform: translateX(-50%) rotate(240deg); }
+.chevron:nth-of-type(9n+8), .chevronInner:nth-of-type(9n+8) { transform: translateX(-50%) rotate(280deg); }
+.chevron:nth-of-type(9n+9), .chevronInner:nth-of-type(9n+9) { transform: translateX(-50%) rotate(320deg); }
