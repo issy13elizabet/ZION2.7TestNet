@@ -27,6 +27,16 @@ logs/
 .env.*
 !.env.example
 
+# Wallet backups & private keys - NEVER COMMIT!
+wallets/
+backups/
+*.wallet
+*.wallet.gpg
+*.mnemonic
+*.mnemonic.gpg
+**/*.private
+**/*.seed
+
 # Docker
 **/.docker/
 **/.dockerignore.local
