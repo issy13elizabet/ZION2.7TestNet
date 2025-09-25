@@ -20,7 +20,7 @@ services:
       - ZION_RPC_BIND=${ZION_RPC_BIND:-127.0.0.1}
       - ZION_RPC_CORS_ORIGINS=${ZION_RPC_CORS_ORIGINS:-}
     networks:
-      - zion-network
+      - zion-seeds
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:18080/status"]
@@ -51,7 +51,7 @@ services:
       - POOL_FEE=${POOL_FEE:-1}
       - SEED_NODES=seed-node:18081
     networks:
-      - zion-network
+      - zion-seeds
     depends_on:
       - seed-node
     restart: unless-stopped
@@ -74,7 +74,7 @@ services:
     ports:
       - "18089:18089"  # RPC shim port
     networks:
-      - zion-network
+      - zion-seeds
     depends_on:
       - seed-node
     restart: unless-stopped
@@ -94,7 +94,7 @@ services:
       - MINER_THREADS=4
       - MINER_WALLET=YOUR_WALLET_ADDRESS_HERE  # Replace with actual wallet
     networks:
-      - zion-network
+      - zion-seeds
     depends_on:
       - pool-server
     restart: unless-stopped
@@ -120,7 +120,7 @@ services:
       - ZION_RPC_CORS_ORIGINS=${ZION_RPC_CORS_ORIGINS:-}
       - SEED_NODES=seed-node:18081
     networks:
-      - zion-network
+      - zion-seeds
     depends_on:
       - seed-node
     restart: unless-stopped
@@ -136,8 +136,5 @@ volumes:
     driver: local
 
 networks:
-  zion-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+  zion-seeds:
+    external: true
