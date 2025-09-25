@@ -21,3 +21,6 @@ Tento dokument sumarizuje audit, bezpečnostní úpravy a operace provedené př
 ## Doporučení
 - Pool port: přemapováno na 3334 (host) -> 3333 (container). Upravena UFW pravidla.
 - Git LFS: přidat pro velké binární soubory (např. `*.mp4`).
+
+## Stav po opravě (verify)
+- Pool nyní naslouchá na host portu 3334 (mapováno na container 3333). Ověřeno na 91.98.122.165 (`docker ps`, `ss -tuln`).
