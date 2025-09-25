@@ -1,0 +1,182 @@
+# Node / JS
+node_modules/
+**/node_modules/
+.pnpm-store/
+.npm/
+.cache/
+
+# Builds & dist
+**/dist/
+**/build/
+**/.next/
+**/out/
+**/coverage/
+**/.turbo/
+**/.vite/
+**/.rollup.cache/
+
+# Logs & runtime
+**/*.log
+logs/
+**/logs/
+**/.DS_Store
+**/Thumbs.db
+
+# Env & secrets (examples allowed)
+.env
+.env.*
+!.env.example
+
+# Docker
+**/.docker/
+**/.dockerignore.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Archives & dumps
+**/*.tgz
+**/*.tar
+**/*.tar.gz
+**/*.zip
+**/*.7z
+**/*.rar
+**/*.bak
+**/*.tmp
+**/~$*
+
+# Data snapshots
+**/data/
+**/tmp/
+**/cache/
+
+# Python
+**/.venv/
+**/venv/
+**/__pycache__/
+
+# Misc
+**/.pytest_cache/
+**/.mypy_cache/
+# Build artifacts
+build/
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Logs
+*.log
+# Remove logs/ from ignore to allow documentation
+/daemon_test.log
+/miner_test.log
+
+# Node.js / Next.js (frontend)
+frontend/.next/
+frontend/node_modules/
+frontend/.turbo/
+frontend/out/
+*.tsbuildinfo
+
+# Archives and large binaries (never commit)
+*.zip
+*.tgz
+*.tar.gz
+*.7z
+*.iso
+*.bin
+*.exe
+*.pkg
+*.dmg
+
+# XMRig / ovladače a binárky (necommitovat)
+mining/**/xmrig
+mining/**/xmrig.exe
+mining/**/WinRing0*.sys
+mining/**/*.dll
+mining/**/*.pdb
+mining/**/OpenCL.dll
+mining/**/nvml.dll
+
+# Lokální těžební logy
+mining/**/*.log
+
+# Runtime data
+/ test_data/
+/ test_wallets/
+.zion/
+tmp-extract/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+
+# Docker volumes (optional)
+docker/seed1/data/
+docker/seed1/logs/
+docker/seed2/data/
+docker/seed2/logs/
+
+# BEZPEČNOST - Citlivé soubory pro Testnet
+# ========================================
+config/*_wallet.conf
+config/OFFICIAL_*
+config/genesis_wallet.conf
+config/prod*.conf
+config/production*.conf
+config/production*.ini
+
+# Private keys a wallet soubory
+*.wallet
+*.keys
+wallet.dat
+
+# Runtime vaults (keep only encrypted outputs)
+logs/runtime/**/vault/*
+!logs/runtime/**/vault/*.gpg
+!logs/runtime/**/vault/*.age
+!logs/runtime/**/vault/*.aes
+*.priv
+*.pem
+*.key
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.test
+
+# Databáze a data
+data/
+# Povolit dokumentaci v logs/runtime, ale ignorovat ostatní logy
+!logs/
+logs/*
+!logs/runtime/
+!logs/runtime/**
+
+# Runtime vaults (keep only encrypted outputs)
+logs/runtime/**/vault/*
+!logs/runtime/**/vault/*.gpg
+!logs/runtime/**/vault/*.age
+!logs/runtime/**/vault/*.aes
+
+*.db
+*.sqlite
+*.sqlite3

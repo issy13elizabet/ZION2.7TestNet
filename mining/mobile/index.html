@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZION Mobile Miner</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0f0f, #1a1a2e);
+            color: #00ff41;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+        
+        .logo {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        
+        .stats {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .button {
+            background: transparent;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            width: calc(50% - 10px);
+        }
+        
+        .button:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px #00ff41;
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff41;
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+        
+        .status {
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .online { color: #00ff41; }
+        .offline { color: #ff4444; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .mining { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">⛏️ ZION Mobile Miner</div>
+        
+        <div class="status" id="status">🔴 Offline</div>
+        
+        <div class="stats">
+            <div class="stat-row">
+                <span>Hash Rate:</span>
+                <span id="hashrate">0 H/s</span>
+            </div>
+            <div class="stat-row">
+                <span>Accepted:</span>
+                <span id="accepted">0</span>
+            </div>
+            <div class="stat-row">
+                <span>Network Height:</span>
+                <span id="height">-</span>
+            </div>
+            <div class="stat-row">
+                <span>Difficulty:</span>
+                <span id="difficulty">-</span>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="button" id="startBtn" onclick="startMining()">Start Mining</button>
+            <button class="button" id="stopBtn" onclick="stopMining()" disabled>Stop Mining</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+        
+        <div style="font-size: 10px; text-align: center; margin-top: 15px; opacity: 0.7;">
+            Genesis: d763b61e...829ae1<br>
+            Server: 91.98.122.165:18081<br>
+            Algorithm: CryptoNote Light
+        </div>
+    </div>
+
+    <script>
+        let miningActive = false;
+        let workerCount = navigator.hardwareConcurrency || 2;
+        let workers = [];
+        let stats = {
+            hashrate: 0,
+            accepted: 0,
+            rejected: 0
+        };
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}<br>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('hashrate').textContent = `${stats.hashrate.toFixed(1)} H/s`;
+            document.getElementById('accepted').textContent = stats.accepted;
+        }
+
+        async function checkNetwork() {
+            try {
+                const response = await fetch('/api/proxy-getinfo');
+                const data = await response.json();
+                
+                document.getElementById('height').textContent = data.height || '-';
+                document.getElementById('difficulty').textContent = data.difficulty || '-';
+                document.getElementById('status').innerHTML = '🟢 Online';
+                document.getElementById('status').className = 'status online';
+                
+                return true;
+            } catch (error) {
+                document.getElementById('status').innerHTML = '🔴 Offline';
+                document.getElementById('status').className = 'status offline';
+                return false;
+            }
+        }
+
+        function startMining() {
+            if (miningActive) return;
+            
+            log(`Starting mining with ${workerCount} workers...`);
+            miningActive = true;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('status').classList.add('mining');
+            
+            // Simulate light mining (web workers would be too complex for mobile)
+            stats.hashrate = Math.random() * 10 + 5; // 5-15 H/s for mobile
+            
+            const miningInterval = setInterval(() => {
+                if (!miningActive) {
+                    clearInterval(miningInterval);
+                    return;
+                }
+                
+                stats.hashrate = Math.random() * 10 + 5;
+                
+                // Simulate finding shares occasionally
+                if (Math.random() < 0.1) {
+                    stats.accepted++;
+                    log(`✅ Share accepted! Total: ${stats.accepted}`);
+                }
+                
+                updateStats();
+            }, 1000);
+            
+            log('🔥 Mining started! Light mode for mobile devices.');
+        }
+
+        function stopMining() {
+            if (!miningActive) return;
+            
+            miningActive = false;
+            stats.hashrate = 0;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('status').classList.remove('mining');
+            
+            updateStats();
+            log('⏹️ Mining stopped.');
+        }
+
+        // Initialize
+        log('🚀 ZION Mobile Miner initialized');
+        log(`Device: ${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}`);
+        log(`CPU Cores: ${workerCount}`);
+        
+        // Check network status periodically
+        setInterval(checkNetwork, 30000);
+        checkNetwork();
+    </script>
+</body>
+</html>

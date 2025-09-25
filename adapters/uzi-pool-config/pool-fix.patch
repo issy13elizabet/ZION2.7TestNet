@@ -1,0 +1,11 @@
+--- pool.js.orig
++++ pool.js
+@@ -285,7 +285,8 @@
+ 
+         var buff = padded.slice(0, 4);
+-        var buffArray = buff.toJSON();
++        var buffArray = buff.toJSON();
++        if (buffArray.data) buffArray = buffArray.data; // Node.js 4+ compatibility
+         buffArray.reverse();
+         var buffReversed = new Buffer(buffArray);
+         this.target = buffReversed.readUInt32BE(0);

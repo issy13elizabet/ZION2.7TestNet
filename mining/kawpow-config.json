@@ -1,0 +1,30 @@
+{
+    "autosave": true,
+    "cpu": {"enabled": false},
+    "opencl": {
+        "enabled": true,
+        "platform": "AMD",
+        "adl": true,
+        "kawpow": [
+            {
+                "index": 0,
+                "intensity": 4718592,
+                "worksize": 256,
+                "threads": [-1],
+                "unroll": 1
+            }
+        ]
+    },
+    "pools": [
+        {
+            "algo": "kawpow",
+            "coin": "RVN",
+            "url": "localhost:3334",
+            "user": "ZION-GPU-KAWPOW-RX5600XT",
+            "pass": "multi-algo-kawpow",
+            "enabled": true
+        }
+    ],
+    "print-time": 20,
+    "log-file": "zion-kawpow-mining.log"
+}

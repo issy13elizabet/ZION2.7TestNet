@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./donate.css" />
+    <script src="./form/script.js" defer></script>
+
+    <title>Donate</title>
+    
+  </head>
+<body>
+    <br><br>
+    <h1>ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ</h1>
+
+    <br><br>
+    <p>Click on Kalacakra to Enter</p>
+    <br><br>
+    <br>
+    <!-- klikací obrázek -->
+    <img id="kalacakra" src="./img/kalacakra1.png" class="image1" style="width:22%; cursor:pointer;" alt="Kalacakra">
+
+    <br><br><br><br><br>
+    <h2>Support Our Project</h2>
+    <br> 
+    <p>Your contributions help us keep the project alive and thriving.</p>
+    <p>We appreciate every donation, no matter how small.</p>
+    <p>Thank you for your support!</p>
+
+    <br><br><br><br><br><br>
+    <a href="./main.html">
+        <img class="z" src="./img/kundun.jpg" alt="Logo" style="width: 60%; opacity: 0.8;" />
+    </a>
+
+    <br><br><br>
+    <p>~ ® ~</p>
+    <br>
+    <br>
+    <br>
+    <h2>Investment Opportunities</h2>
+    <br>
+    <p>If you are interested in supporting our project in the long term, we also offer opportunities for investment.</p>
+    <p>Please contact us for more information about partnership and investment possibilities.</p>
+    <br>
+    <br>
+    <br>
+    <div class="form">
+        <form id="orderForm" action="./form/process_order.php" method="post">
+            <h3>Send Form</h3>
+            <br>
+            <br>
+            <br>
+            <div class="form-group">
+                <label for="name">Jméno:</label>
+                <input type="text" id="name" name="name" required>
+                <span id="nameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" required>
+                <span id="emailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Telefon:</label>
+                <input type="tel" id="phone" name="phone">
+                <span id="phoneError"></span>
+            </div>
+
+            <!--<div class="form-group">
+                <label for="address">Adresa:</label>
+                <input type="text" id="address" name="address" required>
+                <span id="addressError"></span>
+            </div> -->
+
+            <div class="form-group">
+              <label for="product">Produkt:</label>
+              <select id="product" name="product" required>
+                  <option value="">Vyberte produkt</option>
+                  <option value="product1">Web Development Services</option>
+                  <option value="product2">WoodWoking Projects/Graviring</option>
+                  <option value="product3">Consultation</option>
+                  <option value="product4">Investment&Partnerships</option>
+                </select>
+                <span id="productError"></span>
+            </div>
+
+            <!-- <div class="form-group">
+                <label for="quantity">Množství:</label>
+                <input type="number" id="quantity" name="quantity" min="1" required>
+                <span id="quantityError"></span>
+            </div> -->
+
+            <div class="form-group">
+                <label for="message">Poznámka:</label>
+                <textarea id="message" name="message"></textarea>
+            </div>
+            <br>
+            <button type="submit">Send Form</button>
+        </form>
+      </div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br><br><br>
+    <h2>Financial Support</h2>
+
+    <h4>Our Transparent Account :</h4>
+    <p>CZ</p>
+    <p>259251079/0600</p>
+    <p>Iban : CZ68 0600 0000 0002 5925 1079</p>
+    <p>Bic : AGBACZPP</p>
+    <br>
+    <img src="./img/TransAcc.jpeg" alt="Bank Account" style="width: 10%; opacity: 0.9;" />
+    <br><br>
+    <h4>Bitcoin Account</h4>
+    <p>bc1qkwk0y8r44z29ulyvmnkzzyvv8d9cey2dd2thnx</p>
+    <br>
+    <img src="./img/bitcoin.png" alt="BTC Account" style="width: 10%; opacity: 0.9;" />
+
+    <br><br>
+
+    <!-- video overlay (skryté dokud se nezobrazí) -->
+    <div id="videoOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center;">
+      <video id="promoVideo" style="max-width:90%; max-height:90%; box-shadow:0 0 20px rgba(0,0,0,0.7);" playsinline>
+        <source src="./Start.mp4" type="video/mp4">
+        Váš prohlížeč nepodporuje video tag.
+      </video>
+      <!-- tlačítko pro přeskočení -->
+      <button id="skipBtn" style="position:fixed; top:20px; right:20px; z-index:10000; padding:10px 16px; background:#fff; border:0; border-radius:6px; cursor:pointer; font-weight:600; display:none;">Přeskočit</button>
+    </div>
+
+    <footer>
+        <div class="footer-bottom">
+            <a href="./main.html">
+                <img class="zoom" src="./img/logo144.png" alt="Logo" style="width: 10%" />
+            </a>
+            <br>
+            <p>&copy; 2025 ∞ 3√π1†y.Ωne Donate Page ∞</p>
+        </div>
+    </footer>
+
+    <script>
+      // ovládání videa a přesměrování + tlačítko přeskoku
+      const img = document.getElementById('kalacakra');
+      const overlay = document.getElementById('videoOverlay');
+      const video = document.getElementById('promoVideo');
+      const skipBtn = document.getElementById('skipBtn');
+
+      // otevře overlay a spustí video
+      function openOverlayAndPlay() {
+        overlay.style.display = 'flex';
+        skipBtn.style.display = 'block';
+        video.currentTime = 0;
+        video.play().catch(() => { /* pokud prohlížeč zablokuje, uživatel může manuálně spustit */ });
+      }
+
+      img.addEventListener('click', () => {
+        openOverlayAndPlay();
+      });
+
+      // po skončení videa přesměruj na main.html
+      video.addEventListener('ended', () => {
+        window.location.href = './main.html';
+      });
+
+      // tlačítko Přeskočit
+      skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.pause();
+        window.location.href = './main.html';
+      });
+
+      // klik mimo video => přesměruj
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          video.pause();
+          window.location.href = './main.html';
+        }
+      });
+
+      // Esc pro přeskočení
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.style.display === 'flex') {
+          video.pause();
+          window.location.href = './main.html';
+        }
+      });
+    </script>
+</body>
+</html>

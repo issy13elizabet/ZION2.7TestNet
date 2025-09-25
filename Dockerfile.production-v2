@@ -1,0 +1,42 @@
+# ZION V2 Production Dockerfile with RandomX
+FROM ubuntu:22.04
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    libboost-all-dev \
+    libssl-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create zion user
+RUN useradd -m -s /bin/bash zion
+
+# Copy built binaries
+COPY build/ziond /usr/local/bin/
+COPY build/zion_wallet /usr/local/bin/
+COPY build/zion_miner /usr/local/bin/
+COPY config/production-v2.conf /home/zion/.zion/config.json
+COPY config/OFFICIAL_GENESIS_WALLET.conf /home/zion/.zion/
+
+# Set permissions
+RUN chown -R zion:zion /home/zion/.zion/
+RUN chmod +x /usr/local/bin/ziond /usr/local/bin/zion_wallet /usr/local/bin/zion_miner
+
+# Create data directory
+RUN mkdir -p /home/zion/.zion/data && chown -R zion:zion /home/zion/.zion/
+
+# Expose ports
+EXPOSE 18080 18081
+
+# Switch to zion user
+USER zion
+WORKDIR /home/zion
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD /usr/local/bin/ziond --rpc-bind-ip=127.0.0.1 --rpc-bind-port=18081 --rpc-test || exit 1
+
+# Start daemon
+CMD ["/usr/local/bin/ziond", "--config-file=/home/zion/.zion/config.json", "--data-dir=/home/zion/.zion/data"]

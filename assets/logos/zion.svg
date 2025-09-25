@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ZION logo">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#E7C34E"/>
+      <stop offset="60%" stop-color="#153B6A"/>
+      <stop offset="100%" stop-color="#0A0A0A"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5E6A3"/>
+      <stop offset="100%" stop-color="#C8A434"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="512" cy="512" r="460" fill="url(#g)"/>
+
+  <!-- 12-point star (hint to 12x12) -->
+  <g transform="translate(512,512)">
+    <g fill="none" stroke="#E7C34E" stroke-width="2" opacity="0.35">
+      <!-- simple star polygon -->
+      <path d="M0,-420 L110,-360 L210,-360 L260,-260 L360,-210 L360,-110 L420,0 L360,110 L360,210 L260,260 L210,360 L110,360 L0,420 L-110,360 L-210,360 L-260,260 L-360,210 L-360,110 L-420,0 L-360,-110 L-360,-210 L-260,-260 L-210,-360 L-110,-360 Z"/>
+    </g>
+  </g>
+
+  <!-- Stylized Z -->
+  <g transform="translate(200,260)" filter="url(#shadow)">
+    <path d="M80,60 H560 a30,30 0 0 1 0,60 H260 L600,440 a40,40 0 0 1 -28,68 H40 a30,30 0 0 1 0,-60 H360 L40,120 a40,40 0 0 1 28,-60 Z" fill="url(#gold)"/>
+  </g>
+
+  <!-- Rose/heart subtle glyph -->
+  <g transform="translate(512,690)">
+    <path d="M0,0 c 40,-60 140,-60 160,20 c 0,100 -120,120 -160,200 c -40,-80 -160,-100 -160,-200 c 20,-80 120,-80 160,-20 Z" fill="#E7C34E" opacity="0.18"/>
+  </g>
+
+  <!-- Caption (optional) -->
+  <g font-family="Montserrat,Inter,system-ui" font-size="64" font-weight="700" fill="#E7C34E" opacity="0.9">
+    <text x="512" y="950" text-anchor="middle">Z I O N</text>
+  </g>
+</svg>

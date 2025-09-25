@@ -1,0 +1,23 @@
+{
+  "autosave": true,
+  "donate-level": 0,
+  "cpu": {
+    "enabled": true,
+    "yield": true
+  },
+  "pools": [
+    {
+      "algo": "rx/0",
+      "coin": null,
+      "url": "zion-uzi-pool:3333",
+      "user": "Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU",
+      "pass": "x",
+      "rig-id": "TEST",
+      "keepalive": true,
+      "tls": false
+    }
+  ],
+  "print-time": 5,
+  "retries": 10,
+  "retry-pause": 5
+}

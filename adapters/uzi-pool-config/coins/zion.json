@@ -1,0 +1,21 @@
+{
+  "name": "ZION",
+  "symbol": "ZION",
+  "algorithm": "randomx",
+  "rxVariant": "rx/0",
+  "coinUnits": 1000000000000,
+  "addressPrefix": "Z3",
+  "addressRegex": "^(Z3|aj)[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{90,98}$",
+  "explorer": "",
+  "daemon": {
+    "host": "rpc-shim",
+    "port": 18089,
+    "ssl": false,
+    "timeout": 10000,
+    "rpcPath": "/json_rpc"
+  },
+  "blockTime": 120,
+  "difficultyTarget": 120,
+  "coinbaseText": "ZION POOL",
+  "txFee": 1000000000
+}
