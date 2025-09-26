@@ -2,7 +2,29 @@
 
 **MAJOR SUCCESS**: Z3 Address Migration & Production Mining Stack je kompletně funkční! 🎯
 
-**Final Status**: Wallet nyní generuje správné Z3 adresy, mining stack běží healthy, production deployment ready for SSH servers worldwide!AILY SESSION LOG — 26. září 2025
+**Final Status**: Wallet nyní generuje správné Z3 adresy, mining stack běží healthy, production deployment ready for SSH servers worldwide!
+
+---
+
+## URGENT DEBUG SESSION - Pool Stratum Server Issue
+
+### Problem Discovery
+- **Issue**: Pool has correct genesis address but stratum server NOT listening on port 3333
+- **XMRig Error**: `connection reset by peer` when connecting to localhost:3333  
+- **Pool Status**: API running on port 8117, but NO stratum listener on 3333
+
+### Debug Steps Completed
+1. ✅ **Fixed Pool Address**: Updated config with correct genesis address `Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1`
+2. ✅ **Fresh Rebuild**: Built new pool image `zion:uzi-pool` from scratch  
+3. ✅ **Clean Container**: Removed old container, started fresh with proper network aliases
+4. ❌ **Stratum Server**: Pool startup logs show API but NO stratum server initialization
+
+### CRITICAL ISSUE FOR GPT-5
+**ROOT CAUSE**: Pool stratum server component not starting despite correct configuration. Pool code may have stratum initialization problem - API starts fine but stratum listener fails to bind to port 3333.
+
+Container: `ad1a68654351` | Network: `zion-seeds` | Ports: `3333:3333, 8117:8117`
+
+**NEXT PRIORITY**: Debug pool startup sequence and stratum server initialization in node-cryptonote-pool codebase.AILY SESSION LOG — 26. září 2025
 
 Krátké shrnutí: Dnes jsme synchronizovali repo, opravili adresní prefix na Z3 (0x433F), znovu přebuildili a nasadili node na server. Vybudovali jsme minimální pool (stratum-like) stub, ověřili základní handshake, ale XMRig stále hlásí login error (code: 1). Největší blocker: wallet dál generuje adresy „ajmr…“ místo očekávaných „Z3…“ i po opravě prefixu a rebuild/deploy.
 

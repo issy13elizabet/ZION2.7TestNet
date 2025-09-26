@@ -10,7 +10,7 @@
   "poolServer": {
     "enabled": true,
   "clusterForks": 1,
-  "poolAddress": "Z3MainNet2025Genesis99999999999999999999999999999999999999999999999999999999999999",
+  "poolAddress": "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1",
   "blockRefreshInterval": 30000,
     "minerTimeout": 900,
     "ports": [
