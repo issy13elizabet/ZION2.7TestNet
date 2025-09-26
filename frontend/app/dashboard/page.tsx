@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useLanguage, LanguageSwitcher } from '../components/LanguageContext';
 import HealthWidget from '../components/HealthWidget';
 import SystemWidget from '../components/SystemWidget';
@@ -309,58 +310,36 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
-      {/* New Jerusalem Museum */}
+      {/* Sacred Spaces: EKAM + New Jerusalem */}
       <motion.section 
         className="relative z-10 mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
+        transition={{ delay: 0.45 }}
       >
-        <div className="bg-gradient-to-r from-purple-900/30 via-indigo-900/30 to-purple-900/30 backdrop-blur-sm p-6 rounded-lg border border-gold-400/30">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gold-400 flex items-center gap-2">
-                🏛️ New Jerusalem Museum
-                <span className="text-sm bg-violet-600 px-2 py-1 rounded-full">3D</span>
-              </h2>
-              <p className="text-purple-300 mt-1">Interactive Sacred Geometry City • Metatron's Cube • VR Ready</p>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-400">Temple Energy</div>
-              <div className="text-xl font-bold text-gold-400">77%</div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
-            <div className="text-center p-3 bg-violet-900/30 rounded-lg">
-              <div className="text-violet-300 font-semibold">Sacred Zones</div>
-              <div className="text-white text-lg">6</div>
-            </div>
-            <div className="text-center p-3 bg-blue-900/30 rounded-lg">
-              <div className="text-blue-300 font-semibold">Frequencies</div>
-              <div className="text-white text-lg">528 Hz</div>
-            </div>
-            <div className="text-center p-3 bg-green-900/30 rounded-lg">
-              <div className="text-green-300 font-semibold">Visitors</div>
-              <div className="text-white text-lg">{Math.floor(Math.random() * 144)}</div>
-            </div>
-            <div className="text-center p-3 bg-gold-900/30 rounded-lg">
-              <div className="text-gold-300 font-semibold">Consciousness</div>
-              <div className="text-white text-lg">Level 7</div>
-            </div>
-          </div>
-          
-          <div className="flex gap-3">
-            <a 
-              href="/new-jerusalem"
-              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-4 py-2 rounded-lg font-semibold text-center transition-all duration-300 hover:scale-105"
-            >
-              🔮 Enter Museum
-            </a>
-            <button className="bg-gold-600/20 hover:bg-gold-600/30 text-gold-300 px-4 py-2 rounded-lg font-semibold transition-all duration-300">
-              🥽 VR Mode
-            </button>
-          </div>
+        <h2 className="text-2xl font-bold mb-4 text-violet-300">🛕 Sacred Spaces</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-xl font-semibold text-amber-300 mb-2">🏛️ EKAM Temple</h3>
+            <p className="text-gray-300 mb-4">Oneness Consciousness Portal</p>
+            <Link href="/ekam" className="inline-block bg-amber-600/30 hover:bg-amber-600/50 px-4 py-2 rounded-md transition-colors">
+              Enter EKAM →
+            </Link>
+          </motion.div>
+
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-xl font-semibold text-cyan-300 mb-2">🌈 New Jerusalem</h3>
+            <p className="text-gray-300 mb-4">Interactive Sacred Geometry Museum</p>
+            <Link href="/new-jerusalem" className="inline-block bg-cyan-600/30 hover:bg-cyan-600/50 px-4 py-2 rounded-md transition-colors">
+              Explore City of Light →
+            </Link>
+          </motion.div>
         </div>
       </motion.section>
 
