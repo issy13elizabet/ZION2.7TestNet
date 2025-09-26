@@ -97,36 +97,39 @@ export default function Page() {
         ))}
       </div>
 
-      {/* Language Switcher */}
-      <motion.div
-        className="relative z-10 flex justify-end mb-6"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-      >
-        <LanguageSwitcher />
-      </motion.div>
+      {/* Main Container with rounded corners */}
+      <div className="relative z-10 max-w-7xl mx-auto mt-24">
+        <div className="bg-black/25 border border-purple-500/30 rounded-3xl backdrop-blur-xl p-6 md:p-8 shadow-2xl">
+          {/* Language Switcher */}
+          <motion.div
+            className="flex justify-end mb-6"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <LanguageSwitcher />
+          </motion.div>
 
-      {/* Header */}
-      <motion.header 
-        className="relative z-10 text-center mb-12"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-violet-400 via-purple-300 to-blue-300 bg-clip-text text-transparent mb-4">
-          🌌 {t.home.title}
-        </h1>
-        <motion.div 
-          className="text-lg text-purple-400 mb-3 font-mono"
-          animate={{ opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          🔮 "Ó, kameni živý, probouzíš se z tisíciletého spánku!" 🔮
-        </motion.div>
-        <p className="text-xl text-purple-300 mb-2">{t.home.subtitle}</p>
-        <p className="text-sm text-gray-400">{t.home.description}</p>
-      </motion.header>
+          {/* Header */}
+          <motion.header 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-violet-400 via-purple-300 to-blue-300 bg-clip-text text-transparent mb-4">
+              🌌 {t.home.title}
+            </h1>
+            <motion.div 
+              className="text-lg text-purple-400 mb-3 font-mono"
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              🔮 "Ó, kameni živý, probouzíš se z tisíciletého spánku!" 🔮
+            </motion.div>
+            <p className="text-xl text-purple-300 mb-2">{t.home.subtitle}</p>
+            <p className="text-sm text-gray-400">{t.home.description}</p>
+          </motion.header>
 
-      {/* ZION CORE v2.5 Real-time Dashboard */}
+  {/* ZION CORE v2.5 Real-time Dashboard */}
       {zionStats ? (
         <motion.section
           className="relative z-10 max-w-7xl mx-auto mb-16"
@@ -283,7 +286,7 @@ export default function Page() {
         </motion.section>
       ) : (
         <motion.section
-          className="relative z-10 text-center py-16"
+          className="text-center py-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -295,76 +298,11 @@ export default function Page() {
           </div>
         </motion.section>
       )}
-
-      {/* Compact Navigation Links */}
-      <motion.section
-        className="relative z-10 max-w-4xl mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <h3 className="text-center text-xl font-semibold text-purple-300 mb-6">🌟 Explore ZION Ecosystem</h3>
-        
-        <div className="grid md:grid-cols-3 gap-4">
-          {/* Core Tools */}
-          <motion.div 
-            className="bg-black/30 backdrop-blur-sm p-4 rounded-lg border border-purple-500/30"
-            whileHover={{ scale: 1.02, borderColor: 'rgba(139, 92, 246, 0.5)' }}
-          >
-            <h4 className="text-lg font-semibold text-violet-300 mb-3">🌐 Core</h4>
-            <div className="space-y-2 text-sm">
-              <Link href="/explorer" className="block text-purple-300 hover:text-white transition-colors">
-                🔍 {t.nav.explorer}
-              </Link>
-              <Link href="/hub" className="block text-purple-300 hover:text-white transition-colors">
-                🏛️ {t.nav.genesisHub}
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Cosmic Portals */}
-          <motion.div 
-            className="bg-black/30 backdrop-blur-sm p-4 rounded-lg border border-indigo-500/30"
-            whileHover={{ scale: 1.02, borderColor: 'rgba(99, 102, 241, 0.5)' }}
-          >
-            <h4 className="text-lg font-semibold text-indigo-300 mb-3">🔮 Portals</h4>
-            <div className="space-y-2 text-sm">
-              <Link href="/stargate" className="block text-indigo-300 hover:text-white transition-colors">
-                🌌 Terra Nova Stargate
-              </Link>
-              <Link href="/halls-of-amenti" className="block text-purple-300 hover:text-white transition-colors">
-                🏛️ Halls of Amenti
-              </Link>
-              <Link href="/language-of-light" className="block text-cyan-300 hover:text-white transition-colors">
-                ✨ Language of Light
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Sacred Knowledge */}
-          <motion.div 
-            className="bg-black/30 backdrop-blur-sm p-4 rounded-lg border border-amber-500/30"
-            whileHover={{ scale: 1.02, borderColor: 'rgba(245, 158, 11, 0.5)' }}
-          >
-            <h4 className="text-lg font-semibold text-amber-300 mb-3">📚 Knowledge</h4>
-            <div className="space-y-2 text-sm">
-              <Link href="/amenti" className="block text-amber-300 hover:text-white transition-colors">
-                📜 {t.nav.amenti}
-              </Link>
-              <Link href="/ekam" className="block text-amber-300 hover:text-white transition-colors">
-                🏛️ {t.nav.ekam}
-              </Link>
-              <Link href="/blog" className="block text-green-300 hover:text-white transition-colors">
-                📝 Genesis Blog
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
+      
 
       {/* External Resources Section */}
       <motion.section
-        className="relative z-10 max-w-4xl mx-auto mt-12"
+        className="max-w-4xl mx-auto mt-12"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
@@ -441,7 +379,7 @@ export default function Page() {
 
       {/* Footer */}
       <motion.footer 
-        className="relative z-10 text-center text-purple-300 mt-16"
+        className="text-center text-purple-300 mt-16"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
@@ -455,6 +393,8 @@ export default function Page() {
           <div className="text-xs text-gray-500">{t.footer.version}</div>
         </div>
       </motion.footer>
+        </div>
+      </div>
     </div>
   )
 }

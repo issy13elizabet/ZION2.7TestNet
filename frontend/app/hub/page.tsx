@@ -218,6 +218,66 @@ export default function HubPage() {
         </div>
       </motion.div>
 
+      {/* Explore ZION Ecosystem (moved from Home) */}
+      <motion.section
+        className="mb-8 bg-black/30 backdrop-blur-sm p-6 rounded-2xl border border-purple-500/30"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55 }}
+      >
+        <h3 className="text-center text-xl font-semibold text-purple-300 mb-6">🌟 Explore ZION Ecosystem</h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-4 rounded-lg border border-purple-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h4 className="text-lg font-semibold text-violet-300 mb-3">🌐 Core</h4>
+            <div className="space-y-2 text-sm">
+              <a href="/explorer" className="block text-purple-300 hover:text-white transition-colors">
+                🔍 Explorer
+              </a>
+              <a href="/hub" className="block text-purple-300 hover:text-white transition-colors">
+                🏛️ Genesis Hub
+              </a>
+            </div>
+          </motion.div>
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-4 rounded-lg border border-indigo-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h4 className="text-lg font-semibold text-indigo-300 mb-3">🔮 Portals</h4>
+            <div className="space-y-2 text-sm">
+              <a href="/stargate" className="block text-indigo-300 hover:text-white transition-colors">
+                🌌 Terra Nova Stargate
+              </a>
+              <a href="/halls-of-amenti" className="block text-purple-300 hover:text-white transition-colors">
+                🏛️ Halls of Amenti
+              </a>
+              <a href="/language-of-light" className="block text-cyan-300 hover:text-white transition-colors">
+                ✨ Language of Light
+              </a>
+            </div>
+          </motion.div>
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-4 rounded-lg border border-amber-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h4 className="text-lg font-semibold text-amber-300 mb-3">📚 Knowledge</h4>
+            <div className="space-y-2 text-sm">
+              <a href="/amenti" className="block text-amber-300 hover:text-white transition-colors">
+                📜 Amenti
+              </a>
+              <a href="/ekam" className="block text-amber-300 hover:text-white transition-colors">
+                🏛️ EKAM
+              </a>
+              <a href="/blog" className="block text-green-300 hover:text-white transition-colors">
+                📝 Genesis Blog
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Live Feed */}
       <motion.div 
         className="bg-black/30 border border-cyan-500/30 rounded-2xl p-6 backdrop-blur-sm"
