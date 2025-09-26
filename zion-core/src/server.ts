@@ -8,6 +8,7 @@ import { createServer, Server as HTTPServer } from 'http';
 import * as cron from 'node-cron';
 import cluster from 'cluster';
 import os from 'os';
+import process from 'process';
 import {
   ZionConfig,
   SystemStats,
@@ -23,6 +24,7 @@ import { LightningNetwork } from './modules/lightning-network.js';
 import { WalletService } from './modules/wallet-service.js';
 import { P2PNetwork } from './modules/p2p-network.js';
 import { RPCAdapter } from './modules/rpc-adapter.js';
+import GalacticDebugger from './modules/galactic-debugger.js';
 
 /**
  * ZION CORE v2.5.0 - Unified Multi-Chain Dharma Blockchain Platform
@@ -52,6 +54,7 @@ class ZionCore {
   private readonly wallet: WalletService;
   private readonly p2p: P2PNetwork;
   private readonly rpc: RPCAdapter;
+  private readonly galacticDebugger: GalacticDebugger;
   
   private readonly modules: Map<string, IZionModule> = new Map();
   private readonly connectedClients: Set<WebSocket> = new Set();
@@ -81,6 +84,7 @@ class ZionCore {
     this.wallet = new WalletService();
     this.p2p = new P2PNetwork();
     this.rpc = new RPCAdapter();
+    this.galacticDebugger = new GalacticDebugger();
     
     // Register modules
     this.modules.set('blockchain', this.blockchain);
@@ -90,6 +94,7 @@ class ZionCore {
     this.modules.set('wallet', this.wallet);
     this.modules.set('p2p', this.p2p);
     this.modules.set('rpc', this.rpc);
+    this.modules.set('galactic', this.galacticDebugger);
   }
 
   private setupMiddleware(): void {
@@ -229,12 +234,18 @@ class ZionCore {
         this.connectedClients.delete(ws);
       });
 
+      // Add to galactic debugger if requested
+      if (req.url === '/galactic-debug') {
+        this.galacticDebugger.addDebugSession(ws);
+      }
+
       // Send welcome message
       this.sendToClient(ws, {
         type: 'welcome',
         data: {
           version: ZION_CONSTANTS.VERSION,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          galactic_center: req.url === '/galactic-debug' ? 'ZION CORE - CENTER OF GALAXY' : undefined
         }
       });
     });
@@ -436,33 +447,19 @@ class ZionCore {
   }
 }
 
-// Cluster mode for production
+// Unified server mode - single process for all services
 async function main(): Promise<void> {
-  if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
-    const numCPUs = os.cpus().length;
-    console.log(`Starting ${numCPUs} worker processes...`);
-    
-    for (let i = 0; i < numCPUs; i++) {
-      cluster.fork();
-    }
-    
-    cluster.on('exit', (worker, code, signal) => {
-      console.log(`Worker ${worker.process.pid} died. Spawning a new one...`);
-      cluster.fork();
-    });
-    
-  } else {
-    // Single process or worker
-    const zionCore = new ZionCore();
-    
-    try {
-      await zionCore.initialize();
-      await zionCore.start();
-    } catch (error) {
-      const err = error as Error;
-      console.error('❌ Failed to start ZION CORE:', err.message);
-      process.exit(1);
-    }
+  console.log('🚀 Starting ZION CORE in unified mode...');
+  
+  const zionCore = new ZionCore();
+  
+  try {
+    await zionCore.initialize();
+    await zionCore.start();
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to start ZION CORE:', err.message);
+    process.exit(1);
   }
 }
 

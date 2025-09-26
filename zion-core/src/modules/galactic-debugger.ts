@@ -7,8 +7,9 @@
  * Center of the universe debugging from ZION Core
  */
 
-import express, { Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { WebSocket } from 'ws';
+import { IZionModule, ModuleStatus } from '../types.js';
 
 interface Stargate {
   id: string;
@@ -30,14 +31,109 @@ interface RainbowBridge {
   last_activation: number;
 }
 
-class GalacticDebugger {
+class GalacticDebugger implements IZionModule {
   private stargates: Map<string, Stargate> = new Map();
   private rainbow_bridge: RainbowBridge;
   private debug_sessions: Set<WebSocket> = new Set();
+  private router: Router;
+  private status: 'stopped' | 'starting' | 'ready' | 'error' = 'stopped';
+  private startTime: number = 0;
 
   constructor() {
+    this.router = Router();
+    this.rainbow_bridge = {
+      frequency: '44:44 MHz',
+      status: 'DORMANT',
+      dimensions: ['3D'],
+      energy_flow: 0,
+      connections: [],
+      last_activation: 0
+    };
+    this.setupDebugRoutes();
+  }
+
+  // IZionModule implementation
+  public async initialize(): Promise<void> {
+    console.log('🌌 Initializing Galactic Debugger...');
+    this.status = 'starting';
+    this.startTime = Date.now();
+    
     this.initializeStargateNetwork();
     this.initializeRainbowBridge();
+    
+    this.status = 'ready';
+    console.log('✅ Galactic Debugger initialized - Galaxy monitoring active');
+  }
+
+  public async shutdown(): Promise<void> {
+    console.log('🌌 Shutting down Galactic Debugger...');
+    this.status = 'stopped';
+    
+    // Close all debug sessions
+    this.debug_sessions.forEach(ws => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close(1000, 'Galactic debugger shutdown');
+      }
+    });
+    this.debug_sessions.clear();
+  }
+
+  public getStatus(): ModuleStatus {
+    return {
+      status: this.status,
+      uptime: this.status === 'ready' ? Date.now() - this.startTime : undefined
+    };
+  }
+
+  public getRouter(): Router {
+    return this.router;
+  }
+
+  private setupDebugRoutes(): void {
+    // Main galactic diagnosis
+    this.router.get('/diagnose', (req: Request, res: Response) => {
+      res.json(this.diagnoseGalaxy());
+    });
+
+    // Rainbow Bridge controls
+    this.router.post('/rainbow-bridge/activate', (req: Request, res: Response) => {
+      res.json(this.activateRainbowBridge44_44());
+    });
+
+    this.router.get('/rainbow-bridge/status', (req: Request, res: Response) => {
+      res.json(this.rainbow_bridge);
+    });
+
+    // Stargate operations
+    this.router.get('/stargate/list', (req: Request, res: Response) => {
+      res.json(Array.from(this.stargates.values()));
+    });
+
+    this.router.get('/stargate/debug/:id', (req: Request, res: Response) => {
+      res.json(this.debugStargate(req.params.id));
+    });
+
+    this.router.post('/stargate/launch/:destination', (req: Request, res: Response) => {
+      res.json(this.launchToStar(req.params.destination));
+    });
+
+    // Galactic map
+    this.router.get('/map', (req: Request, res: Response) => {
+      res.json(this.getGalacticMap());
+    });
+
+    // Network health monitoring
+    this.router.get('/health', (req: Request, res: Response) => {
+      const health = {
+        overall_status: this.calculateNetworkHealth() > 50 ? 'HEALTHY' : 'DEGRADED',
+        network_health: this.calculateNetworkHealth(),
+        energy_distribution: this.calculateEnergyDistribution(),
+        rainbow_bridge_status: this.rainbow_bridge.status,
+        active_stargates: Array.from(this.stargates.values()).filter(s => s.status === 'ACTIVE').length,
+        total_stargates: this.stargates.size
+      };
+      res.json(health);
+    });
   }
 
   private initializeStargateNetwork(): void {
@@ -308,7 +404,7 @@ class GalacticDebugger {
   }
 
   private generateStargateRecommendations(stargate: Stargate): string[] {
-    const recommendations = [];
+    const recommendations: string[] = [];
     
     if (stargate.energy_level < 50) {
       recommendations.push('⚡ Activate Rainbow Bridge to boost energy');
@@ -388,54 +484,7 @@ class GalacticDebugger {
     });
   }
 
-  // 🌐 Express API Endpoints
-
-  public setupDebugAPI(app: express.Application): void {
-    // Main galactic diagnosis
-    app.get('/api/galaxy/diagnose', (req: Request, res: Response) => {
-      res.json(this.diagnoseGalaxy());
-    });
-
-    // Rainbow Bridge controls
-    app.post('/api/rainbow-bridge/activate', (req: Request, res: Response) => {
-      res.json(this.activateRainbowBridge44_44());
-    });
-
-    app.get('/api/rainbow-bridge/status', (req: Request, res: Response) => {
-      res.json(this.rainbow_bridge);
-    });
-
-    // Stargate operations
-    app.get('/api/stargate/list', (req: Request, res: Response) => {
-      res.json(Array.from(this.stargates.values()));
-    });
-
-    app.get('/api/stargate/debug/:id', (req: Request, res: Response) => {
-      res.json(this.debugStargate(req.params.id));
-    });
-
-    app.post('/api/stargate/launch/:destination', (req: Request, res: Response) => {
-      res.json(this.launchToStar(req.params.destination));
-    });
-
-    // Galactic map
-    app.get('/api/galaxy/map', (req: Request, res: Response) => {
-      res.json(this.getGalacticMap());
-    });
-
-    // Network health monitoring
-    app.get('/api/galaxy/health', (req: Request, res: Response) => {
-      const health = {
-        overall_status: this.calculateNetworkHealth() > 50 ? 'HEALTHY' : 'DEGRADED',
-        network_health: this.calculateNetworkHealth(),
-        energy_distribution: this.calculateEnergyDistribution(),
-        rainbow_bridge_status: this.rainbow_bridge.status,
-        active_stargates: Array.from(this.stargates.values()).filter(s => s.status === 'ACTIVE').length,
-        total_stargates: this.stargates.size
-      };
-      res.json(health);
-    });
-  }
+  // 🌐 WebSocket Management
 
   public addDebugSession(ws: WebSocket): void {
     this.debug_sessions.add(ws);
