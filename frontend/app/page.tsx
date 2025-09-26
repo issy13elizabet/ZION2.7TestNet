@@ -73,7 +73,7 @@ export default function Page() {
   ), []);
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black text-white p-6">
+    <div className="min-h-screen bg-transparent text-white">
       {/* Cosmic Background Stars */}
       <div className="fixed inset-0 opacity-10 pointer-events-none">
         {stars.map((s, i) => (
@@ -97,9 +97,9 @@ export default function Page() {
         ))}
       </div>
 
-      {/* Main Container with rounded corners */}
-      <div className="relative z-10 max-w-7xl mx-auto mt-24">
-        <div className="bg-black/25 border border-purple-500/30 rounded-3xl backdrop-blur-xl p-6 md:p-8 shadow-2xl">
+      {/* Content relies on global rounded container in ThemeShell */}
+      <div className="relative z-10 max-w-5xl mx-auto mt-6 px-4">
+        <div className="">
           {/* Language Switcher */}
           <motion.div
             className="flex justify-end mb-6"

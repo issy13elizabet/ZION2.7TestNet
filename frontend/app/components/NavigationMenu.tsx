@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const NavigationMenu = () => {
   const pathname = usePathname();
@@ -20,18 +20,12 @@ const NavigationMenu = () => {
       label: "Explorer",
       icon: "🌐",
       description: "Blockchain Explorer"
-    },
-    {
-      href: "/ai",
-      label: "AI Systems",
-      icon: "🤖",
-      description: "AI Module Control"
     }
   ];
 
   return (
     <motion.nav 
-      className="fixed top-6 left-6 right-6 z-50 bg-black/20 backdrop-blur-md border border-purple-500/30 rounded-2xl p-4"
+      className="fixed top-6 left-6 right-6 z-[100] bg-black/20 backdrop-blur-md border border-purple-500/30 rounded-3xl p-4 overflow-visible"
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -94,6 +88,10 @@ const NavigationMenu = () => {
             );
           })}
 
+          {/* AI Systems Dropdown */
+          }
+          <AISystemsDropdown currentPath={pathname} />
+
           {/* Temples Dropdown */}
           <TemplesDropdown currentPath={pathname} />
         </div>
@@ -147,25 +145,37 @@ const NavigationMenu = () => {
 
 export default NavigationMenu;
 
-// Sub-component: Temples dropdown grouping EKAM and New Jerusalem
-function TemplesDropdown({ currentPath }: { currentPath: string }) {
+// Sub-component: AI Systems dropdown grouping AI home and OASIS GAME
+function AISystemsDropdown({ currentPath }: { currentPath: string }) {
   const [open, setOpen] = useState(false);
-  const isActive = ["/temples", "/ekam", "/new-jerusalem"].some(p => currentPath === p || currentPath.startsWith(p + "/"));
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
+  const isActive = ["/ai", "/oasis-game"].some(p => currentPath === p || currentPath.startsWith(p + "/"));
 
   return (
-    <div className="relative">
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <motion.button
         className={`relative px-4 py-2 rounded-xl transition-all duration-300 group cursor-pointer flex items-center gap-2 ${
           isActive ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
         }`}
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         onClick={() => setOpen(v => !v)}
       >
-        <span className="text-lg">🕍</span>
-        <span className="font-medium hidden md:inline">Temples</span>
+        <span className="text-lg">🤖</span>
+        <span className="font-medium hidden md:inline">AI Systems</span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.2 }}
@@ -180,7 +190,7 @@ function TemplesDropdown({ currentPath }: { currentPath: string }) {
           initial={{ opacity: 0, scale: 0.8 }}
           whileHover={{ opacity: 1, scale: 1 }}
         >
-          Sacred Spaces
+          AI Module Control
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/90" />
         </motion.div>
       </motion.button>
@@ -190,9 +200,90 @@ function TemplesDropdown({ currentPath }: { currentPath: string }) {
         initial={false}
         animate={{ opacity: open ? 1 : 0, y: open ? 0 : -8, pointerEvents: open ? 'auto' : 'none' }}
         transition={{ duration: 0.15 }}
+        className="absolute right-0 mt-2 w-64 bg-black/80 backdrop-blur-md border border-purple-500/30 rounded-2xl overflow-hidden shadow-xl z-[300]"
+      >
+        <Link href="/ai" className="block">
+          <div className={`px-4 py-3 text-sm flex items-center gap-3 hover:bg-white/10 ${currentPath.startsWith('/ai') ? 'text-white' : 'text-gray-300'}`}>
+            <span>🤖</span>
+            <div>
+              <div className="font-medium">AI Systems Home</div>
+              <div className="text-xs text-gray-400">Overview of AI modules</div>
+            </div>
+          </div>
+        </Link>
+        <div className="h-px bg-white/10" />
+        <Link href="/oasis-game" className="block">
+          <div className={`px-4 py-3 text-sm flex items-center gap-3 hover:bg-white/10 ${currentPath.startsWith('/oasis-game') ? 'text-white' : 'text-gray-300'}`}>
+            <span>🎮</span>
+            <div>
+              <div className="font-medium">OASIS GAME</div>
+              <div className="text-xs text-gray-400">Playful path to mastery</div>
+            </div>
+          </div>
+        </Link>
+        <div className="h-px bg-white/10" />
+        <Link href="/stargate" className="block">
+          <div className={`px-4 py-3 text-sm flex items-center gap-3 hover:bg-white/10 ${currentPath.startsWith('/stargate') ? 'text-white' : 'text-gray-300'}`}>
+            <span>🌀</span>
+            <div>
+              <div className="font-medium">Stargate</div>
+              <div className="text-xs text-gray-400">Portal to higher realms</div>
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    </div>
+  );
+}
+
+// Sub-component: Temples dropdown grouping EKAM and New Jerusalem
+function TemplesDropdown({ currentPath }: { currentPath: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
+  const isActive = ["/temples", "/ekam", "/new-jerusalem"].some(p => currentPath === p || currentPath.startsWith(p + "/"));
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <motion.button
+        className={`relative px-4 py-2 rounded-xl transition-all duration-300 group cursor-pointer flex items-center gap-2 ${
+          isActive ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
+        }`}
+        whileHover={{ scale: 1.05, y: -2 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setOpen(v => !v)}
+      >
+        <span className="text-lg">🕍</span>
+        <span className="font-medium hidden md:inline">Temples</span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="hidden md:inline"
+        >
+          ▼
+        </motion.span>
+      </motion.button>
+
+      {/* Dropdown menu */}
+      <motion.div
+        initial={false}
+        animate={{ opacity: open ? 1 : 0, y: open ? 0 : -8, pointerEvents: open ? 'auto' : 'none' }}
+        transition={{ duration: 0.15 }}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
-        className="absolute right-0 mt-2 w-60 bg-black/80 backdrop-blur-md border border-purple-500/30 rounded-xl overflow-hidden shadow-xl z-[60]"
+        className="absolute right-0 mt-2 w-60 bg-black/80 backdrop-blur-md border border-purple-500/30 rounded-2xl overflow-hidden shadow-xl z-[300]"
       >
         <Link href="/temples" className="block">
           <div className={`px-4 py-3 text-sm flex items-center gap-3 hover:bg-white/10 ${currentPath.startsWith('/temples') ? 'text-white' : 'text-gray-300'}`}>
@@ -230,20 +321,32 @@ function TemplesDropdown({ currentPath }: { currentPath: string }) {
 // Sub-component: Dashboard dropdown grouping Wallet, Mining, Status
 function DashboardDropdown({ currentPath }: { currentPath: string }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
   const isActive = ["/", "/wallet", "/mining", "/miner", "/mining-status"].some(p =>
     p === "/" ? currentPath === "/" : currentPath === p || currentPath.startsWith(p + "/")
   );
 
   return (
-    <div className="relative">
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <motion.button
         className={`relative px-4 py-2 rounded-xl transition-all duration-300 group cursor-pointer flex items-center gap-2 ${
           isActive ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
         }`}
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         onClick={() => setOpen(v => !v)}
       >
         <span className="text-lg">📊</span>
@@ -272,9 +375,7 @@ function DashboardDropdown({ currentPath }: { currentPath: string }) {
         initial={false}
         animate={{ opacity: open ? 1 : 0, y: open ? 0 : -8, pointerEvents: open ? 'auto' : 'none' }}
         transition={{ duration: 0.15 }}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
-        className="absolute right-0 mt-2 w-64 bg-black/80 backdrop-blur-md border border-purple-500/30 rounded-xl overflow-hidden shadow-xl z-[60]"
+        className="absolute right-0 mt-2 w-64 bg-black/80 backdrop-blur-md border border-purple-500/30 rounded-2xl overflow-hidden shadow-xl z-[300]"
       >
         <Link href="/" className="block">
           <div className={`px-4 py-3 text-sm flex items-center gap-3 hover:bg-white/10 ${currentPath === '/' ? 'text-white' : 'text-gray-300'}`}>

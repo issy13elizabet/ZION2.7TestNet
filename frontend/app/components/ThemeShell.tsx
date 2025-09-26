@@ -108,7 +108,17 @@ export default function ThemeShell({ children }: { children: React.ReactNode }) 
       </div>
       {/* Spacer to avoid overlap with fixed nav */}
       <div style={{ height: 80 }} />
-      <main style={{ maxWidth: 980, margin: '24px auto', padding: '0 16px', position: 'relative', zIndex: 2 }}>{children}</main>
+      <main style={{ maxWidth: 980, margin: '24px auto', padding: '0 16px', position: 'relative', zIndex: 2 }}>
+        <div className="rounded-3xl p-[1.2px] bg-gradient-to-r from-purple-500/40 to-blue-500/40 shadow-2xl">
+          <div
+            className="rounded-3xl overflow-hidden border backdrop-blur-xl bg-white/5 border-white/10 dark:bg-black/30 dark:border-emerald-400/20"
+          >
+            <div className="p-6 md:p-8">
+              {children}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
