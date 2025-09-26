@@ -100,7 +100,7 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json();
         const height = data.result?.height || 0;
-        
+        // Always include sacred spaces alongside real pool
         return [
           {
             name: 'ZION Main Pool',
@@ -109,6 +109,22 @@ export default function DashboardPage() {
             hashRate: height > 0 ? '~1.2 KH/s' : '0 H/s',
             miners: height > 0 ? Math.floor(Math.random() * 10) + 1 : 0,
             lastBlock: height > 0 ? 'Live' : 'Syncing...'
+          },
+          {
+            name: 'EKAM Temple',
+            dimension: 'Oneness Consciousness',
+            status: 'active',
+            hashRate: '—',
+            miners: 0,
+            lastBlock: '—'
+          },
+          {
+            name: 'New Jerusalem',
+            dimension: 'Sacred Geometry Museum',
+            status: 'active',
+            hashRate: '—',
+            miners: 0,
+            lastBlock: '—'
           }
         ];
       }
@@ -149,6 +165,14 @@ export default function DashboardPage() {
         hashRate: '21.12 KH/s',
         miners: 144000,
         lastBlock: 'Now'
+      },
+      {
+        name: 'New Jerusalem',
+        dimension: 'Sacred Geometry Museum',
+        status: 'active',
+        hashRate: '—',
+        miners: 0,
+        lastBlock: '—'
       }
     ];
   };
@@ -352,39 +376,58 @@ export default function DashboardPage() {
       >
         <h2 className="text-2xl font-bold mb-4 text-violet-300">🏛️ {t.dashboard.miningTemples}</h2>
         <div className="grid md:grid-cols-3 gap-4">
-          {pools.map((pool, i) => (
-            <motion.div
-              key={i}
-              className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/30"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-violet-300">{pool.name}</h3>
-                  <p className="text-sm text-gray-400">{pool.dimension}</p>
+          {pools.map((pool, i) => {
+            const isEkam = pool.name === 'EKAM Temple';
+            const isNewJerusalem = pool.name === 'New Jerusalem';
+            const CardContent = (
+              <div>
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="text-lg font-semibold text-violet-300">{pool.name}</h3>
+                    <p className="text-sm text-gray-400">{pool.dimension}</p>
+                  </div>
+                  <span className={`w-3 h-3 rounded-full ${
+                    pool.status === 'active' ? 'bg-green-400' : 
+                    pool.status === 'syncing' ? 'bg-yellow-400' : 'bg-red-400'
+                  }`} />
                 </div>
-                <span className={`w-3 h-3 rounded-full ${
-                  pool.status === 'active' ? 'bg-green-400' : 
-                  pool.status === 'syncing' ? 'bg-yellow-400' : 'bg-red-400'
-                }`} />
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-gray-400">{t.dashboard.hashRate}</div>
+                    <div className="font-semibold text-purple-300">{pool.hashRate}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-400">{t.dashboard.miners}</div>
+                    <div className="font-semibold text-blue-300">{pool.miners}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-400">{t.dashboard.lastBlockTime}</div>
+                    <div className="font-semibold text-green-300">{pool.lastBlock}</div>
+                  </div>
+                </div>
+                {(isEkam || isNewJerusalem) && (
+                  <div className="mt-4">
+                    <span className="inline-block text-amber-300 hover:text-white transition-colors">
+                      {isEkam ? 'Enter EKAM →' : 'Explore City of Light →'}
+                    </span>
+                  </div>
+                )}
               </div>
-              
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-400">{t.dashboard.hashRate}</div>
-                  <div className="font-semibold text-purple-300">{pool.hashRate}</div>
-                </div>
-                <div>
-                  <div className="text-gray-400">{t.dashboard.miners}</div>
-                  <div className="font-semibold text-blue-300">{pool.miners}</div>
-                </div>
-                <div>
-                  <div className="text-gray-400">{t.dashboard.lastBlockTime}</div>
-                  <div className="font-semibold text-green-300">{pool.lastBlock}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+            );
+            const Wrapper: any = (isEkam || isNewJerusalem) ? Link : 'div';
+            const wrapperProps = (isEkam || isNewJerusalem) ? { href: isEkam ? '/ekam' : '/new-jerusalem' } : {};
+            return (
+              <motion.div
+                key={i}
+                className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/30"
+                whileHover={{ scale: 1.02 }}
+              >
+                <Wrapper {...wrapperProps}>
+                  {CardContent}
+                </Wrapper>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.section>
 
