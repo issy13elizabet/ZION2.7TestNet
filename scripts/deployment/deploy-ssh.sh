@@ -57,8 +57,11 @@ ssh $SERVER_USER@$SERVER_IP << 'EOF'
         chmod +x /usr/local/bin/docker-compose
     fi
     
-    # Setup UFW firewall for ZION
+    # Setup UFW firewall for ZION (install if missing)
     echo "🔥 Configuring firewall for ZION..."
+    if ! command -v ufw >/dev/null 2>&1; then
+        apt install -y ufw
+    fi
     ufw --force reset
     ufw default deny incoming
     ufw default allow outgoing
@@ -115,6 +118,11 @@ ENV_EOF
         echo ".env created with minimal defaults"
     fi
 
+    # Ensure external docker network exists (used by compose)
+    if ! docker network inspect zion-seeds >/dev/null 2>&1; then
+        docker network create zion-seeds || true
+    fi
+
     # Deploy ZION
     echo "🚀 Deploying ZION services with mining pool..."
     # Clean up any previous containers with fixed names to avoid name conflicts
@@ -126,6 +134,14 @@ ENV_EOF
     echo "⏳ Waiting for services..."
     sleep 20
     
+    # Choose compose binary for systemd and runtime
+    COMPOSE_BIN="/usr/local/bin/docker-compose"
+    if command -v docker-compose >/dev/null 2>&1; then
+        COMPOSE_BIN="$(command -v docker-compose)"
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        COMPOSE_BIN="docker compose"
+    fi
+
     # Verify deployment (RPC is internal-only; check from inside the container)
     echo "⏳ Waiting for RPC to become ready..."
     tries=0
@@ -151,7 +167,7 @@ ENV_EOF
         echo "   Then mine to: stratum+tcp://localhost:3333"
         
         # Create systemd service
-        cat > /etc/systemd/system/zion.service << SYSTEMD_EOF
+    cat > /etc/systemd/system/zion.service << SYSTEMD_EOF
 [Unit]
 Description=ZION Cryptocurrency Node
 After=docker.service
@@ -161,8 +177,8 @@ Requires=docker.service
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/opt/zion/zion-repo
-ExecStart=/usr/local/bin/docker-compose -f docker-compose.prod.yml --profile pool up -d
-ExecStop=/usr/local/bin/docker-compose -f docker-compose.prod.yml --profile pool down
+ExecStart=${COMPOSE_BIN} -f docker-compose.prod.yml --profile pool up -d
+ExecStop=${COMPOSE_BIN} -f docker-compose.prod.yml --profile pool down
 TimeoutStartSec=0
 
 [Install]
