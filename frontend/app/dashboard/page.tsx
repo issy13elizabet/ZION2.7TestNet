@@ -347,10 +347,10 @@ export default function DashboardPage() {
             className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-purple-500/30"
             whileHover={{ scale: 1.02 }}
           >
-            <h3 className="text-xl font-semibold text-amber-300 mb-2">🏛️ EKAM Temple</h3>
+            <h3 className="text-xl font-semibold text-amber-300 mb-2">🏛️ Temples</h3>
             <p className="text-gray-300 mb-4">Oneness Consciousness Portal</p>
-            <Link href="/ekam" className="inline-block bg-amber-600/30 hover:bg-amber-600/50 px-4 py-2 rounded-md transition-colors">
-              Enter EKAM →
+            <Link href="/temples" className="inline-block bg-amber-600/30 hover:bg-amber-600/50 px-4 py-2 rounded-md transition-colors">
+              Enter Temples →
             </Link>
           </motion.div>
 
