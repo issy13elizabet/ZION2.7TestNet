@@ -162,6 +162,15 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
 }
 
 bool RpcServer::isCoreReady() {
+  // Allow bootstrap mining when at genesis height with no peers
+  uint32_t current_height = m_core.get_current_blockchain_height();
+  uint32_t peer_count = m_p2p.get_connections_count();
+  
+  if (current_height <= 1 && peer_count == 0) {
+    logger(INFO) << "[BOOTSTRAP] Allowing RPC at height=" << current_height << " peers=" << peer_count;
+    return true;  // Bootstrap mode - allow RPC for first block generation
+  }
+  
   return m_core.currency().isTestnet() || m_p2p.get_payload_object().isSynchronized();
 }
 

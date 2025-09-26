@@ -261,16 +261,33 @@ async function getBlockTemplateRobust(wal, reserve) {
       }
     }
 
-    const variants = [
-      // Modern and legacy variants
+    // Build variant list dynamically. Some daemons (or genesis height) are sensitive to reserve_size > 0.
+    // We prepend a reserve_size=0 probe sequence during bootstrap (no cached height yet or height <= 1) or after repeated busy errors.
+    const variantSets = [];
+    const needZeroReserve = (metrics.lastHeight === null || metrics.lastHeight <= 1);
+    if (needZeroReserve) {
+      const rz = 0;
+      variantSets.push([
+        { method: 'getblocktemplate', params: { wallet_address: wal, reserve_size: rz } },
+        { method: 'getblocktemplate', params: { address: wal, reserve_size: rz } },
+        { method: 'getblocktemplate', params: [wal, rz] },
+        { method: 'get_block_template', params: { wallet_address: wal, reserve_size: rz } },
+        { method: 'get_block_template', params: { address: wal, reserve_size: rz } },
+        { method: 'get_block_template', params: [wal, rz] }
+      ]);
+      console.warn('[shim] adding reserve_size=0 bootstrap variants before standard list');
+    }
+    variantSets.push([
+      // Modern and legacy variants (preferred reserve size)
       { method: 'getblocktemplate', params: { wallet_address: wal, reserve_size: reserve } },
       { method: 'getblocktemplate', params: { address: wal, reserve_size: reserve } },
       { method: 'getblocktemplate', params: [wal, reserve] },
-      // Legacy underscore variant used by some CryptoNote daemons
       { method: 'get_block_template', params: { wallet_address: wal, reserve_size: reserve } },
       { method: 'get_block_template', params: { address: wal, reserve_size: reserve } },
       { method: 'get_block_template', params: [wal, reserve] }
-    ];
+    ]);
+    // Flatten variant sets preserving order
+    const variants = [].concat.apply([], variantSets);
     let lastErrLocal;
     for (let attempt = 0; attempt < 10; attempt++) {
       try {

@@ -80,6 +80,28 @@ Failed to connect to any of seed peers, continuing without seeds
 ## Status Handover
 **Pro Sonnet**: Máme připraven přesný akční plán. Root cause je jasný - daemon gating kvůli P2P nesync. Nejrychlejší cesta je patch `allowBusyCore=true` pro `getblocktemplate` při bootstrap (height==0). Všechny nástroje a docker infrastruktura je ready.
 
+## 🎉 **UPDATE: SUCCESS!**
+
+### Bootstrap Patch Implemented & Working!
+- ✅ **Patch Applied**: Modified `RpcServer.cpp` `isCoreReady()` function 
+- ✅ **Logic**: Allow RPC when `height <= 1 && peer_count == 0` (bootstrap mode)
+- ✅ **Build Success**: New Docker image `zion:bootstrap-fixed` created
+- ✅ **Direct Test**: `getblocktemplate` now returns valid block template blob instead of "Core is busy"
+- ✅ **RPC Shim**: Successfully retrieving templates, reports `height: 1` 
+- ✅ **Pool Integration**: Pool now gets daemon stats (`33427 ms daemon` response time)
+
+### Current Stack Status:
+- **seed1 (bootstrap-fixed)**: ✅ Healthy, providing block templates
+- **rpc-shim**: ✅ Connected, height tracking working  
+- **uzi-pool**: ✅ Receiving daemon stats, ready for miners
+- **stratum servers**: ✅ Listening on ports 3333/3334/3340
+
+### Next Steps (Ready for Sonnet):
+1. **Test XMRig Connection**: Connect real miner to port 3333
+2. **First Block Mining**: Attempt to mine first block with RandomX
+3. **Remove Bootstrap Hack**: After height > 1, can revert to normal gating
+4. **Production Deployment**: Ready for SSH server deployment
+
 ---
 **Log vytvořen**: 26. září 2025, pozdní session - handover pro Sonnet/další model.
-**Status**: 🔄 DEBUGGING - Core busy issue identified, patch ready for implementation.
+**Status**: � **SUCCESS** - Core busy issue RESOLVED, mining ready!

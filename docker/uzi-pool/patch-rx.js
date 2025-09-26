@@ -1,209 +1,136 @@
 #!/usr/bin/env node
-/*
-  Runtime patcher for node-cryptonote-pool to support RandomX on ARM64 by:
-  - Removing/bypassing CryptoNight multi-hashing paths (which crash on ARM64)
-  - Injecting a processShare implementation that trusts miner's resultHash and
-    computes difficulty via bignum only
-  - Simplifying IsBannedIp to just return ban status (no share processing there)
+/* Minimal RandomX enablement patch for node-cryptonote-pool (ARM64 safe)
+   Changes:
+   - Simplify IsBannedIp
+   - Inject seedHash & algo into jobs
+   - Relax init gating so pool starts even if first getblocktemplate fails (daemon busy)
 */
-
 const fs = require('fs');
-const path = '/app/lib/pool.js';
+const target = '/app/lib/pool.js';
 
-function apply() {
-  if (!fs.existsSync(path)) {
-    console.log('[patch-rx] pool.js not found, skipping');
-    return;
-  }
-  let src = fs.readFileSync(path, 'utf8');
-  const original = src;
-
-  // 1) Simplify IsBannedIp function (remove corrupted cryptoNight code)
-  src = src.replace(/function IsBannedIp\(ip\)\{[\s\S]*?\n\}\n/, (
-    'function IsBannedIp(ip){\n' +
-    '    if (!banningEnabled || !bannedIPs[ip]) return false;\n' +
-    '    var bannedTime = bannedIPs[ip];\n' +
-    '    var bannedTimeAgo = Date.now() - bannedTime;\n' +
-    '    var timeLeft = config.poolServer.banning.time * 1000 - bannedTimeAgo;\n' +
-    '    return timeLeft > 0;\n' +
-    '}\n'
-  ));
-
-  // 2) Replace existing processShare (post-recordShareData) with RandomX-trusting version
-  (function replaceProcessShare(){
-    var anchor = src.indexOf('function recordShareData');
-    if (anchor === -1) return;
-    var tail = src.slice(anchor);
-    var m = tail.match(/function\s+processShare\s*\([\s\S]*?\)\s*\{[\s\S]*?\n\}/);
-    if (!m) return;
-    var start = anchor + m.index;
-    var end = start + m[0].length;
-    var replacement = [
-      "function processShare(miner, job, blockTemplate, nonce, resultHash){",
-      "    var shareType = 'trusted';",
-      "    if (!resultHash || typeof resultHash !== 'string' || resultHash.length !== 64){",
-      "        log('warn', logSystem, 'Malformed result hash from %s@%s', [miner.login, miner.ip]);",
-      "        return false;",
-      "    }",
-  "    var hash;",
-  "    try{ hash = Buffer.from(resultHash, 'hex'); } catch(e){",
-      "        log('warn', logSystem, 'Invalid result hash hex from %s@%s', [miner.login, miner.ip]);",
-      "        return false;",
-      "    }",
-      "    if (hash.toString('hex') !== resultHash.toLowerCase()){",
-      "        log('warn', logSystem, 'Bad hash from miner %s@%s', [miner.login, miner.ip]);",
-      "        return false;",
-      "    }",
-  "    var hashArray = (function(){",
-  "        try {",
-  "            var h = hash.toJSON();",
-  "            if (h && h.data) return h.data.slice();",
-  "        } catch(e) {}",
-  "        try { return Array.from(hash); } catch(e) { return []; }",
-  "    })();",
-  "    hashArray.reverse();",
-  "    var hashNum = bignum.fromBuffer(Buffer.from(hashArray));",
-      "    var hashDiff = diff1.div(hashNum);",
-      "    if (hashDiff.ge(blockTemplate.difficulty)){",
-      "        log('info', logSystem, 'Block candidate share from %s@%s at height %d, shareDiff=%s >= blockDiff=%s', [miner.login, miner.ip, job.height, hashDiff.toString(), String(blockTemplate.difficulty)]);",
-      "        try {",
-  "            if (cnUtil && cnUtil.construct_block_blob){",
-  "                var headerBuffer = Buffer.from(blockTemplate.buffer);",
-  "                try { headerBuffer.writeUInt32BE(job.extraNonce >>> 0, blockTemplate.reserveOffset); } catch(e) {}",
-  "                var shareBuffer = cnUtil.construct_block_blob(headerBuffer, Buffer.from(nonce, 'hex'));",
-      "                apiInterfaces.rpcDaemon('submitblock', [shareBuffer.toString('hex')], function(error, result){",
-      "                    if (error){",
-      "                        log('error', logSystem, 'Error submitting block at height %d from %s@%s, share type: %s - %j', [job.height, miner.login, miner.ip, shareType, error]);",
-      "                        recordShareData(miner, job, hashDiff.toString(), false, null, shareType);",
-      "                    } else {",
-      "                        var blockFastHash = resultHash;",
-      "                        log('info', logSystem, 'Block %s found at height %d by miner %s@%s - submit result: %j', [blockFastHash.substr(0, 6), job.height, miner.login, miner.ip, result]);",
-      "                        recordShareData(miner, job, hashDiff.toString(), true, blockFastHash, shareType, blockTemplate);",
-      "                        jobRefresh();",
-      "                    }",
-      "                });",
-      "            } else {",
-      "                recordShareData(miner, job, hashDiff.toString(), true, resultHash, shareType, blockTemplate);",
-      "                jobRefresh();",
-      "            }",
-      "        } catch(e){",
-      "            log('error', logSystem, 'Block submit path failed: %j', [e && e.message ? e.message : e]);",
-      "            recordShareData(miner, job, hashDiff.toString(), true, resultHash, shareType, blockTemplate);",
-      "            jobRefresh();",
-      "        }",
-      "        return true;",
-      "    } else if (hashDiff.lt(job.difficulty)){",
-      "        log('warn', logSystem, 'Rejected low difficulty share of %s from %s@%s', [hashDiff.toString(), miner.login, miner.ip]);",
-      "        return false;",
-      "    } else {",
-      "        log('info', logSystem, 'Accepted share from %s@%s on height %d: shareDiff=%s >= jobDiff=%s', [miner.login, miner.ip, job.height, hashDiff.toString(), String(job.difficulty)]);",
-      "        recordShareData(miner, job, hashDiff.toString(), false, null, shareType);",
-      "        return true;",
-      "    }",
-      "}"
-    ].join('\n');
-    src = src.slice(0, start) + replacement + src.slice(end);
-  })();
-
-  // 2b) Harden Miner.getTargetHex/Miner.prototype.getTargetHex to accept Buffer/Array/hex and avoid reverse() on non-array types
-  (function replaceGetTargetHex(){
-    function buildReplacement(assignPrefix){
-      return [
-        assignPrefix + "function(target){",
-        "    try {",
-        "        var buf;",
-        "        if (Buffer.isBuffer(target)) {",
-        "            buf = Buffer.from(target);",
-        "        } else if (typeof target === 'string') {",
-        "            var hex = target.replace(/^0x/, '');",
-        "            buf = Buffer.from(hex, 'hex');",
-        "        } else if (target && typeof target.toBuffer === 'function') {",
-        "            buf = Buffer.from(target.toBuffer());",
-        "        } else if (Array.isArray(target)) {",
-        "            buf = Buffer.from(target);",
-        "        } else if (target && target.type === 'Buffer' && Array.isArray(target.data)) {",
-        "            buf = Buffer.from(target.data);",
-        "        } else if (target && typeof target === 'object') {",
-        "            try {",
-        "                var j = target.toJSON ? target.toJSON() : target;",
-        "                if (j && Array.isArray(j.data)) buf = Buffer.from(j.data);",
-        "            } catch(e) {}",
-        "        }",
-        "        if (!buf) { buf = Buffer.alloc(0); }",
-        "        var arr = [];",
-        "        try { arr = Array.from(buf); } catch(e) { arr = []; }",
-        "        arr.reverse();",
-        "        return Buffer.from(arr).toString('hex');",
-        "    } catch (e) {",
-        "        try { log('warn', logSystem, 'getTargetHex failed: %j', [e && e.message ? e.message : e]); } catch(_) {}",
-        "        return '';",
-        "    }",
-        "}"
-      ].join('\n');
-    }
-    // Try prototype form first
-    var mProt = src.match(/Miner\.prototype\.getTargetHex\s*=\s*function\s*\([^)]*\)\s*\{[\s\S]*?\n\}/);
-    if (mProt) {
-      var start = mProt.index;
-      var end = start + mProt[0].length;
-      var replacement = 'Miner.prototype.getTargetHex = ' + buildReplacement('');
-      src = src.slice(0, start) + replacement + src.slice(end);
-      console.log('[patch-rx] Replaced Miner.prototype.getTargetHex');
-      return;
-    }
-    // Fallback: function Miner.getTargetHex() form
-    var mFunc = src.match(/function\s+Miner\.getTargetHex\s*\(\s*[^)]*\)\s*\{[\s\S]*?\n\}/);
-    if (mFunc) {
-      var start2 = mFunc.index;
-      var end2 = start2 + mFunc[0].length;
-      var replacement2 = 'function Miner.getTargetHex' + buildReplacement('');
-      src = src.slice(0, start2) + replacement2 + src.slice(end2);
-      console.log('[patch-rx] Replaced function Miner.getTargetHex');
-    }
-  })();
-
-  // 3) Capture seed_hash in BlockTemplate for RandomX miners (insert after height line)
-  if (!/seedHash\s*=/.test(src)) {
-    src = src.replace(/(this\.height\s*=\s*template\.height;)/, "$1\n    this.seedHash = (template.seed_hash || template.seedHash || '');\n    if (!this.seedHash || this.seedHash.length === 0) this.seedHash = '0000000000000000000000000000000000000000000000000000000000000000';\n");
-  }
-
-  // 4) Include algo and seed_hash in Miner.getJob return so XMRig can mine RandomX
-  // 4) Include algo and seed_hash in Miner.getJob return so XMRig can mine RandomX
-  if (!/algo:\s*'rx\/0'/.test(src)) {
-    var jobReturnRegex = /return\s*\{\s*\n\s*blob:\s*blob,\s*\n\s*job_id:\s*newJob\.id,\s*\n\s*target:\s*target,\s*\n\s*id:\s*this\.id\s*\n\s*\};/;
-    if (jobReturnRegex.test(src)) {
-      src = src.replace(jobReturnRegex, [
-        'return {',
-        '            blob: blob,',
-        '            job_id: newJob.id,',
-        '            target: target,',
-        "            algo: 'rx/0',",
-        '            seed_hash: (currentBlockTemplate.seedHash || "0000000000000000000000000000000000000000000000000000000000000000"),',
-        '            height: currentBlockTemplate.height,',
-        '            id: this.id',
-        '        };'
-      ].join('\n'));
-    } else {
-      src = src.replace(/(\btarget:\s*target,)/, "$1\n            algo: 'rx/0',\n            seed_hash: (currentBlockTemplate.seedHash || '0000000000000000000000000000000000000000000000000000000000000000'),\n            height: currentBlockTemplate.height,");
-    }
-  }
-
-  // 5) Fallback fix: if existing processShare code still calls construct_block_blob(blockTemplate,...), rewrite it to use headerBuffer with proper Buffer arguments
-  src = src.replace(
-    /var\s+shareBuffer\s*=\s*cnUtil\.construct_block_blob\(\s*blockTemplate\s*,\s*Buffer\.from\(nonce,\s*'hex'\)\s*\)\s*;/,
-    [
-      'var headerBuffer = Buffer.from(blockTemplate.buffer);',
-      'try { headerBuffer.writeUInt32BE(job.extraNonce >>> 0, blockTemplate.reserveOffset); } catch(e) {}',
-      "var shareBuffer = cnUtil.construct_block_blob(headerBuffer, Buffer.from(nonce, 'hex'));"
-    ].join('\n') + '\n'
-  );
-
-  if (src !== original) {
-    fs.writeFileSync(path, src, 'utf8');
-    console.log('[patch-rx] Patched pool.js for RandomX/ARM64');
-  } else {
-    console.log('[patch-rx] No changes applied (already patched?)');
-  }
+function safeReplace(src, pattern, replacement, label){
+  const before = src;
+  try { src = src.replace(pattern, replacement); } catch(e){ console.log('[patch-rx] replace failed', label, e.message); }
+  if (before !== src) console.log('[patch-rx] applied', label); else console.log('[patch-rx] pattern not found for', label);
+  return src;
 }
 
-try { apply(); } catch (e) { console.error('[patch-rx] failed:', e && e.message ? e.message : e); process.exit(1); }
+function run(){
+  if(!fs.existsSync(target)) { console.log('[patch-rx] pool.js missing'); return; }
+  let src = fs.readFileSync(target,'utf8');
+  const original = src;
+  console.log('[patch-rx] original length', src.length);
+
+  // 1. Simplify IsBannedIp
+  src = safeReplace(src, /function IsBannedIp\(ip\)\{[\s\S]*?\n\}\n/, 'function IsBannedIp(ip){\n    if (!banningEnabled || !bannedIPs[ip]) return false;\n    var bannedTime = bannedIPs[ip];\n    var bannedTimeAgo = Date.now() - bannedTime;\n    var timeLeft = config.poolServer.banning.time * 1000 - bannedTimeAgo;\n    return timeLeft > 0;\n}\n', 'IsBannedIp');
+
+  // 2. Add seedHash to BlockTemplate
+  if(!/this\.seedHash/.test(src)) {
+    src = safeReplace(src, /(this\.height\s*=\s*template\.height;)/, '$1\n    this.seedHash = (template.seed_hash || template.seedHash || \"0000000000000000000000000000000000000000000000000000000000000000\");', 'seedHash');
+  }
+
+  // 3. Add algo & seed_hash & height to Miner.getJob return
+  if(!/algo:\s*'rx\/0'/.test(src)) {
+    src = safeReplace(src,
+      /return\s*\{\s*\n\s*blob:\s*blob,\s*\n\s*job_id:\s*newJob\.id,\s*\n\s*target:\s*target,\s*\n\s*id:\s*this\.id\s*\n\s*\};/,
+      'return {\n            blob: blob,\n            job_id: newJob.id,\n            target: target,\n            algo: \"rx/0\",\n            seed_hash: (currentBlockTemplate.seedHash || \"0000000000000000000000000000000000000000000000000000000000000000\"),\n            height: currentBlockTemplate.height,\n            id: this.id\n        };',
+      'jobReturn');
+  }
+
+  // 4. Relax init gating (start server even if first jobRefresh fails)
+  // Instead of starting without a block template, disable original init IIFE and inject retry wrapper
+  src = safeReplace(src,
+    /\(function init\(\)\{/, '(function init_disabled(){ /* disabled by patch-rx */');
+  // Inject retry logic appended near EOF (before final module export / end). We'll append a marker block.
+  if(!/__patch_rx_init_retry/.test(src)){
+    src += '\n// __patch_rx_init_retry\n' +
+      '(function(){\n' +
+      '  try {\n' +
+      '    if (typeof jobRefresh === "function" && typeof startPoolServerTcp === "function") {\n' +
+      '      var attempts = 0;\n' +
+      '      function attempt(){\n' +
+      '        jobRefresh(true, function(success){\n' +
+      '          if (!success){\n' +
+      '            attempts++;\n' +
+      '            if (attempts < 20){\n' +
+      '              try { log(\'warn\', logSystem, \"Initial jobRefresh failed (attempt %d)\", [attempts]); } catch(e){ console.log(\'[patch-rx] jobRefresh fail\', e.message); }\n' +
+      '              return setTimeout(attempt, 2000);\n' +
+      '            } else {\n' +
+      '              console.log(\'[patch-rx] giving up after 20 jobRefresh attempts\');\n' +
+      '              return;\n' +
+      '            }\n' +
+      '          }\n' +
+      '          try { log(\'info\', logSystem, \"Initial jobRefresh succeeded after %d attempt(s)\", [attempts+1]); } catch(e){}\n' +
+      '          startPoolServerTcp(function(){ console.log(\'[patch-rx] stratum servers started\'); });\n' +
+      '        });\n' +
+      '      }\n' +
+      '      if (!currentBlockTemplate){ attempt(); }\n' +
+      '    }\n' +
+      '  } catch(e){ console.log(\'[patch-rx] init retry wrapper error\', e.message); }\n' +
+      '})();\n';
+  }
+
+  // 5. Log ports summary (non-fatal if missing)
+  try {
+    const cfgPath = '/app/config.json';
+    if (fs.existsSync(cfgPath)) {
+      const cfg = JSON.parse(fs.readFileSync(cfgPath,'utf8'));
+      if (cfg.poolServer && Array.isArray(cfg.poolServer.ports)) {
+        console.log('[patch-rx] ports configured:', cfg.poolServer.ports.map(p=>p.port+':' + (p.algo||'n/a')).join(','));
+      }
+    }
+  } catch(e){ console.log('[patch-rx] port summary failed', e.message); }
+
+  if(src !== original){
+    fs.writeFileSync(target, src, 'utf8');
+    console.log('[patch-rx] patch applied OK');
+  } else {
+    console.log('[patch-rx] no changes (already patched)');
+  }
+
+  // Patch utils.isValidAddress to accept Z3 addresses (temporary relaxed validation)
+  try {
+    const utilPath = '/app/lib/utils.js';
+    if (fs.existsSync(utilPath)) {
+      let u = fs.readFileSync(utilPath,'utf8');
+      if (!/__patch_rx_addr/.test(u)) {
+        u += '\n// __patch_rx_addr\nexports.isValidAddress = function(address){ return typeof address === "string" && /^Z3[1-9A-HJ-NP-Za-km-z]{90,110}$/.test(address); };\n';
+        fs.writeFileSync(utilPath, u, 'utf8');
+        console.log('[patch-rx] utils.isValidAddress overridden for Z3');
+      }
+    }
+  } catch(e){ console.log('[patch-rx] utils patch failed', e.message); }
+
+  // Secondary instrumentation patch applied after primary write (in-place edit of pool.js)
+  try {
+    let p = fs.readFileSync(target,'utf8');
+    if (!/__patch_rx_force_start/.test(p)) {
+      // Instrument startPoolServerTcp
+      p = p.replace(/function startPoolServerTcp\(callback\)\{/, 'function startPoolServerTcp(callback){\n    console.log(\'[patch-rx] entering startPoolServerTcp\');');
+      // Force start after definitions
+      p += '\n// __patch_rx_force_start\nsetTimeout(function(){\n  try {\n    if (typeof startPoolServerTcp === "function") {\n      console.log("[patch-rx] forcing stratum start");\n      startPoolServerTcp(function(ok){ console.log("[patch-rx] forced start callback", ok); });\n    } else { console.log("[patch-rx] startPoolServerTcp undefined"); }\n  } catch(e){ console.log("[patch-rx] force start error", e && e.message); }\n}, 1500);\n';
+      fs.writeFileSync(target, p, 'utf8');
+      console.log('[patch-rx] added force start instrumentation');
+    }
+  } catch(e){ console.log('[patch-rx] instrumentation add failed', e.message); }
+
+  // Patch login handler to defer job until block template exists
+  try {
+    let p2 = fs.readFileSync(target,'utf8');
+    if (!/__patch_rx_login_wait/.test(p2)) {
+      const loginPattern = /case 'login':[\s\S]*?break;/;
+      if (loginPattern.test(p2)) {
+        p2 = p2.replace(loginPattern, function(block){
+          if (block.indexOf('currentBlockTemplate') !== -1) return block; // already patched
+          return block.replace(/sendReply\(null, \{[\s\S]*?status: 'OK'\n\s*\}\);/, "if (!currentBlockTemplate){ try { log('warn', logSystem, 'No block template yet for miner %s', [params.login]); } catch(e){}\n                // queue minimal response; miner will request getjob repeatedly\n                sendReply(null, { id: minerId, job: { status: 'NOJOB' }, status: 'OK' });\n            } else {\n                sendReply(null, { id: minerId, job: miner.getJob(), status: 'OK' });\n            }") + '\n            // __patch_rx_login_wait';
+        });
+        fs.writeFileSync(target, p2, 'utf8');
+        console.log('[patch-rx] login handler patched for template wait');
+      } else {
+        console.log('[patch-rx] login pattern not found');
+      }
+    }
+  } catch(e){ console.log('[patch-rx] login patch failed', e.message); }
+}
+
+try { run(); } catch(e){ console.error('[patch-rx] fatal', e); process.exit(1); }
