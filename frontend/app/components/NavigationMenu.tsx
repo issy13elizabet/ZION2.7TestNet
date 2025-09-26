@@ -51,10 +51,16 @@ const NavigationMenu = () => {
       description: "AI Module Control"
     },
     {
-      href: "/new-jerusalem",
-      label: "Museum",
+      href: "/ekam",
+      label: "EKAM",
       icon: "🏛️",
-      description: "New Jerusalem 3D Museum"
+      description: "EKAM Temple"
+    },
+    {
+      href: "/new-jerusalem",
+      label: "New Jerusalem",
+      icon: "🌈",
+      description: "Sacred Geometry Museum"
     }
   ];
 
