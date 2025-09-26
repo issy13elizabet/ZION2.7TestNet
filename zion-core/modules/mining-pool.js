@@ -2,12 +2,19 @@ import express from 'express';
 import net from 'net';
 import { createHash, randomBytes } from 'crypto';
 
+// Import our ZION Cosmic Harmony algorithm
+import { ZionCosmicHarmonyTest } from './zion-cosmic-harmony-mining.js';
+
 class MiningPool {
   constructor() {
     this.status = 'stopped';
     this.miners = new Map();
     this.jobs = new Map();
     this.shares = [];
+    
+    // Initialize ZION Cosmic Harmony algorithm
+    this.zionAlgorithm = new ZionCosmicHarmonyTest();
+    console.log('🌟 ZION Cosmic Harmony algorithm initialized for hybrid mining');
     this.blocks = [];
     
     this.config = {
@@ -195,6 +202,19 @@ class MiningPool {
         
       case 'mining.submit':
         this.handleMiningSubmit(miner, id, params);
+        break;
+        
+      // XMRig/CryptoNote protocol support
+      case 'login':
+        this.handleXMRigLogin(miner, id, params);
+        break;
+        
+      case 'getjob':
+        this.handleXMRigGetJob(miner, id, params);
+        break;
+        
+      case 'submit':
+        this.handleXMRigSubmit(miner, id, params);
         break;
         
       default:
@@ -425,6 +445,140 @@ class MiningPool {
 
   getStats() {
     return this.stats;
+  }
+
+  // XMRig/CryptoNote protocol handlers
+  handleXMRigLogin(miner, id, params) {
+    console.log(`🎯 XMRig login from ${miner.id}:`, params);
+    
+    // Extract wallet address and worker name
+    const { login, pass, agent } = params;
+    miner.wallet = login;
+    miner.worker = pass || 'default';
+    miner.agent = agent || 'xmrig';
+    miner.authorized = true;
+    
+    const response = {
+      id,
+      jsonrpc: "2.0",
+      result: {
+        id: miner.id,
+        job: this.generateRandomXJob(),
+        status: "OK"
+      }
+    };
+    
+    miner.socket.write(JSON.stringify(response) + '\n');
+    console.log(`✅ XMRig miner ${miner.id} logged in successfully`);
+  }
+
+  handleXMRigGetJob(miner, id, params) {
+    const response = {
+      id,
+      jsonrpc: "2.0",
+      result: this.generateRandomXJob()
+    };
+    
+    miner.socket.write(JSON.stringify(response) + '\n');
+  }
+
+  handleXMRigSubmit(miner, id, params) {
+    console.log(`📤 Share submitted by ${miner.id}:`, params);
+    
+    // Process share submission
+    const { job_id, nonce, result } = params;
+    
+    // Validate share (simplified)
+    const isValid = this.validateRandomXShare(job_id, nonce, result);
+    
+    if (isValid) {
+      this.stats.shares_accepted++;
+      miner.shares_accepted = (miner.shares_accepted || 0) + 1;
+      console.log(`✅ ACCEPTED SHARE from ${miner.id}! Total: ${this.stats.shares_accepted}`);
+    } else {
+      this.stats.shares_rejected++;
+      miner.shares_rejected = (miner.shares_rejected || 0) + 1;
+      console.log(`❌ Rejected share from ${miner.id}`);
+    }
+
+    const response = {
+      id,
+      jsonrpc: "2.0",
+      result: {
+        status: isValid ? "OK" : "REJECTED"
+      }
+    };
+    
+    miner.socket.write(JSON.stringify(response) + '\n');
+  }
+
+  generateRandomXJob() {
+    const jobId = `zion_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Generate cosmic seed using our algorithm
+    const cosmicSeed = this.zionAlgorithm.hash(`cosmic_job_${jobId}_${Date.now()}`);
+    
+    console.log(`🌟 Generated ZION Cosmic job: ${jobId}`);
+    
+    return {
+      blob: "0606e4a4d005b27e470181a2928b5a147c717b4f1c1a5420bb2cf88b7b92c95c6a03b95a2a00000000b194c01576ba2124bef7b76fce73ffb5b53a20e1cc6a23a1e4a0ba7e20ee7030101",
+      job_id: jobId,
+      target: "00ffffff", // Easier target for testing
+      height: Math.floor(Date.now() / 1000), // Use timestamp as height
+      seed_hash: cosmicSeed.toString('hex').substr(0, 64),
+      algorithm: "zion-cosmic-harmony"
+    };
+  }
+
+  validateRandomXShare(jobId, nonce, result) {
+    console.log(`🔮 Validating share using ZION Cosmic Harmony algorithm...`);
+    console.log(`   Job ID: ${jobId}`);
+    console.log(`   Nonce: ${nonce}`);
+    console.log(`   Result: ${result}`);
+    
+    // Basic format validation
+    if (!result || result.length !== 64 || !/^[a-f0-9]+$/i.test(result)) {
+      console.log('❌ Invalid result format');
+      return false;
+    }
+    
+    try {
+      // Use our ZION Cosmic Harmony algorithm for validation
+      const inputData = `${jobId}:${nonce}:${result}`;
+      const zionHash = this.zionAlgorithm.hash(inputData);
+      
+      // Check if the hash meets our difficulty target
+      const hashString = zionHash.toString('hex');
+      const difficulty = this.calculateDifficulty(hashString);
+      
+      console.log(`🌟 ZION hash: ${hashString}`);
+      console.log(`⚡ Difficulty: ${difficulty}`);
+      
+      // Accept shares that meet minimum difficulty (4 leading zeros for now)
+      const isValid = hashString.startsWith('0000');
+      
+      if (isValid) {
+        console.log('✅ ZION Cosmic Harmony validation PASSED!');
+      } else {
+        console.log('❌ ZION Cosmic Harmony validation failed - insufficient difficulty');
+      }
+      
+      return isValid;
+      
+    } catch (error) {
+      console.error('❌ ZION validation error:', error);
+      return false;
+    }
+  }
+  
+  calculateDifficulty(hashString) {
+    // Count leading zeros as simple difficulty measure
+    let difficulty = 0;
+    for (const char of hashString) {
+      if (char === '0') difficulty++;
+      else break;
+    }
+    return difficulty;
   }
 
   async shutdown() {
