@@ -124,41 +124,77 @@ export class BlockchainCore implements IBlockchainCore {
   }
 
   private async connectToNetwork(): Promise<void> {
-    // Connect to ZION network
+    // Initialize blockchain daemon functionality
     console.log('🌐 Connecting to ZION network...');
     
-    // Simulate network connection
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Bootstrap mode - start with height 1 for testing
+    this.currentHeight = 1;
+    this.currentDifficulty = 100;
     
     console.log('✅ Connected to ZION network');
   }
 
   private async loadBlockchainState(): Promise<void> {
-    // Load current blockchain state from storage
+    // Load blockchain state - bootstrap mode for testing
     console.log('📦 Loading blockchain state...');
     
-    // Simulate loading state
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Set initial values (in a real implementation, these would be loaded from storage)
-    this.currentHeight = 142857; // Example height
-    this.currentDifficulty = 1000000; // Example difficulty
-    this.txCount = 123456;
-    this.txPoolSize = 42;
+    // Bootstrap values for initial testing
+    this.currentHeight = 1;
+    this.currentDifficulty = 100;
+    this.txCount = 0;
+    this.txPoolSize = 0;
     
     console.log(`✅ Loaded blockchain state - Height: ${this.currentHeight}, Difficulty: ${this.currentDifficulty}`);
   }
 
   private async startSync(): Promise<void> {
-    // Start blockchain synchronization
+    // Start blockchain sync - bootstrap mode allows immediate mining
     console.log('🔄 Starting blockchain sync...');
-    this.status = 'syncing';
     
-    // Simulate sync process
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // In bootstrap mode, we're ready immediately
+    console.log('✅ Blockchain sync completed (bootstrap mode)');
+  }
+
+  // New daemon functionality methods
+  public async getBlockTemplate(): Promise<any> {
+    // Provide block template for mining
+    return {
+      blocktemplate_blob: this.generateBlockTemplate(),
+      difficulty: this.currentDifficulty,
+      height: this.currentHeight,
+      status: 'OK'
+    };
+  }
+
+  private generateBlockTemplate(): string {
+    // Generate mock block template blob
+    const timestamp = Math.floor(Date.now() / 1000);
+    const nonce = Math.floor(Math.random() * 0xFFFFFFFF);
+    return `0100${this.currentHeight.toString(16).padStart(8, '0')}${timestamp.toString(16).padStart(8, '0')}${nonce.toString(16).padStart(8, '0')}${'00'.repeat(32)}`;
+  }
+
+  public async submitBlock(blockBlob: string): Promise<any> {
+    // Handle block submission
+    console.log(`🎉 Block submitted! Height: ${this.currentHeight + 1}`);
+    this.currentHeight += 1;
     
-    this.status = 'ready';
-    console.log('✅ Blockchain sync completed');
+    return {
+      status: 'OK'
+    };
+  }
+
+  public getInfo(): any {
+    // Compatible with Monero get_info RPC
+    return {
+      height: this.currentHeight,
+      difficulty: this.currentDifficulty,
+      tx_count: this.txCount,
+      tx_pool_size: this.txPoolSize,
+      status: 'OK',
+      version: '0.18.0.0', // Monero compatibility
+      bootstrap_daemon_address: '',
+      nettype: 'mainnet'
+    };
   }
 
   // Public methods for other modules to use

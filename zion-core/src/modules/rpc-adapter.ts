@@ -115,6 +115,7 @@ export class RPCAdapter implements IRPCAdapter {
         return this.getBlock(params);
       
       case 'get_block_template':
+      case 'getblocktemplate':
         return this.getBlockTemplate(params);
       
       case 'submit_block':

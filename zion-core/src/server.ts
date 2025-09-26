@@ -150,6 +150,41 @@ class ZionCore {
       }
     });
 
+    // RPC endpoints (replaces rpc-shim) 
+    this.app.post('/json_rpc', async (req: Request, res: Response) => {
+      try {
+        const { method, params, id } = req.body;
+        const result = await this.rpc.handleRequest(method, params);
+        
+        res.json({
+          jsonrpc: '2.0',
+          result,
+          id
+        });
+      } catch (error) {
+        const err = error as Error;
+        res.json({
+          jsonrpc: '2.0',
+          error: {
+            code: -1,
+            message: err.message
+          },
+          id: req.body.id
+        });
+      }
+    });
+
+    // Legacy daemon endpoints (for compatibility)
+    this.app.get('/get_info', async (req: Request, res: Response) => {
+      const result = await this.rpc.handleRequest('get_info', {});
+      res.json(result);
+    });
+
+    this.app.post('/getblocktemplate', async (req: Request, res: Response) => {
+      const result = await this.rpc.handleRequest('getblocktemplate', req.body);
+      res.json(result);
+    });
+
     // Catch-all error handler
     this.app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       console.error('Unhandled error:', error);
