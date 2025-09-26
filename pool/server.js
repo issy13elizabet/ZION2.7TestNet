@@ -10,20 +10,30 @@ const PORT = parseInt(process.env.POOL_PORT || '3333', 10);
 
 const clients = new Set();
 
+function randHex(n) {
+  return crypto.randomBytes(n).toString('hex');
+}
+
 function makeResponse(id, result) {
-  return JSON.stringify({ id, result, error: null });
+  return JSON.stringify({ jsonrpc: '2.0', id, result, error: null });
 }
 
 function makeJobNotification() {
   // Simplified job; fields layout inspired by stratum, but not real mining yet
-  const jobId = crypto.randomBytes(4).toString('hex');
-  const header = crypto.randomBytes(32).toString('hex');
+  const jobId = randHex(4);
+  const header = randHex(32);
   const target = 'ffff' + '0'.repeat(60); // very easy target
-  return JSON.stringify({
-    id: null,
-    method: 'mining.notify',
-    params: [jobId, header, target]
-  });
+  return JSON.stringify({ id: null, method: 'mining.notify', params: [jobId, header, target] });
+}
+
+function makeMoneroJob() {
+  // Minimal Monero-style job object for XMRig 'login' responses
+  return {
+    job_id: randHex(4),
+    blob: randHex(39), // arbitrary size; xmrig will not validate in stub
+    target: 'ffff' + '0'.repeat(60),
+    algo: 'rx/0'
+  };
 }
 
 function handleLine(sock, line) {
@@ -35,6 +45,33 @@ function handleLine(sock, line) {
   }
 
   const { id, method, params } = msg;
+  // Monero/XMRig style: login
+  if (method === 'login') {
+    const sessionId = randHex(8);
+    const result = { status: 'OK', id: sessionId, job: makeMoneroJob(), extensions: [] };
+    sock.write(makeResponse(id, result) + "\n");
+    return;
+  }
+  // Monero/XMRig style: getjob
+  if (method === 'getjob') {
+    sock.write(makeResponse(id, makeMoneroJob()) + "\n");
+    return;
+  }
+  // Monero/XMRig style: keepalive
+  if (method === 'keepalived') {
+    sock.write(makeResponse(id, { status: 'KEEPALIVED' }) + "\n");
+    return;
+  }
+  // Monero/XMRig style: submit
+  if (method === 'submit') {
+    // Always accept in stub
+    sock.write(makeResponse(id, { status: 'OK' }) + "\n");
+    // Send a new job sometimes
+    sock.write(JSON.stringify({ jsonrpc: '2.0', id: null, method: 'job', params: makeMoneroJob() }) + "\n");
+    return;
+  }
+
+  // Legacy mining.* style
   if (method === 'mining.subscribe') {
     sock.write(makeResponse(id, ["OK", "1"]) + "\n");
     // send first job

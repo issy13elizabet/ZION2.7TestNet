@@ -28,9 +28,16 @@ let CUR_URL_IDX = 0;
 function currentRpcUrl() { return ZION_RPC_URLS[CUR_URL_IDX % ZION_RPC_URLS.length]; }
 function nextRpcUrl() { CUR_URL_IDX++; return currentRpcUrl(); }
 const PORT = parseInt(process.env.SHIM_PORT || '18089', 10);
-const GBT_CACHE_MS = parseInt(process.env.GBT_CACHE_MS || '8000', 10); // serve cached template up to 8s by default
+let GBT_CACHE_MS = parseInt(process.env.GBT_CACHE_MS || '8000', 10); // serve cached template up to 8s by default
 const BUSY_CACHE_FACTOR = parseInt(process.env.BUSY_CACHE_FACTOR || '5', 10); // multiply cache window during busy state
 const MAX_BACKOFF_MS = parseInt(process.env.MAX_BACKOFF_MS || '5000', 10);
+// Optional: disable cache after certain chain height for fresher templates during later testing
+const GBT_DISABLE_CACHE_AFTER_HEIGHT = parseInt(process.env.GBT_DISABLE_CACHE_AFTER_HEIGHT || '-1', 10); // -1 => never
+// Minimum sanity clamp so accidental very small values do not hammer daemon
+if (GBT_CACHE_MS < 500) {
+  console.warn(`[shim] GBT_CACHE_MS=${GBT_CACHE_MS}ms is very low; clamping to 500ms to protect daemon`);
+  GBT_CACHE_MS = 500;
+}
 // Optional background prefetcher so we have a warm template even if first on-demand call hits busy
 const PREFETCH_WALLET = (process.env.PREFETCH_WALLET || '').trim();
 const PREFETCH_RESERVE = parseInt(process.env.PREFETCH_RESERVE || '16', 10);
@@ -43,7 +50,7 @@ const SUBMIT_MAX_BACKOFF_MS = parseInt(process.env.SUBMIT_MAX_BACKOFF_MS || '150
 const metrics = {
   startedAt: Date.now(),
   gbt: { requests: 0, cacheHits: 0, busyRetries: 0, errors: 0 },
-  submit: { requests: 0, ok: 0, error: 0 },
+  submit: { requests: 0, ok: 0, error: 0, busyRetries: 0 },
   lastHeight: null,
   lastSubmit: { when: null, ok: null }
 };
@@ -242,11 +249,15 @@ async function getBlockTemplateRobust(wal, reserve) {
 
     // If we have a recent cached template for the same wallet, serve it immediately
     if (lastTpl && lastTpl.wal === wal) {
+      if (GBT_DISABLE_CACHE_AFTER_HEIGHT >= 0 && metrics.lastHeight !== null && metrics.lastHeight >= GBT_DISABLE_CACHE_AFTER_HEIGHT) {
+        // Ignore cache past configured height
+      } else {
       const age = Date.now() - lastTpl.when;
       if (age <= GBT_CACHE_MS) {
         console.log(`[shim] serving cached blocktemplate age=${age}ms height=${lastTpl.height}`);
         metrics.gbt.cacheHits++;
         return lastTpl.mapped; // already mapped to Monero-like shape
+      }
       }
     }
 
@@ -395,7 +406,8 @@ async function handleSingle(id, method, params) {
         }
         return await withSubmitMutex(async () => {
           metrics.submit.requests++;
-          try { console.log(`[shim] submitblock attempt blob.len=${blob.length} head=${blob.slice(0,16)}`); } catch(_) {}
+          let attemptLogCtx = { height: metrics.lastHeight, blobLen: blob.length, head: blob.slice(0,16) };
+          try { console.log(`[shim] submitblock start ${JSON.stringify(attemptLogCtx)}`); } catch(_) {}
           // If we are at the bootstrap height (e.g., 0/1), give daemon a moment after GBT before first submit
           if (metrics.lastHeight !== null && Number(metrics.lastHeight) <= 1 && SUBMIT_INITIAL_DELAY_MS > 0) {
             console.warn(`[shim] initial submit delay ${SUBMIT_INITIAL_DELAY_MS}ms at height=${metrics.lastHeight}`);
@@ -426,7 +438,7 @@ async function handleSingle(id, method, params) {
               lastSubmitAt = Date.now();
               // Invalidate cached template on success to force fresh height next call
               lastTpl = null;
-              console.log(`[shim] submitblock accepted on attempt ${attempt+1}`);
+              console.log(`[shim] submitblock accepted {"attempt":${attempt+1},"height":${metrics.lastHeight},"blobLen":${blob.length}}`);
               return { jsonrpc: '2.0', id, result: r || true };
             } catch (e) {
               lastErr = e;
@@ -435,7 +447,8 @@ async function handleSingle(id, method, params) {
                 // longer backoff to avoid hammering daemon
                 const jitter = Math.floor(Math.random() * 200);
                 const delay = Math.min(SUBMIT_MAX_BACKOFF_MS, 400 + attempt * 800 + jitter);
-                console.warn(`[shim] submitblock busy (-9), retry in ${delay}ms (attempt ${attempt+1}/12)`);
+                console.warn(`[shim] submitblock busy (-9) retryDelay=${delay}ms attempt=${attempt+1}/12 height=${metrics.lastHeight}`);
+                metrics.submit.busyRetries++;
                 // Rotate backend every other attempt to reduce flapping
                 if (ZION_RPC_URLS.length > 1 && attempt % 2 === 1) {
                   CUR_URL_IDX = (CUR_URL_IDX + 1) % ZION_RPC_URLS.length;
@@ -448,7 +461,7 @@ async function handleSingle(id, method, params) {
                   metrics.lastSubmit = { when: Date.now(), ok: true };
                   lastSubmitAt = Date.now();
                   lastTpl = null;
-                  console.log(`[shim] submitblock accepted via REST fallback on attempt ${attempt+1}`);
+                  console.log(`[shim] submitblock accepted via REST fallback {"attempt":${attempt+1},"height":${metrics.lastHeight},"blobLen":${blob.length}}`);
                   return { jsonrpc: '2.0', id, result: true };
                 } catch (_) {}
                 // Probe height to sync internal metrics and give core a breath
@@ -462,7 +475,7 @@ async function handleSingle(id, method, params) {
                 await sleep(delay);
                 continue;
               }
-              console.warn(`[shim] submitblock error code=${code} msg=${e.message}`);
+              console.warn(`[shim] submitblock error code=${code} msg=${e.message} attempt=${attempt+1} height=${metrics.lastHeight}`);
               break;
             }
           }
@@ -669,6 +682,9 @@ app.get('/metrics', (_req, res) => {
   lines.push(`# HELP zion_shim_submit_error_total Number of failed submitblock calls`);
   lines.push(`# TYPE zion_shim_submit_error_total counter`);
   lines.push(`zion_shim_submit_error_total ${metrics.submit.error}`);
+  lines.push(`# HELP zion_shim_submit_busy_retries_total Number of busy (-9) retries during submitblock`);
+  lines.push(`# TYPE zion_shim_submit_busy_retries_total counter`);
+  lines.push(`zion_shim_submit_busy_retries_total ${metrics.submit.busyRetries}`);
   lines.push(`# HELP zion_shim_last_height Last known height from daemon`);
   lines.push(`# TYPE zion_shim_last_height gauge`);
   lines.push(`zion_shim_last_height ${metrics.lastHeight === null ? -1 : metrics.lastHeight}`);

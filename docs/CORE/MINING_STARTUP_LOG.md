@@ -39,6 +39,13 @@
 - **Status**: Mining aktivní, čekáme na první bloky
 - **Hashrate**: Docker miner běží, external minery připravené
 
+#### Dynamický update (vyplňovat během běhu)
+- Start timestamp: (TODO)
+- Poslední akceptovaný blok (čas): (TODO)
+- Průměrný čas/blok (po height 5): (TODO)
+- Počet orphanů: (TODO)
+- Busy (-9) retries (GBT / Submit): (TODO / TODO)
+
 ### 📋 Next Steps pro 60 blok challenge:
 
 1. **Okamžitě**: Spustit mining monitor
@@ -55,6 +62,12 @@
 3. **Monitoring**: Sledovat progress real-time
 
 4. **Backup**: Zajistit offline zálohy peněženek
+
+### 📘 Nové nástroje & runbooky
+- `docs/runbooks/BOOTSTRAP_60_BLOCKS.md` – detailní postup pro rychlý bootstrap 60 bloků
+- `tools/watch_height.sh` – jednoduchý watcher na dosažení cílové výšky
+- `tools/address_decode.py` – základní validace / inspekce adresy
+- Rozšířený logging v `zion-rpc-shim` (structured submit logs)
 
 ### 🔐 Kritické bezpečnostní poznámky:
 - ⚠️ **ZÁLOHY**: `/backups/wallets/` musí být okamžitě zálohované offline!

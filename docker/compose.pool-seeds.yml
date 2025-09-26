@@ -152,6 +152,13 @@ services:
       - ZION_RPC_URLS=http://zion-seed1:18081/json_rpc,http://zion-seed2:18081/json_rpc
       - PREFETCH_WALLET=Z321y5Ugios4VrzgpbGkvoBrmA3QeVC2xao6kY3SDSkA7J8toEUktYzBAYyqQ8SJvP4kAaz1APCBEGRuYWersbCR33tetBoXxg
       - BUSY_CACHE_FACTOR=8
+      # Mining bootstrap tuning (added)
+      - GBT_CACHE_MS=1500
+      - GBT_DISABLE_CACHE_AFTER_HEIGHT=80
+      - SUBMIT_INITIAL_DELAY_MS=800
+      - SUBMIT_MAX_BACKOFF_MS=12000
+      - PREFETCH_INTERVAL_MS=4000
+      - PREFETCH_RESERVE=24
     ports:
       - "18089:18089"  # Monero-like JSON-RPC endpoint for external pool software
     depends_on:
