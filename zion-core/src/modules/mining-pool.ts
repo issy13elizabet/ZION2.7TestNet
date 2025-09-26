@@ -528,13 +528,13 @@ export class MiningPool implements IMiningPool {
           prev_hash: this.currentJob.prevhash || '0'.repeat(64),
           target_bits: miner.difficulty,
           height: 1, // Bootstrap mode
-          extranonce: minerId.slice(-8) // Use part of miner ID as extranonce
+          extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
         } : {
-          job_id: `job_${Date.now()}`,
+          job_id: Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0'),
           prev_hash: '0'.repeat(64),
           target_bits: miner.difficulty,
           height: 1,
-          extranonce: minerId.slice(-8)
+          extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
         },
         error: null
       };
@@ -615,13 +615,13 @@ export class MiningPool implements IMiningPool {
         prev_hash: this.currentJob.prevhash || '0'.repeat(64),
         target_bits: miner.difficulty,
         height: 1, // Bootstrap mode
-        extranonce: minerId.slice(-8)
+        extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
       } : {
-        job_id: `job_${Date.now()}`,
+        job_id: Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0'),
         prev_hash: '0'.repeat(64),
         target_bits: miner.difficulty,
         height: 1,
-        extranonce: minerId.slice(-8)
+        extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
       },
       error: null
     };
@@ -650,7 +650,7 @@ export class MiningPool implements IMiningPool {
   }
 
   private generateNewJob(): void {
-    const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const jobId = Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
     
     this.currentJob = {
       id: jobId,
