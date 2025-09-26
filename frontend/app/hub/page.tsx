@@ -278,6 +278,81 @@ export default function HubPage() {
         </div>
       </motion.section>
 
+      {/* External Resources Section (moved from /) */}
+      <motion.section
+        className="mb-8 bg-black/30 backdrop-blur-sm p-6 rounded-2xl border border-indigo-500/30"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <div className="grid md:grid-cols-3 gap-4">
+          {/* Halls of Amenti Portal */}
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-indigo-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-xl font-semibold text-indigo-300 mb-4">🔮 Halls of Amenti</h3>
+            <div className="space-y-3">
+              <a href="/halls-of-amenti" className="block text-indigo-300 hover:text-white transition-colors">
+                🏛️ AKASHA Library
+              </a>
+              <a href="/halls-of-amenti" className="block text-purple-300 hover:text-white transition-colors">
+                ✨ Cosmic Hierarchy
+              </a>
+              <a href="/halls-of-amenti" className="block text-cyan-300 hover:text-white transition-colors">
+                🌸 Goloka Vrindavan
+              </a>
+              <a href="https://zion.newearth.cz/V2/halls.html" target="_blank" rel="noopener noreferrer" className="block text-gray-400 hover:text-gray-300 transition-colors text-sm">
+                📜 Terra Nova Archive
+              </a>
+            </div>
+          </motion.div>
+
+          {/* ONE LOVE Portal */}
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-pink-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-xl font-semibold text-pink-300 mb-4">❤️ ONE LOVE ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ</h3>
+            <div className="space-y-3">
+              <a href="/one-love" className="block text-pink-300 hover:text-white transition-colors">
+                🌟 Trinity One Love
+              </a>
+              <a href="/one-love" className="block text-yellow-300 hover:text-white transition-colors">
+                🌈 144k Avatars
+              </a>
+              <a href="/one-love" className="block text-blue-300 hover:text-white transition-colors">
+                ✨ El~An~Ra Family
+              </a>
+              <a href="/one-love" className="block text-green-300 hover:text-white transition-colors">
+                🔮 Cosmic Awakening
+              </a>
+            </div>
+          </motion.div>
+
+          {/* EKAM Portal */}
+          <motion.div 
+            className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-amber-500/30"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-xl font-semibold text-amber-300 mb-4">🏛️ EKAM Temple ॐ एकम्</h3>
+            <div className="space-y-3">
+              <a href="https://www.ekam.org" target="_blank" rel="noopener noreferrer" className="block text-amber-300 hover:text-white transition-colors">
+                🌟 Oneness Awakening
+              </a>
+              <a href="https://www.theonenessmovement.org/manifest-us" target="_blank" rel="noopener noreferrer" className="block text-orange-300 hover:text-white transition-colors">
+                ✨ Manifest Process
+              </a>
+              <a href="https://www.theonenessmovement.org/foa-overview" target="_blank" rel="noopener noreferrer" className="block text-yellow-300 hover:text-white transition-colors">
+                🔥 Field of Awakening
+              </a>
+              <a href="https://www.theonenessmovement.org/turiya" target="_blank" rel="noopener noreferrer" className="block text-red-300 hover:text-white transition-colors">
+                🧘 Turiya Retreat
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
       {/* Live Feed */}
       <motion.div 
         className="bg-black/30 border border-cyan-500/30 rounded-2xl p-6 backdrop-blur-sm"
