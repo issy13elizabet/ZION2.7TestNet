@@ -301,7 +301,7 @@ watch -n 5 'curl -s http://localhost:18089/metrics | grep submit_ok'
 
 ## 📝 Poznámky
 
-- **Adresy**: Aktuálně wallet generuje `ajmr...` místo `Z3...` - potřeba debug prefixu
+- **Adresy**: ✅ Wallet nyní správně generuje `Z3...` adresy po opravě prefixu
 - **Port 3333**: Často obsazen development servery, check před spuštěním
 - **Cache tuning**: Pro bootstrap použij agresivní cache settings, pak zmírni
 - **Health checks**: Seed1 má 180s start_period, počkej na healthy status

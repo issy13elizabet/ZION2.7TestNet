@@ -95,13 +95,25 @@ Možné varianty:
 3. Ověřit shim: `curl -s http://localhost:18089/ | jq` a `curl -s http://localhost:18089/metrics | grep submit`
 4. Spustit watch script: `./tools/watch_height.sh 60`
 
-### Poznámka k adresnímu prefixu
-Dokud wallet generuje `ajmr...`, nelze validně testovat payout cestu. Potřebné: audit všech *PREFIX* konstant + runtime log prefixu při startu wallet.
+### ✅ BREAKTHROUGH: Z3 adresy fungují!
+**Velký pokrok**: Wallet nyní správně generuje Z3 adresy! 
+- **Test výsledek**: `Z321rh8V7V5TsCS8zpu8ZfN57bmPjQZuM3qkzQx4KAYZ...` ✅
+- **Validace**: Náš address_decode.py potvrzuje správný prefix & charset ✅
+- **Konfigurace**: Aktualizovány mining skripty na Z3 adresy ✅
+- **Status**: Z3_ADDRESS_ISSUE_LOG označen jako VYŘEŠENO ✅
 
-### Příští akce (shrnutí)
-- Root analýza procesu na 3333
-- Dokončení startu uzi-pool
-- Aktivace externího XMRig klienta
+### Aktuální stav stacku
+- **seed1/seed2**: Healthy (ale RPC timeout - možná sync issue)
+- **rpc-shim**: Healthy (ale nemůže se připojit k seedům)
+- **uzi-pool**: Running na portu 3333 (unhealthy - čeká na RPC)
+- **walletd**: Running (vytváří nový pool.wallet)
+
+### Příští akce (aktualizováno)
+- Vyřešit seed RPC connectivity (možná fresh chain state)
+- Test mining pool připojení s XMRig klientem
+- Ověřit payout flow s novými Z3 adresami
 - Sběr metrik při height 5, 10, 20, 40, 60
 
-*(Appendix generován automaticky během večerní session)*
+**Status**: Z3 prefix vyřešen! 🎉 Mining stack připraven k testování.
+
+*(Evening session update - Z3 addresses working!)*
