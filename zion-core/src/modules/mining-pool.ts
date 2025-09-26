@@ -520,22 +520,26 @@ export class MiningPool implements IMiningPool {
         subscribed: true
       });
       
-      // Send login response with job
+      // Send CryptoNote login response  
       const response = {
         id: request.id,
-        result: {
-          id: minerId,
-          job: this.currentJob ? {
-            blob: this.currentJob.coinb1 + this.currentJob.coinb2,
-            job_id: this.currentJob.id,
-            target: this.getDifficultyTarget(miner.difficulty),
-            height: 1 // Bootstrap mode
-          } : null,
-          status: 'OK'
+        result: this.currentJob ? {
+          job_id: this.currentJob.id,
+          prev_hash: this.currentJob.prevhash || '0'.repeat(64),
+          target_bits: miner.difficulty,
+          height: 1, // Bootstrap mode
+          extranonce: minerId.slice(-8) // Use part of miner ID as extranonce
+        } : {
+          job_id: `job_${Date.now()}`,
+          prev_hash: '0'.repeat(64),
+          target_bits: miner.difficulty,
+          height: 1,
+          extranonce: minerId.slice(-8)
         },
         error: null
       };
       
+      console.log(`⛏️  Sending CryptoNote login response:`, JSON.stringify(response));
       (miner.socket as any).write(JSON.stringify(response) + '\n');
     } else {
       // Send error response
@@ -603,15 +607,22 @@ export class MiningPool implements IMiningPool {
     const miner = this.miners.get(minerId);
     if (!miner || !miner.socket) return;
 
-    // Send current job
+    // Send CryptoNote job format
     const response = {
       id: request.id,
       result: this.currentJob ? {
-        blob: this.currentJob.coinb1 + this.currentJob.coinb2,
         job_id: this.currentJob.id,
-        target: this.getDifficultyTarget(miner.difficulty),
-        height: 1 // Bootstrap mode
-      } : null,
+        prev_hash: this.currentJob.prevhash || '0'.repeat(64),
+        target_bits: miner.difficulty,
+        height: 1, // Bootstrap mode
+        extranonce: minerId.slice(-8)
+      } : {
+        job_id: `job_${Date.now()}`,
+        prev_hash: '0'.repeat(64),
+        target_bits: miner.difficulty,
+        height: 1,
+        extranonce: minerId.slice(-8)
+      },
       error: null
     };
 
@@ -643,7 +654,7 @@ export class MiningPool implements IMiningPool {
     
     this.currentJob = {
       id: jobId,
-      prevhash: `prevhash_${Math.random().toString(36).substr(2, 16)}`,
+      prevhash: '0'.repeat(64), // Genesis block hash for bootstrap mode
       coinb1: 'coinbase1_data',
       coinb2: 'coinbase2_data',
       merkleBranch: [],
