@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import DataRain from './DataRain'
 import NavigationMenu from './NavigationMenu'
+import SubliminalLayer from './SubliminalLayer'
 
 type Theme = 'dark' | 'light'
 
@@ -94,6 +95,8 @@ export default function ThemeShell({ children }: { children: React.ReactNode }) 
     <div style={{ position: 'relative', minHeight: '100vh', color: fg }}>
       <div style={nebulaLayerStyle} />
       <div style={gridLayerStyle} />
+      {/* Subliminal mantras/symbols layer (very subtle, can be toggled Alt+S) */}
+      <SubliminalLayer />
       {theme === 'dark' && !isMobile && !pathname.startsWith('/stargate') && (
         <div style={{ position:'fixed', inset:0, zIndex:1, pointerEvents:'none' }}>
           <DataRain />

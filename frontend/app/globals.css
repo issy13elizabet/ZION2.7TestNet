@@ -5,6 +5,10 @@
 :root {
   --bg: 255 255 255;
   --fg: 15 23 42;
+  --cosmic-gold: 255 215 0;
+  --cosmic-violet: 153 51 255;
+  --cosmic-green: 0 255 102;
+  --cosmic-accent: 0 255 65;
 }
 
 .dark {
@@ -18,6 +22,11 @@ html, body { height: 100%; }
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
+  /* Sacred background tint that works with ThemeShell layers */
+  background-image: radial-gradient(circle at 25% 25%, rgba(var(--cosmic-gold), 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(var(--cosmic-violet), 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(var(--cosmic-green), 0.04) 0%, transparent 70%);
+  background-attachment: fixed;
 }
 
 .matrix-title { @apply font-bold tracking-widest text-brand-400 drop-shadow-[0_0_8px_rgba(58,235,137,0.3)]; }
@@ -54,3 +63,30 @@ body {
 .table td {
   @apply align-top text-slate-800;
 }
+
+/* Sacred utility tokens shared across the app */
+.sacred-title { @apply font-bold tracking-widest; text-shadow: 0 0 10px rgba(255,215,0,0.25); }
+.sacred-gradient-text { background: linear-gradient(45deg, #FFD700, #9933FF, #00FF66); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.panel {
+  background: rgba(0,0,0,0.8);
+  border: 2px solid rgba(255,215,0,0.3);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.panel.violet { border-color: rgba(153,51,255,0.35); }
+.status-bar {
+  background: rgba(0,0,0,0.85);
+  border: 2px solid rgba(0,255,102,0.4);
+  border-radius: 24px;
+  padding: 8px 16px;
+}
+.glow { box-shadow: 0 0 24px rgba(0,255,102,0.2), inset 0 0 24px rgba(0,255,102,0.08); }
+.vr-pill { background: rgba(255, 99, 0, 0.9); color: #fff; border-radius: 18px; padding: 6px 12px; font-weight: 700; font-size: 12px; }
+
+/* Subliminal floating text effect */
+@keyframes zionFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.06; }
+  50% { transform: translateY(-10px) scale(1.02); opacity: 0.1; }
+}
+.zion-subliminal-root { mix-blend-mode: normal; }
+.zion-subliminal-item { text-shadow: 0 0 20px rgba(255, 255, 255, 0.08); }
