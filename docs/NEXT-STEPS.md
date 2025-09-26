@@ -364,3 +364,13 @@ Community KPIs:
 **🚀 ZION v2.5 TestNet - Připravený na dobytí světa decentralizovaných technologií! 🌟**
 
 > *Každý krok nás přibližuje k vizi skutečně decentralizovaného multi-chain ekosystému pro celou komunity.*
+
+---
+
+## 🇨🇿 Aktualizace 2025-09-26 – Stručné další kroky
+
+1. Rozšířit `seed-node` v `config/mainnet.conf` (více peerů pro rychlejší discovery).
+2. RPC (18081): ponechat interní nebo zveřejnit skrze reverzní proxy s ACL.
+3. Volitelně spustit profil `pool` v `docker-compose.prod.yml` a otestovat napojení na `zion-node`.
+4. Postupná eliminace hardcodovaných adres → parametrizace přes ENV/konfig.
+5. Monitoring a alerting pro P2P+RPC, pravidelné snapshoty volume `zion_data`.

@@ -103,6 +103,12 @@ const uint64_t P2P_DEFAULT_INVOKE_TIMEOUT                    = 60 * 2 * 1000;
 const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000;
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "8f80f9a5a434a9f1510d13336228debfee9c918ce505efe225d8c94d045fa115";
 
+// ZION network foundation and pool addresses (mainnet)
+// NOTE: These are informational defaults embedded for tooling and validation.
+// Runtime components may override via config/env where applicable.
+const char     ZION_DEV_DONATION_ADDRESS[]                   = "Z3B1A6AEA813825404D8FFA19821EE6CF2BBB8C3ECF38E8CD27DBE81E7144338932B0F8D7F62D752C3BAB727DADB";
+const char     ZION_POOL_PRIMARY_ADDRESS[]                   = "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1";
+
 //TODO Add here your network seed nodes
 const std::initializer_list<const char*> SEED_NODES = {
   "91.98.122.165:18080",

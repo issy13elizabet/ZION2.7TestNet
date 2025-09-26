@@ -35,7 +35,8 @@ export class MiningPool implements IMiningPool {
   
   // Pool configuration
   private readonly poolPort: number = ZION_CONSTANTS.DEFAULT_PORTS.POOL;
-  private readonly poolAddress: string = 'Z321vzLnnRu15AF82Kwx5DVZAX8rf1jZdDThTFZERRwKV23rXUqcV5u5mvT45ZDpW71kG3zEGuM5F2n3uytvAx5G9jFSY5HcFU'; // Real ZION wallet
+  // Pool wallet address (mainnet)
+  private readonly poolAddress: string = 'Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1';
   private readonly poolFee: number = 0.025; // 2.5% pool fee
   private readonly minPayout: number = 0.1; // Minimum 0.1 ZION payout
   private readonly networkId: string = 'zion-mainnet-v2';
