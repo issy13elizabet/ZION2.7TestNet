@@ -179,7 +179,8 @@ export class MiningPool implements IMiningPool {
 
   private validateZionAddress(address: string): boolean {
     // ZION address validation
-    // Standard format: Z + 86 characters (base58)
+    // Z3 format: Z3 + 96 characters (base58) = 98 total
+    // Legacy format: Z + 86 characters (base58) = 87 total
     if (!address || typeof address !== 'string') {
       return false;
     }
@@ -189,14 +190,23 @@ export class MiningPool implements IMiningPool {
       return false;
     }
     
-    // Check length (ZION addresses are typically 87 characters)
-    if (address.length !== 87) {
+    // Check length - support both Z3 (98 chars) and legacy Z (87 chars)
+    if (address.length !== 98 && address.length !== 87) {
+      console.log(`❌ Invalid address length: ${address.length}, expected 87 or 98`);
       return false;
     }
     
-    // Check base58 character set
+    // For Z3 addresses, check Z3 prefix
+    if (address.length === 98 && !address.startsWith('Z3')) {
+      console.log(`❌ Z3 address must start with 'Z3', got: ${address.substring(0, 4)}`);
+      return false;
+    }
+    
+    // Check base58 character set (skip prefix)
     const base58Regex = /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/;
-    if (!base58Regex.test(address.substring(1))) {
+    const addressBody = address.startsWith('Z3') ? address.substring(2) : address.substring(1);
+    if (!base58Regex.test(addressBody)) {
+      console.log(`❌ Invalid base58 characters in address body`);
       return false;
     }
     
@@ -322,6 +332,19 @@ export class MiningPool implements IMiningPool {
       
       case 'mining.submit':
         this.handleSubmit(minerId, request);
+        break;
+      
+      // CryptoNote/Monero mining protocol
+      case 'login':
+        this.handleCryptoNoteLogin(minerId, request);
+        break;
+      
+      case 'submit':
+        this.handleCryptoNoteSubmit(minerId, request);
+        break;
+      
+      case 'getjob':
+        this.handleCryptoNoteGetJob(minerId, request);
         break;
       
       default:
@@ -461,6 +484,145 @@ export class MiningPool implements IMiningPool {
     
     // Generate new job for new block
     this.generateNewJob();
+  }
+
+  // CryptoNote/Monero mining protocol handlers
+  private handleCryptoNoteLogin(minerId: string, request: any): void {
+    const miner = this.miners.get(minerId);
+    if (!miner || !miner.socket) return;
+
+    const { login, pass, agent } = request.params;
+    
+    console.log(`⛏️  CryptoNote login: ${login} (${agent})`);
+    
+    // Validate ZION address
+    let validatedAddress = this.poolAddress;
+    let loginResult = true;
+    let errorMessage: string | null = null;
+    
+    if (login && login !== this.poolAddress) {
+      if (this.validateZionAddress(login)) {
+        validatedAddress = login;
+        console.log(`✅ Valid ZION address: ${login}`);
+      } else {
+        loginResult = false;
+        errorMessage = `Invalid ZION address format: ${login}`;
+        console.log(`❌ ${errorMessage}`);
+      }
+    }
+    
+    if (loginResult) {
+      // Update miner info
+      this.miners.set(minerId, { 
+        ...miner, 
+        address: validatedAddress,
+        worker: pass || 'worker1',
+        subscribed: true
+      });
+      
+      // Send login response with job
+      const response = {
+        id: request.id,
+        result: {
+          id: minerId,
+          job: this.currentJob ? {
+            blob: this.currentJob.coinb1 + this.currentJob.coinb2,
+            job_id: this.currentJob.id,
+            target: this.getDifficultyTarget(miner.difficulty),
+            height: 1 // Bootstrap mode
+          } : null,
+          status: 'OK'
+        },
+        error: null
+      };
+      
+      (miner.socket as any).write(JSON.stringify(response) + '\n');
+    } else {
+      // Send error response
+      const response = {
+        id: request.id,
+        result: null,
+        error: { code: -1, message: errorMessage }
+      };
+      
+      (miner.socket as any).write(JSON.stringify(response) + '\n');
+    }
+  }
+
+  private handleCryptoNoteSubmit(minerId: string, request: any): void {
+    const miner = this.miners.get(minerId);
+    if (!miner || !miner.socket) return;
+
+    const { id, job_id, nonce, result } = request.params;
+    
+    // Validate share
+    const isValid = this.validateShare(job_id, nonce);
+    
+    // Create share record
+    const share: Share = {
+      minerId,
+      jobId: job_id,
+      nonce,
+      timestamp: Date.now(),
+      difficulty: miner.difficulty
+    };
+    
+    this.shares.push(share);
+    
+    // Update miner stats
+    const updatedMiner = { 
+      ...miner, 
+      shares: miner.shares + 1,
+      lastActivity: Date.now(),
+      hashrate: this.calculateHashrate(minerId)
+    };
+    this.miners.set(minerId, updatedMiner);
+
+    // Send submit response
+    const response = {
+      id: request.id,
+      result: {
+        status: isValid ? 'OK' : 'INVALID'
+      },
+      error: null
+    };
+
+    (miner.socket as any).write(JSON.stringify(response) + '\n');
+
+    if (isValid) {
+      console.log(`⛏️  Valid CryptoNote share from ${minerId}: ${nonce}`);
+      
+      // Check if it's a block
+      if (this.isBlockShare(share)) {
+        this.handleBlockFound(share);
+      }
+    }
+  }
+
+  private handleCryptoNoteGetJob(minerId: string, request: any): void {
+    const miner = this.miners.get(minerId);
+    if (!miner || !miner.socket) return;
+
+    // Send current job
+    const response = {
+      id: request.id,
+      result: this.currentJob ? {
+        blob: this.currentJob.coinb1 + this.currentJob.coinb2,
+        job_id: this.currentJob.id,
+        target: this.getDifficultyTarget(miner.difficulty),
+        height: 1 // Bootstrap mode
+      } : null,
+      error: null
+    };
+
+    (miner.socket as any).write(JSON.stringify(response) + '\n');
+  }
+
+  private getDifficultyTarget(difficulty: number): string {
+    // Convert difficulty to target hex string
+    // This is a simplified implementation
+    const target = Math.floor(0xFFFFFFFF / difficulty);
+    return target.toString(16).padStart(8, '0');
   }
 
   private calculateHashrate(minerId: string): number {
