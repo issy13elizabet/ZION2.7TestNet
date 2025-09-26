@@ -13,7 +13,7 @@ Zion používá Base58 (Monero-like styl) pro lidsky čitelné adresy začínaj�
 ## Current Observations
 | Typ | Příklad | Délka | Stav |
 |-----|---------|-------|------|
-| Canonical Wallet | `Z321y5Ugios4VrzgpbGkvoBrmA3QeVC2xao6kY3SDSkA7J8toEUktYzBAYyqQ8SJvP4kAaz1APCBEGRuYWersbCR33tetBoXxg` | ~110 | Používáno v poolu |
+| Canonical Wallet | `Z3222ywic7fGUZHv9EfFwEKf1VJRrEqPbLrHgRiBb43LWaS1Cz2gVwgdF2kvUPsGb9jSvUUf31oNCSZgNEtUiGDT4sBLtXmGzc` | ~110 | Používáno v poolu |
 | Legacy / Hex-like | `Z3AF4599EC3FB11...` | >120 (hex heavy) | Deprecated |
 
 ## Encoding (Planned Alignment)

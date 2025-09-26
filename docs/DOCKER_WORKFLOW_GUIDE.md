@@ -129,7 +129,7 @@ V `docker/compose.pool-seeds.yml` sekce `rpc-shim` -> `environment`:
 ### Pool adresy (klíčové!)
 ```yaml
 # V uzi-pool sekci
-- POOL_ADDRESS=Z321y5Ugios4VrzgpbGkvoBrmA3QeVC2xao6kY3SDSkA7J8toEUktYzBAYyqQ8SJvP4kAaz1APCBEGRuYWersbCR33tetBoXxg
+- POOL_ADDRESS=Z3222ywic7fGUZHv9EfFwEKf1VJRrEqPbLrHgRiBb43LWaS1Cz2gVwgdF2kvUPsGb9jSvUUf31oNCSZgNEtUiGDT4sBLtXmGzc
 ```
 
 ## 🔧 Development workflow

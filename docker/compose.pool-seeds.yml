@@ -150,7 +150,7 @@ services:
     environment:
       - SHIM_PORT=18089
       - ZION_RPC_URLS=http://zion-seed1:18081/json_rpc,http://zion-seed2:18081/json_rpc
-      - PREFETCH_WALLET=Z321y5Ugios4VrzgpbGkvoBrmA3QeVC2xao6kY3SDSkA7J8toEUktYzBAYyqQ8SJvP4kAaz1APCBEGRuYWersbCR33tetBoXxg
+      - PREFETCH_WALLET=Z3222ywic7fGUZHv9EfFwEKf1VJRrEqPbLrHgRiBb43LWaS1Cz2gVwgdF2kvUPsGb9jSvUUf31oNCSZgNEtUiGDT4sBLtXmGzc
       - BUSY_CACHE_FACTOR=8
       # Mining bootstrap tuning (added)
       - GBT_CACHE_MS=1500
@@ -173,7 +173,9 @@ services:
       retries: 5
     stop_grace_period: 20s
     networks:
-      - zion-seeds
+      zion-seeds:
+        aliases:
+          - rpc-shim
     ulimits:
       nofile:
         soft: 65536
@@ -228,7 +230,7 @@ services:
     environment:
       - POOL_CONFIG=/config/config.json
       - COINS_DIR=/config/coins
-      - POOL_ADDRESS=Z321y5Ugios4VrzgpbGkvoBrmA3QeVC2xao6kY3SDSkA7J8toEUktYzBAYyqQ8SJvP4kAaz1APCBEGRuYWersbCR33tetBoXxg
+      - POOL_ADDRESS=Z3222ywic7fGUZHv9EfFwEKf1VJRrEqPbLrHgRiBb43LWaS1Cz2gVwgdF2kvUPsGb9jSvUUf31oNCSZgNEtUiGDT4sBLtXmGzc
       - DEV_ADDRESS=${DEV_ADDRESS:-}
       - CORE_DEV_ADDRESS=${CORE_DEV_ADDRESS:-}
     volumes:
