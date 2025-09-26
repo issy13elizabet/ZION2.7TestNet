@@ -49,6 +49,12 @@ const NavigationMenu = () => {
       label: "AI Systems",
       icon: "🤖",
       description: "AI Module Control"
+    },
+    {
+      href: "/new-jerusalem",
+      label: "Museum",
+      icon: "🏛️",
+      description: "New Jerusalem 3D Museum"
     }
   ];
 

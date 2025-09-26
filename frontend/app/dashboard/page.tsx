@@ -309,6 +309,61 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
+      {/* New Jerusalem Museum */}
+      <motion.section 
+        className="relative z-10 mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+      >
+        <div className="bg-gradient-to-r from-purple-900/30 via-indigo-900/30 to-purple-900/30 backdrop-blur-sm p-6 rounded-lg border border-gold-400/30">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gold-400 flex items-center gap-2">
+                🏛️ New Jerusalem Museum
+                <span className="text-sm bg-violet-600 px-2 py-1 rounded-full">3D</span>
+              </h2>
+              <p className="text-purple-300 mt-1">Interactive Sacred Geometry City • Metatron's Cube • VR Ready</p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-400">Temple Energy</div>
+              <div className="text-xl font-bold text-gold-400">77%</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+            <div className="text-center p-3 bg-violet-900/30 rounded-lg">
+              <div className="text-violet-300 font-semibold">Sacred Zones</div>
+              <div className="text-white text-lg">6</div>
+            </div>
+            <div className="text-center p-3 bg-blue-900/30 rounded-lg">
+              <div className="text-blue-300 font-semibold">Frequencies</div>
+              <div className="text-white text-lg">528 Hz</div>
+            </div>
+            <div className="text-center p-3 bg-green-900/30 rounded-lg">
+              <div className="text-green-300 font-semibold">Visitors</div>
+              <div className="text-white text-lg">{Math.floor(Math.random() * 144)}</div>
+            </div>
+            <div className="text-center p-3 bg-gold-900/30 rounded-lg">
+              <div className="text-gold-300 font-semibold">Consciousness</div>
+              <div className="text-white text-lg">Level 7</div>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            <a 
+              href="/new-jerusalem"
+              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-4 py-2 rounded-lg font-semibold text-center transition-all duration-300 hover:scale-105"
+            >
+              🔮 Enter Museum
+            </a>
+            <button className="bg-gold-600/20 hover:bg-gold-600/30 text-gold-300 px-4 py-2 rounded-lg font-semibold transition-all duration-300">
+              🥽 VR Mode
+            </button>
+          </div>
+        </div>
+      </motion.section>
+
       {/* Mining Pools */}
       <motion.section 
         className="relative z-10 mb-8"
