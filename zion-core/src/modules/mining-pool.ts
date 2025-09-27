@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { randomBytes } from 'crypto';
+import axios from 'axios';
 import { createServer, Server as NetServer } from 'net';
 import {
   IMiningPool,
@@ -32,6 +34,18 @@ export class MiningPool implements IMiningPool {
   private shares: Share[] = [];
   private blocksFound: number = 0;
   private lastBlockTime: number | null = null;
+  // RandomX / CryptoNote block template cache
+  private rxTemplate: {
+    blob: string;
+    difficulty: number;
+    height: number;
+    seed_hash?: string;
+    next_seed_hash?: string;
+    prev_hash?: string;
+    timestamp?: number;
+  } | null = null;
+  private lastTemplateFetch = 0;
+  private readonly TEMPLATE_TTL_MS = 20_000;
   
   // Pool configuration
   private readonly poolPort: number = ZION_CONSTANTS.DEFAULT_PORTS.POOL;
@@ -103,11 +117,14 @@ export class MiningPool implements IMiningPool {
       // Start Stratum server
       await this.startStratumServer();
       
-      // Create initial mining job
-      this.generateNewJob();
-      
-      // Start job update interval
-      this.startJobUpdates();
+  // Create initial synthetic mining job
+  this.generateNewJob();
+
+  // Start synthetic job rotation
+  this.startJobUpdates();
+
+  // Start RandomX block template refresh loop
+  this.startTemplateLoop();
       
       this.status = 'ready';
       console.log(`✅ Mining Pool initialized - Listening on port ${this.poolPort}`);
@@ -520,24 +537,36 @@ export class MiningPool implements IMiningPool {
         subscribed: true
       });
       
-      // Send CryptoNote login response  
+      // Build Monero-like job structure expected by XMRig
+  const tpl = this.rxTemplate;
+  const jobId = this.currentJob ? this.currentJob.id : Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
+  const blob = tpl?.blob || ('01' + 'a'.repeat(230));
+  const seedHash = tpl?.seed_hash || randomBytes(32).toString('hex');
+  const nextSeedHash = tpl?.next_seed_hash || randomBytes(32).toString('hex');
+  const difficulty = tpl?.difficulty || miner.difficulty || 1000;
+  const target = this.getMoneroCompactTarget(difficulty);
+      const extraNonce = parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0');
+
       const response = {
         id: request.id,
-        result: this.currentJob ? {
-          job_id: this.currentJob.id,
-          prev_hash: this.currentJob.prevhash || '0'.repeat(64),
-          target_bits: miner.difficulty,
-          height: 1, // Bootstrap mode
-          extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
-        } : {
-          job_id: Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0'),
-          prev_hash: '0'.repeat(64),
-          target_bits: miner.difficulty,
-          height: 1,
-          extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
+        result: {
+          id: minerId, // session id
+          job: {
+            job_id: jobId,
+            blob,
+            target,
+            algo: 'rx/0',
+            height: tpl?.height || 1,
+            seed_hash: seedHash,
+            next_seed_hash: nextSeedHash,
+            extranonce: extraNonce
+          },
+          status: 'OK'
         },
         error: null
       };
+
+      console.log(`🔐 CryptoNote LOGIN OK miner=${minerId} job=${jobId} diff=${difficulty} target=${target.slice(0,16)}... blobLen=${blob.length} height=${tpl?.height || 1}`);
       
       console.log(`⛏️  Sending CryptoNote login response:`, JSON.stringify(response));
       (miner.socket as any).write(JSON.stringify(response) + '\n');
@@ -607,24 +636,28 @@ export class MiningPool implements IMiningPool {
     const miner = this.miners.get(minerId);
     if (!miner || !miner.socket) return;
 
-    // Send CryptoNote job format
+  const tpl = this.rxTemplate;
+  const jobId = this.currentJob ? this.currentJob.id : Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
+  const blob = tpl?.blob || ('01' + 'b'.repeat(230));
+  const seedHash = tpl?.seed_hash || randomBytes(32).toString('hex');
+  const nextSeedHash = tpl?.next_seed_hash || randomBytes(32).toString('hex');
+  const difficulty = tpl?.difficulty || miner.difficulty || 1000;
+  const target = this.getMoneroCompactTarget(difficulty);
+
     const response = {
       id: request.id,
-      result: this.currentJob ? {
-        job_id: this.currentJob.id,
-        prev_hash: this.currentJob.prevhash || '0'.repeat(64),
-        target_bits: miner.difficulty,
-        height: 1, // Bootstrap mode
-        extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
-      } : {
-        job_id: Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0'),
-        prev_hash: '0'.repeat(64),
-        target_bits: miner.difficulty,
+      result: {
+        job_id: jobId,
+        blob,
+        target,
         height: 1,
-        extranonce: parseInt(minerId.slice(-8), 36).toString(16).padStart(8, '0') // Convert to hex number
+        seed_hash: seedHash,
+        next_seed_hash: nextSeedHash
       },
       error: null
     };
+
+  console.log(`📨 getjob miner=${minerId} job=${jobId} diff=${difficulty} blobLen=${blob.length} height=${tpl?.height || 1}`);
 
     (miner.socket as any).write(JSON.stringify(response) + '\n');
   }
@@ -634,6 +667,16 @@ export class MiningPool implements IMiningPool {
     // This is a simplified implementation
     const target = Math.floor(0xFFFFFFFF / difficulty);
     return target.toString(16).padStart(8, '0');
+  }
+
+  // Monero-style full 256-bit target based on difficulty
+  private getMoneroCompactTarget(difficulty: number): string {
+    if (!difficulty || difficulty <= 0) difficulty = 1;
+    const TWO_256 = (1n << 256n) - 1n;
+    const targetBig = TWO_256 / BigInt(difficulty);
+    let hex = targetBig.toString(16);
+    if (hex.length < 64) hex = '0'.repeat(64 - hex.length) + hex;
+    return hex;
   }
 
   private calculateHashrate(minerId: string): number {
@@ -705,6 +748,46 @@ export class MiningPool implements IMiningPool {
     setInterval(() => {
       this.generateNewJob();
     }, 30000);
+  }
+
+  private async fetchBlockTemplate(): Promise<void> {
+    const now = Date.now();
+    if (now - this.lastTemplateFetch < this.TEMPLATE_TTL_MS) return; // throttle
+    this.lastTemplateFetch = now;
+    try {
+      const body = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'get_block_template',
+        params: { wallet_address: this.poolAddress, reserve_size: 8 }
+      };
+      const res = await axios.post('http://127.0.0.1:18081/json_rpc', body, { timeout: 4000 });
+      if (res.data?.result?.blocktemplate_blob) {
+        const r = res.data.result;
+        this.rxTemplate = {
+          blob: r.blocktemplate_blob,
+            difficulty: r.difficulty || r.difficulty_top64 || 1000,
+            height: r.height || 0,
+            seed_hash: r.seed_hash,
+            next_seed_hash: r.next_seed_hash,
+            prev_hash: r.prev_hash,
+            timestamp: Date.now()
+        };
+        console.log(`🧩 Template height=${this.rxTemplate.height} diff=${this.rxTemplate.difficulty} blobLen=${this.rxTemplate.blob.length}`);
+      } else {
+        console.warn('⚠️  Template response missing blocktemplate_blob');
+      }
+    } catch (e: any) {
+      console.warn('⚠️  fetchBlockTemplate failed:', e.message);
+    }
+  }
+
+  private startTemplateLoop(): void {
+    const loop = async () => {
+      await this.fetchBlockTemplate();
+      setTimeout(loop, 5000);
+    };
+    loop();
   }
 
   // Multi-Algorithm Mining Support
