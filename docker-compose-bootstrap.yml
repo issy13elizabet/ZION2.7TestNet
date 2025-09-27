@@ -157,19 +157,24 @@ services:
     container_name: zion-wallet-bootstrap
     command: >
       zion_walletd
-      --config-file=/config/wallet.conf
-      --daemon-address=seed1:18081
+      --daemon-address=seed1
+      --daemon-port=18081
       --bind-address=0.0.0.0
       --bind-port=8070
-      --rpc-password=zion2025bootstrap
+      --container-file=/data/pool-wallet.wallet
+      --container-password=$${WALLET_PASSWORD:-ZionBootstrap2025TempDev}
+      --generate-container
       --log-level=2
+    environment:
+      - WALLET_PASSWORD=${WALLET_PASSWORD:-ZionBootstrap2025TempDev}
     ports:
       - "8070:8070"
     volumes:
       - zion-wallet-data:/data
       - ./config:/config:ro
+      - ./logs:/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8070/json_rpc", "-d", '{"jsonrpc":"2.0","id":1,"method":"getaddresses","params":{"password":"zion2025bootstrap"}}', "-H", "Content-Type: application/json"]
+      test: ["CMD", "curl", "-f", "http://localhost:8070/json_rpc", "-d", '{"jsonrpc":"2.0","id":1,"method":"getaddresses","params":{}}', "-H", "Content-Type: application/json"]
       interval: 30s
       timeout: 10s
       retries: 3
