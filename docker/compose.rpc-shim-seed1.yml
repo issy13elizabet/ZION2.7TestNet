@@ -1,0 +1,4 @@
+services:
+  rpc-shim:
+    environment:
+      - ZION_RPC_URLS=http://zion-seed1:18081/json_rpc

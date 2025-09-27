@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  seed1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: zion-seed1
+    restart: unless-stopped
+    ports:
+      - "18080:18080"   # P2P
+      - "18081:18081"   # RPC (if enabled)
+    volumes:
+      - ./seed1/config:/zion/config:ro
+      - ./seed1/data:/zion/data
+      - ./seed1/logs:/zion/logs
+    command: ["--config=/zion/config/zion.conf", "--datadir=/zion/data"]
+  seed2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: zion-seed2
+    restart: unless-stopped
+    ports:
+      - "18090:18080"
+      - "18091:18081"
+    volumes:
+      - ./seed2/config:/zion/config:ro
+      - ./seed2/data:/zion/data
+      - ./seed2/logs:/zion/logs
+    command: ["--config=/zion/config/zion.conf", "--datadir=/zion/data"]
