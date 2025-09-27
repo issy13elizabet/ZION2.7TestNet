@@ -157,7 +157,7 @@ function AISystemsDropdown({ currentPath }: { currentPath: string }) {
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
   }, []);
-  const isActive = ["/ai", "/oasis-game", "/zion-os"].some(p => currentPath === p || currentPath.startsWith(p + "/"));
+  const isActive = ["/ai", "/oasis-game", "/zion-os", "/ai-chat"].some(p => currentPath === p || currentPath.startsWith(p + "/"));
 
   return (
     <div
@@ -228,6 +228,16 @@ function AISystemsDropdown({ currentPath }: { currentPath: string }) {
             <div>
               <div className="font-medium">ZION OS</div>
               <div className="text-xs text-gray-400">AI-Powered Operating System</div>
+            </div>
+          </div>
+        </Link>
+        <div className="h-px bg-white/10" />
+        <Link href="/ai-chat" className="block">
+          <div className={`px-4 py-3 text-sm flex items-center gap-3 hover:bg-white/10 ${currentPath.startsWith('/ai-chat') ? 'text-white' : 'text-gray-300'}`}>
+            <span>🗣️</span>
+            <div>
+              <div className="font-medium">AI Chat</div>
+              <div className="text-xs text-gray-400">Talk with GitHub Copilot</div>
             </div>
           </div>
         </Link>
