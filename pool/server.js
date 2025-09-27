@@ -27,12 +27,15 @@ function makeJobNotification() {
 }
 
 function makeMoneroJob() {
-  // Minimal Monero-style job object for XMRig 'login' responses
+  // Proper XMRig/CryptoNote job format
   return {
-    job_id: randHex(4),
-    blob: randHex(39), // arbitrary size; xmrig will not validate in stub
-    target: 'ffff' + '0'.repeat(60),
-    algo: 'rx/0'
+    job_id: randHex(8),
+    blob: randHex(152), // Proper CryptoNote blob size (76 bytes = 152 hex chars)
+    target: '00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', // 32 bytes target
+    algo: 'rx/0',
+    height: 142857,
+    seed_hash: randHex(64), // RandomX seed hash
+    next_seed_hash: randHex(64) // Next seed hash
   };
 }
 
