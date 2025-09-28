@@ -135,25 +135,31 @@ void print_mining_stats() {
     // Calculate acceptance rate
     double acceptance_rate = total_shares > 0 ? (static_cast<double>(total_accepted) / total_shares * 100) : 0;
     
-    std::cout << CYAN << "| CPU " << RESET;
-    std::cout << std::setw(12) << format_hashrate(cpu_hashrate) << " ";
-    std::cout << std::setw(8) << cpu_shares << " ";
-    std::cout << std::setw(8) << cpu_accepted << " ";
-    std::cout << std::setw(6) << std::thread::hardware_concurrency() << std::endl;
+    uint64_t cpu_rejects = cpu_shares > cpu_accepted ? (cpu_shares - cpu_accepted) : 0;
+    uint64_t gpu_rejects = gpu_shares > gpu_accepted ? (gpu_shares - gpu_accepted) : 0;
+    std::cout << CYAN << "| CPU " << RESET
+              << std::setw(12) << format_hashrate(cpu_hashrate) << " "
+              << std::setw(8) << cpu_shares << " "
+              << std::setw(8) << cpu_accepted << " "
+              << std::setw(8) << cpu_rejects << " "
+              << std::setw(6) << std::thread::hardware_concurrency() << std::endl;
     
     if (gpu_hashrate > 0) {
-        std::cout << MAGENTA << "| GPU " << RESET;
-        std::cout << std::setw(12) << format_hashrate(gpu_hashrate) << " ";
-        std::cout << std::setw(8) << gpu_shares << " ";
-        std::cout << std::setw(8) << gpu_accepted << " ";
-        std::cout << std::setw(6) << "1" << std::endl;
+        std::cout << MAGENTA << "| GPU " << RESET
+                  << std::setw(12) << format_hashrate(gpu_hashrate) << " "
+                  << std::setw(8) << gpu_shares << " "
+                  << std::setw(8) << gpu_accepted << " "
+                  << std::setw(8) << gpu_rejects << " "
+                  << std::setw(6) << "1" << std::endl;
     }
-    
-    std::cout << WHITE << "| TOT " << RESET;
-    std::cout << std::setw(12) << format_hashrate(total_hashrate) << " ";
-    std::cout << std::setw(8) << total_shares << " ";
-    std::cout << std::setw(8) << total_accepted << " ";
-    std::cout << std::setw(6) << "---" << std::endl;
+
+    uint64_t total_rejects = (total_shares > total_accepted) ? (total_shares - total_accepted) : 0;
+    std::cout << WHITE << "| TOT " << RESET
+              << std::setw(12) << format_hashrate(total_hashrate) << " "
+              << std::setw(8) << total_shares << " "
+              << std::setw(8) << total_accepted << " "
+              << std::setw(8) << total_rejects << " "
+              << std::setw(6) << "---" << std::endl;
     
     std::cout << std::endl;
     
@@ -210,14 +216,16 @@ void print_mining_stats() {
 }
 
 void print_header() {
-    std::cout << WHITE << "|     " << std::setw(12) << "HASHRATE" << " " 
-              << std::setw(8) << "SHARES" << " " 
-              << std::setw(8) << "ACCEPT" << " " 
-              << std::setw(6) << "UNITS" << RESET << std::endl;
-    std::cout << WHITE << "|" << std::string(42, '-') << RESET << std::endl;
+    std::cout << WHITE << "| " << std::setw(5) << "UNIT" << " "
+              << std::setw(12) << "HASHRATE" << " "
+              << std::setw(8) << "FOUND" << " "
+              << std::setw(8) << "ACCEPT" << " "
+              << std::setw(8) << "REJECT" << " "
+              << std::setw(6) << "THRDS" << RESET << std::endl;
+    std::cout << WHITE << "|" << std::string(56, '-') << RESET << std::endl;
 }
 
-void show_share_found(const std::string& device, uint64_t nonce, const std::string& hash, bool accepted = true) {
+void show_share_found(const std::string& device, uint64_t nonce, const std::string& hash, bool accepted = true, double difficulty = 0.0) {
     auto now = std::chrono::steady_clock::now();
     auto uptime = std::chrono::duration_cast<std::chrono::seconds>(now - start_time);
     
@@ -232,6 +240,9 @@ void show_share_found(const std::string& device, uint64_t nonce, const std::stri
     std::cout << " (" << device << ") ";
     std::cout << CYAN << "nonce: " << std::hex << nonce << std::dec << RESET;
     std::cout << " hash: " << hash.substr(0, 16) << "...";
+    if (difficulty > 0.0) {
+        std::cout << " diff~" << std::fixed << std::setprecision(2) << difficulty;
+    }
     std::cout << std::endl;
 }
 

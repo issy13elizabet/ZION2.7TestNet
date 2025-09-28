@@ -1,12 +1,12 @@
 # 🌐 ZION Blockchain v2.6 TestNet - Complete Multi-Chain Ecosystem
 
-![ZION Blockchain](https://img.shields.io/badge/ZION-v2.6%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green) ![Miner](https://img.shields.io/badge/GPU%20Miner-v1.0.0-orange)
+![ZION Blockchain](https://img.shields.io/badge/ZION-v2.6%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green) ![Miner](https://img.shields.io/badge/GPU%20Miner-v1.1.0-orange)
 
 **🚀 Unified Multi-Chain Technology for Global Community 🌈**
 
 ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovanou TypeScript architekturou, multi-chain interoperabilitou a pokročilými DeFi funkcemi. Postavený na proven RandomX konsensu s moderní infrastrukturou pro cross-chain komunikaci a reálné využití.
 
-**NEW: ZION Cosmic Harmony Miner v1.0.0 - Professional XMRig-style multi-GPU miner** 🎯
+**NEW: ZION Cosmic Harmony Miner v1.1.0 – RandomX core integrace + vylepšené UI (accept/reject)** 🎯
 
 **🎯 Mission: Decentralizovaná technologie pro lidské prosperování 🌱**
 > *Budujeme mosty mezi komunitami, technologiemi a možnostmi.*
@@ -30,9 +30,24 @@ ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovano
 
 ---
 
-## ⛏️ **ZION Cosmic Harmony Miner v1.0.0**
+## ⛏️ **ZION Cosmic Harmony Miner v1.1.0**
 
 ### 🚀 Professional Multi-GPU Cryptocurrency Miner
+
+#### 📦 Release v1.1.0 (2025-09-28)
+Klíčové změny od v1.0.0:
+1. RandomX jádro (CPU) – Stratum client (subscribe/authorize/job) + dynamický seed reinit.
+2. 256-bit target mask a porovnání hash <= target (přesnější validace share).
+3. Agregátor statistik: per-thread hashrate, počty accepted/rejected, recent events.
+4. UI tabulka rozšířena: FOUND / ACCEPT / REJECT sloupce.
+5. Share submit pipeline s callback hook (příprava pro realtime UI notifikace).
+6. Dokumentace: README sekce RandomX integration.
+7. Refaktoring kódu (oddělení core vs. legacy simulace) – příprava pro skutečnou GPU implementaci.
+
+Poznámky:
+- GPU část zatím placeholder (CUDA/OpenCL plánováno v dalších verzích).
+- Přesná difficulty prezentace se ještě doladí (aktuálně aproximace u mask shares).
+- Legacy simulace bude odstraněna po dokončení GPU backendu.
 
 **NEW RELEASE**: Professional XMRig-style multi-GPU miner s podporou NVIDIA a AMD grafických karet.
 
@@ -80,6 +95,65 @@ cd build-minimal/Release
 🚀 CUDA & OpenCL Multi-GPU Support Active
 ⚡ ZION Cosmic Harmony Algorithm Running
 ```
+
+---
+
+### 🧠 RandomX / Real Mining Integration (WIP Transition)
+
+The legacy Cosmic Harmony simulation layer is being replaced by a full RandomX + Stratum core. Current status:
+
+Status Matrix:
+- Core Stratum client: ✅ (subscribe, authorize, job notify, share submit)
+- RandomX wrapper (cache + dataset VM, dynamic key): ✅
+- Per-job seed reinitialization: ✅
+- 256-bit target mask & hash comparison: ✅
+- Accurate difficulty reporting: ⏳ (display uses approximate value; full 256-bit normalization pending)
+- GPU real RandomX backend: ⏳ (planned; currently placeholder GPU metrics)
+
+#### Build Flags
+The C++ mining core uses CMake options (auto-detected if not set):
+```
+-DENABLE_RANDOMX=ON        # Enable RandomX hashing backend
+-DENABLE_UI=ON             # Enable console UI target(s)
+-DENABLE_CUDA=ON/OFF       # (Planned) CUDA RandomX kernels
+-DENABLE_OPENCL=ON/OFF     # (Planned) OpenCL kernels for AMD
+-DEXPERIMENTAL_COSMIC=OFF  # Legacy placeholder algorithm
+```
+
+#### RandomX Library Detection
+Search order when configuring the build:
+1. System install (find_package(RandomX))
+2. Environment variable `RANDOMX_ROOT` (expects include/ and lib/ subdirs)
+3. Vendored path `external/RandomX` inside repo (drop upstream source there)
+
+Example (Windows PowerShell):
+```powershell
+git clone https://github.com/tevador/RandomX external/RandomX
+cmake -S . -B build-core -DENABLE_RANDOMX=ON
+cmake --build build-core --config Release --target zion-core-miner
+```
+
+Example (Linux):
+```bash
+git clone https://github.com/tevador/RandomX external/RandomX
+cmake -S . -B build-core -DENABLE_RANDOMX=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build-core -j$(nproc) --target zion-core-miner
+```
+
+#### Runtime Behavior
+- New job (Stratum) with changed seed triggers RandomX re-key & dataset rebuild (dataset mode configurable later).
+- Worker threads insert nonces, compute hash, compare against 256-bit target mask.
+- Valid shares queued to ShareSubmitter and sent via Stratum JSON-RPC (submit).
+- UI (legacy `zion-xmrig-simple`) now shows ACCEPT / REJECT; soon will be wired to real core callbacks.
+
+#### Planned Next Steps
+- Full per-thread hashrate breakdown in UI.
+- Precise difficulty (convert target -> numeric diff 64-bit for display).
+- GPU RandomX kernels (CUDA & OpenCL path selection and memory init).
+- Huge pages / NUMA affinity optimization.
+- Removal of legacy simulation miners after parity.
+
+> Temporary Note: If RandomX library is not found the build will fall back to the legacy placeholder algorithm; ensure you provide the library for real mining.
 
 ---
 

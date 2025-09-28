@@ -1,0 +1,39 @@
+#pragma once
+#include <thread>
+#include <atomic>
+#include <vector>
+#include <cstdint>
+#include <string>
+#include <functional>
+#include "job_manager.h"
+#include "hashrate_stats.h"
+
+namespace zion { class RandomXWrapper; }
+
+struct ZionCpuWorkerConfig {
+    unsigned index{0};
+    unsigned total_threads{1};
+    bool use_randomx{true};
+};
+
+class ZionShareSubmitter; // fwd
+
+class ZionCpuWorker {
+public:
+    ZionCpuWorker(ZionJobManager* jm, ZionShareSubmitter* submitter, const ZionCpuWorkerConfig& cfg, ZionMiningStatsAggregator* stats=nullptr);
+    ~ZionCpuWorker();
+    void start();
+    void stop();
+    double last_instant_hs() const { return last_instant_hs_; }
+private:
+    void run();
+    uint32_t compute_next_nonce(uint64_t base_nonce, unsigned thread_index, unsigned total) const;
+    ZionJobManager* job_manager_;
+    ZionShareSubmitter* submitter_;
+    ZionCpuWorkerConfig cfg_;
+    std::thread thread_;
+    std::atomic<bool> running_{false};
+    ZionHashrateStats stats_;
+    double last_instant_hs_{0.0};
+    ZionMiningStatsAggregator* agg_{nullptr};
+};
