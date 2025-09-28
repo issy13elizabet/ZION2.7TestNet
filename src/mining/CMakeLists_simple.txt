@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find required packages
-find_package(Boost REQUIRED COMPONENTS system thread program_options)
+find_package(Boost REQUIRED COMPONENTS system thread program-options)
 find_package(OpenSSL REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Threads REQUIRED)
@@ -34,7 +34,7 @@ add_executable(zion-miner ../main/desktop_main.cpp ${ZION_SOURCES})
 target_link_libraries(zion-miner PRIVATE
     Boost::system
     Boost::thread
-    Boost::program_options
+    Boost::program-options
     OpenSSL::SSL
     OpenSSL::Crypto
     nlohmann_json::nlohmann_json
