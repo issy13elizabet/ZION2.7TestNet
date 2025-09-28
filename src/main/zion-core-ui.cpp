@@ -13,6 +13,7 @@
 #include "../mining/core/mining_stats.h"
 #include "../network/pool-connection.h"
 #include "../network/stratum_client.h"
+#include "../mining/zion-gpu-miner.h"
 #ifdef ZION_HAVE_RANDOMX
 #include "../../include/randomx_wrapper.h"
 #endif
@@ -33,9 +34,11 @@ static std::atomic<bool> g_gpu_enabled{false};
 static std::atomic<int> g_gpu_algorithm{0}; // 0=RandomX, 1=Ethash, 2=KawPow
 static std::atomic<bool> g_show_stats{true};
 static std::atomic<bool> g_show_hashrate_details{false};
+static std::atomic<bool> g_show_bench{true};
 
 static ZionMiningStatsAggregator* g_stats = nullptr;
 static std::vector<std::unique_ptr<ZionCpuWorker>>* g_workers = nullptr;
+static std::unique_ptr<ZionGPUMiner> g_gpu_miner;
 
 const char* gpu_algorithms[] = {"RandomX", "Ethash", "KawPow", "Autolykos2"};
 const int gpu_algorithm_count = 4;
@@ -57,7 +60,7 @@ void print_banner() {
     std::cout << "|    \\_  _|_ |___| |  \\_| " << std::endl;
     std::cout << RESET << std::endl;
     
-    std::cout << GREEN << " * " << WHITE << "ZION AI Mining Engine v1.1.0 (Interactive)" << RESET << std::endl;
+    std::cout << GREEN << " * " << WHITE << "ZION AI Mining Engine v1.3.0 (Interactive)" << RESET << std::endl;
     std::cout << GREEN << " * " << WHITE << "RandomX Core + GPU Support" << RESET << std::endl;
     std::cout << GREEN << " * " << WHITE << "Real-time Statistics & Controls" << RESET << std::endl;
     std::cout << std::endl;
@@ -67,6 +70,7 @@ void print_controls() {
     std::cout << YELLOW << "OVLÁDÁNÍ:" << RESET << std::endl;
     std::cout << WHITE << " [s] " << CYAN << "Statistiky ON/OFF" << RESET << std::endl;
     std::cout << WHITE << " [h] " << CYAN << "Detailní hashrate ON/OFF" << RESET << std::endl;
+    std::cout << WHITE << " [b] " << CYAN << "Benchmark metriky ON/OFF" << RESET << std::endl;
     std::cout << WHITE << " [g] " << (g_gpu_enabled.load() ? GREEN : RED) << "GPU mining " << (g_gpu_enabled.load() ? "ON" : "OFF") << RESET << std::endl;
     std::cout << WHITE << " [o] " << MAGENTA << "GPU algoritmus: " << gpu_algorithms[g_gpu_algorithm.load()] << RESET << std::endl;
     std::cout << WHITE << " [q] " << RED << "Ukončit" << RESET << std::endl;
@@ -149,6 +153,20 @@ void print_mining_stats(const ZionMiningSnapshot& snap, std::chrono::seconds upt
         std::cout << YELLOW << " │ GPU ALG " << MAGENTA << gpu_algorithms[g_gpu_algorithm.load()] << RESET;
     }
     std::cout << std::endl << std::endl;
+    
+    // Benchmark metrics
+    if(g_show_bench.load()){
+        double baseline = snap.baseline_total_hashrate;
+        if(baseline <= 0 && snap.total_hashrate>0){ baseline = snap.total_hashrate; }
+        double delta_pct = baseline? ((snap.total_hashrate - baseline)/baseline*100.0) : 0.0;
+        std::cout << CYAN << " Benchmark:" << RESET
+                  << " AVG/thread=" << format_hashrate((uint64_t)snap.avg_thread_hashrate)
+                  << " BEST/thread=" << format_hashrate((uint64_t)snap.best_thread_hashrate)
+                  << " σ=" << std::fixed << std::setprecision(2) << snap.stdev_thread_hashrate
+                  << " Δ=" << std::showpos << std::fixed << std::setprecision(2) << delta_pct << "%" << std::noshowpos
+                  << " baseline_window=" << snap.baseline_window_seconds << "s"
+                  << std::endl << std::endl;
+    }
 }
 
 void print_hashrate_details(const ZionMiningSnapshot& snap) {
@@ -201,10 +219,20 @@ void handle_keypress() {
                     g_show_hashrate_details.store(!g_show_hashrate_details.load());
                     std::cout << YELLOW << "Detailní hashrate: " << (g_show_hashrate_details.load() ? "ON" : "OFF") << RESET << std::endl;
                     break;
+                case 'b':
+                    g_show_bench.store(!g_show_bench.load());
+                    std::cout << YELLOW << "Benchmark metriky: " << (g_show_bench.load()?"ON":"OFF") << RESET << std::endl;
+                    break;
                 case 'g':
                     g_gpu_enabled.store(!g_gpu_enabled.load());
                     std::cout << YELLOW << "GPU mining: " << (g_gpu_enabled.load() ? GREEN "ON" : RED "OFF") << RESET << std::endl;
-                    // TODO: Actually start/stop GPU workers here
+                    if(g_gpu_enabled.load()){
+                        if(!g_gpu_miner){ g_gpu_miner.reset(new ZionGPUMiner()); }
+                        g_gpu_miner->select_best_gpus(1);
+                        g_gpu_miner->start_gpu_mining(ZionGPUMiner::GPUOptimization::MAX_PERFORMANCE);
+                    } else {
+                        if(g_gpu_miner) g_gpu_miner->stop_gpu_mining();
+                    }
                     break;
                 case 'o':
                     if (g_gpu_enabled.load()) {
@@ -236,7 +264,20 @@ int main(int argc, char* argv[]) {
     std::string pool_host = argc>2? argv[2]: "127.0.0.1";
     int pool_port = argc>3? std::atoi(argv[3]) : 3333;
     bool disable_stratum = false;
-    for(int i=1;i<argc;i++){ if(std::string(argv[i]) == "--no-stratum") disable_stratum = true; }
+    bool pin_threads = false;
+    bool rx_no_large = false;
+    bool rx_no_jit = false;
+    bool rx_secure = false;
+    bool rx_fullmem = false;
+    for(int i=1;i<argc;i++){
+        std::string a = argv[i];
+        if(a == "--no-stratum") disable_stratum = true;
+        else if(a == "--pin-threads") pin_threads = true;
+        else if(a == "--rx-no-large") rx_no_large = true;
+        else if(a == "--rx-no-jit") rx_no_jit = true;
+        else if(a == "--rx-secure") rx_secure = true;
+        else if(a == "--rx-full-mem") rx_fullmem = true;
+    }
 
     clear_screen();
     print_banner();
@@ -247,9 +288,18 @@ int main(int argc, char* argv[]) {
 
 #ifdef ZION_HAVE_RANDOMX
     zion::Hash dummy_seed; dummy_seed.fill(0x11);
-    if(!zion::RandomXWrapper::instance().initialize(dummy_seed, false)){
+    bool want_large = !rx_no_large; bool want_jit = !rx_no_jit; bool want_secure = rx_secure; bool want_dataset = rx_fullmem;
+    if(!zion::RandomXWrapper::instance().initialize_with_flags(dummy_seed, want_dataset, want_large, want_jit, want_secure)){
         std::cerr << RED << "Failed to init RandomX – exiting" << RESET << std::endl; 
         return 1; 
+    } else {
+        unsigned fl = zion::RandomXWrapper::instance().active_flags();
+        std::cout << GREEN << "RandomX flags active:" << RESET << " "
+                  << ((fl & RANDOMX_FLAG_LARGE_PAGES)?"LARGE_PAGES ":"")
+                  << ((fl & RANDOMX_FLAG_JIT)?"JIT ":"")
+                  << ((fl & RANDOMX_FLAG_SECURE)?"SECURE ":"")
+                  << ((fl & RANDOMX_FLAG_FULL_MEM)?"FULL_MEM ":"CACHE_ONLY")
+                  << std::endl;
     }
 #else
     std::cout << YELLOW << "RandomX not available (library missing) – running stub mode." << RESET << std::endl;
@@ -291,7 +341,7 @@ int main(int argc, char* argv[]) {
     g_workers = &workers;
     workers.reserve(threads);
     for(unsigned i=0;i<threads;i++){
-        ZionCpuWorkerConfig cfg; cfg.index=i; cfg.total_threads=threads; cfg.use_randomx=true;
+        ZionCpuWorkerConfig cfg; cfg.index=i; cfg.total_threads=threads; cfg.use_randomx=true; cfg.pin_threads = pin_threads;
         workers.emplace_back(new ZionCpuWorker(&job_manager, &submitter, cfg, &stats));
         workers.back()->start();
     }
@@ -325,6 +375,7 @@ int main(int argc, char* argv[]) {
     key_thread.join();
     
     for(auto& w: workers) w->stop();
+    if(g_gpu_miner){ g_gpu_miner->stop_gpu_mining(); g_gpu_miner.reset(); }
     submitter.stop();
     if(stratum) stratum->stop();
     pool.disconnect();

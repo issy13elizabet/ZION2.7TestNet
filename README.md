@@ -1,12 +1,12 @@
 # 🌐 ZION Blockchain v2.6 TestNet - Complete Multi-Chain Ecosystem
 
-![ZION Blockchain](https://img.shields.io/badge/ZION-v2.6%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green) ![Miner](https://img.shields.io/badge/GPU%20Miner-v1.1.0-orange)
+![ZION Blockchain](https://img.shields.io/badge/ZION-v2.6%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green) ![Miner](https://img.shields.io/badge/GPU%20Miner-v1.3.0-orange)
 
 **🚀 Unified Multi-Chain Technology for Global Community 🌈**
 
 ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovanou TypeScript architekturou, multi-chain interoperabilitou a pokročilými DeFi funkcemi. Postavený na proven RandomX konsensu s moderní infrastrukturou pro cross-chain komunikaci a reálné využití.
 
-**NEW: ZION Cosmic Harmony Miner v1.1.0 – RandomX core integrace + vylepšené UI (accept/reject)** 🎯
+**NEW: ZION Cosmic Harmony Miner v1.3.0 – Performance optimalizace (CPU), benchmark metriky, GPU scaffolding, hybrid share queue** 🎯
 
 **🎯 Mission: Decentralizovaná technologie pro lidské prosperování 🌱**
 > *Budujeme mosty mezi komunitami, technologiemi a možnostmi.*
@@ -30,11 +30,32 @@ ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovano
 
 ---
 
-## ⛏️ **ZION Cosmic Harmony Miner v1.1.0**
+## ⛏️ **ZION Cosmic Harmony Miner v1.3.0**
 
 ### 🚀 Professional Multi-GPU Cryptocurrency Miner
 
-#### 📦 Release v1.1.0 (2025-09-28)
+#### 📦 Release v1.3.0 (2025-09-28)
+Klíčové změny od v1.1.0:
+1. CPU RandomX optimalizace: reuse buffer, batch hashing (128), snížené atomiky, rychlý hex encoder.
+2. Thread affinity (--pin-threads) pro stabilnější výkon.
+3. RandomX rozšířené flagy: huge pages, JIT, secure mód, full-mem dataset.
+4. Hybridní lock-free ring buffer + fallback queue pro odesílání shares.
+5. Benchmark metriky (avg, best, σ, baseline delta) přepínatelné klávesou [b].
+6. GPU mining scaffolding (detekce zařízení, připravený pipeline blueprint).
+7. Rozšířený UI panel + real-time ovládání: [s] stats, [h] detail, [g] GPU, [o] algoritmus, [b] benchmark.
+8. Build vylepšení: LTO/IPO + -march=native volitelné přes CMake.
+9. Základ clean-up a sjednocení kódu (příprava na skutečné GPU kernely).
+
+Poznámky:
+- GPU část je zatím simulovaná; reálné hashování přijde ve verzi v1.4.0.
+- Baseline metrika se inicializuje po prvním okně; delta ukazuje rel. zlepšení.
+- Pokud selže huge pages/JIT, miner fallbackne elegantně bez pádu.
+
+Sekce níže ponechána kvůli historii v1.1.0 (posunuta dolů):
+
+---
+
+## ⛏️ **ZION Cosmic Harmony Miner v1.1.0** (Historická release)
 Klíčové změny od v1.0.0:
 1. RandomX jádro (CPU) – Stratum client (subscribe/authorize/job) + dynamický seed reinit.
 2. 256-bit target mask a porovnání hash <= target (přesnější validace share).

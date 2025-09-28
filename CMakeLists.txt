@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(ZionXMRigStyle VERSION 1.1.0)
+project(ZionXMRigStyle VERSION 1.3.0)
 
 # ================= Build Options =================
 option(ZION_ENABLE_RANDOMX "Enable RandomX CPU mining" ON)
@@ -7,6 +7,8 @@ option(ZION_ENABLE_CUDA "Enable CUDA experimental GPU features" OFF)
 option(ZION_ENABLE_OPENCL "Enable OpenCL experimental GPU features" OFF)
 option(ZION_ENABLE_UI "Build XMRig-style UI miner" ON)
 option(ZION_ENABLE_EXPERIMENTAL_COSMIC "Enable experimental Cosmic Harmony hash" OFF)
+option(ZION_ENABLE_LTO "Enable Link Time Optimization" ON)
+option(ZION_NATIVE_ARCH "Enable -march=native for local build" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,7 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(MSVC)
     add_compile_options(/W3 /bigobj)
 else()
-    add_compile_options(-Wall -Wextra -O3)
+    add_compile_options(-Wall -Wextra)
 endif()
 
 include(GNUInstallDirs)
@@ -202,6 +204,29 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/src/mining/zion-cosmic-harmony.cl)
         ${CMAKE_BINARY_DIR}/bin/zion-cosmic-harmony.cl
         COPYONLY
     )
+endif()
+
+# CMake options for optimization
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    if(ZION_NATIVE_ARCH)
+        add_compile_options(-march=native)
+    endif()
+    add_compile_options(-O3)
+endif()
+
+if(MSVC)
+    add_compile_options(/O2)
+endif()
+
+if(ZION_ENABLE_LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT lto_ok OUTPUT lto_err)
+    if(lto_ok)
+        message(STATUS "IPO/LTO enabled")
+        set_property(TARGET zion_mining_core PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(WARNING "IPO/LTO not supported: ${lto_err}")
+    endif()
 endif()
 
 # Print configuration summary
