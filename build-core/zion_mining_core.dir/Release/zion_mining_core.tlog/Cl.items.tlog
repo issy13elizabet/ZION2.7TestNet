@@ -1,0 +1,8 @@
+E:\src\mining\core\job_manager.cpp;E:\build-core\zion_mining_core.dir\Release\job_manager.obj
+E:\src\mining\core\cpu_worker.cpp;E:\build-core\zion_mining_core.dir\Release\cpu_worker.obj
+E:\src\mining\core\share_submitter.cpp;E:\build-core\zion_mining_core.dir\Release\share_submitter.obj
+E:\src\mining\core\hashrate_stats.cpp;E:\build-core\zion_mining_core.dir\Release\hashrate_stats.obj
+E:\src\mining\core\mining_stats.cpp;E:\build-core\zion_mining_core.dir\Release\mining_stats.obj
+E:\src\algorithms\zion-cosmic-harmony.cpp;E:\build-core\zion_mining_core.dir\Release\zion-cosmic-harmony.obj
+E:\src\network\stratum_client.cpp;E:\build-core\zion_mining_core.dir\Release\stratum_client.obj
+E:\src\network\pool-connection.cpp;E:\build-core\zion_mining_core.dir\Release\pool-connection.obj

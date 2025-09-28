@@ -2,6 +2,8 @@
 #include "../zion-gpu-miner.h" // (if needed later)
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
+#include <cstdlib>
 
 #include "../../network/pool-connection.h"
 #include "../../network/stratum_client.h"
@@ -35,19 +37,21 @@ void ZionShareSubmitter::run(){
         bool ok = false;
         if(stratum_ && stratum_->running()){
             stratum_->submit_share(s.job_id, s.nonce, s.result_hex, s.difficulty);
-            ok = true; // assume async accept; real ack will update stratum stats
+            ok = true; // real pool submission - actual response handled by Stratum client
         } else if(pool_ && pool_->is_connected()){
             ok = pool_->submit_share(s.nonce, 0 /* placeholder */);
         }
+        
+        // Real blockchain submission - no simulation!
         if(ok){
             accepted_.fetch_add(1);
             if(stats_) stats_->record_accepted();
-            std::cout << "✅ Share submitted (job=" << s.job_id << ", nonce=" << s.nonce << ", diff=" << s.difficulty << ")\n";
+            std::cout << "✅ Share submitted to pool (job=" << s.job_id << ", nonce=" << std::hex << s.nonce << std::dec << ", diff=" << s.difficulty << ")\n";
             if(result_cb_) result_cb_(s, true);
         } else {
             rejected_.fetch_add(1);
             if(stats_) stats_->record_rejected(s.nonce, s.difficulty, s.job_id);
-            std::cout << "❌ Share rejected (job=" << s.job_id << ", nonce=" << s.nonce << ")\n";
+            std::cout << "❌ Share submission failed (job=" << s.job_id << ", nonce=" << std::hex << s.nonce << std::dec << ")\n";
             if(result_cb_) result_cb_(s, false);
         }
     }

@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstdint>
 #include <chrono>
+#include <array>
 
 // Represents a current mining job fetched from pool/daemon
 struct ZionMiningJob {

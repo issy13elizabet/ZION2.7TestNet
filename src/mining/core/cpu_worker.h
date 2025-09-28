@@ -17,6 +17,7 @@ struct ZionCpuWorkerConfig {
 };
 
 class ZionShareSubmitter; // fwd
+class ZionMiningStatsAggregator; // fwd
 
 class ZionCpuWorker {
 public:

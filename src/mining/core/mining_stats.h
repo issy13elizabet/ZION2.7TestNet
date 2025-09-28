@@ -6,6 +6,7 @@
 #include <chrono>
 #include <string>
 #include <deque>
+#include <memory>
 
 struct ZionShareEventRecord {
     std::chrono::steady_clock::time_point ts;
@@ -26,9 +27,12 @@ struct ZionMiningSnapshot {
 
 class ZionMiningStatsAggregator {
 public:
-    explicit ZionMiningStatsAggregator(unsigned threads) : per_thread_hs_(threads, 0.0) {}
+    explicit ZionMiningStatsAggregator(unsigned threads) : thread_count_(threads) { 
+        per_thread_hs_ = std::make_unique<std::atomic<double>[]>(threads);
+        for(unsigned i = 0; i < threads; ++i) per_thread_hs_[i].store(0.0);
+    }
     void update_thread_hashrate(unsigned idx, double hs){
-        if(idx >= per_thread_hs_.size()) return; // guard
+        if(idx >= thread_count_) return; // guard
         per_thread_hs_[idx].store(hs, std::memory_order_relaxed);
     }
     void record_share_submitted(uint32_t nonce, uint64_t diff, const std::string& job){
@@ -43,8 +47,12 @@ public:
     ZionMiningSnapshot snapshot() const {
         ZionMiningSnapshot snap;
         double total=0.0;
-        snap.per_thread_hashrate.reserve(per_thread_hs_.size());
-        for(auto& a: per_thread_hs_) { double v = a.load(std::memory_order_relaxed); snap.per_thread_hashrate.push_back(v); total += v; }
+        snap.per_thread_hashrate.reserve(thread_count_);
+        for(unsigned i = 0; i < thread_count_; ++i) { 
+            double v = per_thread_hs_[i].load(std::memory_order_relaxed); 
+            snap.per_thread_hashrate.push_back(v); 
+            total += v; 
+        }
         snap.total_hashrate = total;
         snap.shares_found = shares_found_.load(std::memory_order_relaxed);
         snap.shares_accepted = shares_accepted_.load(std::memory_order_relaxed);
@@ -61,7 +69,8 @@ private:
         events_.push_back({std::chrono::steady_clock::now(), accepted, nonce, diff, job});
         if(events_.size() > max_events_) events_.pop_front();
     }
-    std::vector<std::atomic<double>> per_thread_hs_;
+    std::unique_ptr<std::atomic<double>[]> per_thread_hs_;
+    unsigned thread_count_;
     std::atomic<uint64_t> shares_found_{0};
     std::atomic<uint64_t> shares_accepted_{0};
     std::atomic<uint64_t> shares_rejected_{0};
