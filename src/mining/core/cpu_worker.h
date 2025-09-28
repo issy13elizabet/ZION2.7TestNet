@@ -7,13 +7,21 @@
 #include <functional>
 #include "job_manager.h"
 #include "hashrate_stats.h"
+#include <optional>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <pthread.h>
+#include <sched.h>
+#endif
 
 namespace zion { class RandomXWrapper; }
 
 struct ZionCpuWorkerConfig {
-    unsigned index{0};
-    unsigned total_threads{1};
+    unsigned index{};
+    unsigned total_threads{};
     bool use_randomx{true};
+    bool pin_threads{false};
 };
 
 class ZionShareSubmitter; // fwd
@@ -29,6 +37,7 @@ public:
 private:
     void run();
     uint32_t compute_next_nonce(uint64_t base_nonce, unsigned thread_index, unsigned total) const;
+    void apply_affinity(unsigned logical_index);
     ZionJobManager* job_manager_;
     ZionShareSubmitter* submitter_;
     ZionCpuWorkerConfig cfg_;

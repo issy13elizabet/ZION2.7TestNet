@@ -15,6 +15,10 @@ public:
     // use_dataset = true => alokuje a inicializuje 2GiB dataset (rychlejší, ale náročné na start)
     // use_dataset = false => lehký režim (pouze cache), vhodné pro daemon/start
     bool initialize(const Hash& key, bool use_dataset = false);
+    bool initialize_with_flags(const Hash& key, bool use_dataset, bool large_pages, bool jit, bool secure);
+    
+    // Query last flags actually used
+    unsigned active_flags() const { return active_flags_; }
     
     // Calculate RandomX hash
     Hash hash(const void* data, size_t size);
@@ -37,6 +41,7 @@ private:
     randomx_vm* vm_ = nullptr;
     std::mutex mutex_;
     bool initialized_ = false;
+    unsigned active_flags_ = 0;
 };
 
 // Utility functions

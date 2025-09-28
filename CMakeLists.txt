@@ -128,6 +128,7 @@ endif()
 add_library(zion_mining_core STATIC
     ${CORE_MINING_SOURCES}
     ${NETWORK_SOURCES}
+    src/mining/zion-gpu-miner.cpp
     ${GPU_SOURCES}
 )
 

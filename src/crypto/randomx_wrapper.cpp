@@ -20,56 +20,40 @@ RandomXWrapper::~RandomXWrapper() {
 }
 
 bool RandomXWrapper::initialize(const Hash& key, bool use_dataset) {
+    return initialize_with_flags(key, use_dataset, true, true, false);
+}
+
+bool RandomXWrapper::initialize_with_flags(const Hash& key, bool use_dataset, bool large_pages, bool jit, bool secure) {
     std::lock_guard<std::mutex> lock(mutex_);
-    
-    if (initialized_) {
-        cleanup();
-    }
-    
+    if(initialized_) cleanup();
     try {
-        // Create cache
-        cache_ = randomx_alloc_cache(RANDOMX_FLAG_DEFAULT);
-        if (!cache_) {
-            std::cerr << "Failed to allocate RandomX cache" << std::endl;
-            return false;
+        randomx_flags flags = RANDOMX_FLAG_DEFAULT;
+        if(large_pages) flags = (randomx_flags)(flags | RANDOMX_FLAG_LARGE_PAGES);
+        if(jit) flags = (randomx_flags)(flags | RANDOMX_FLAG_JIT);
+        if(secure) flags = (randomx_flags)(flags | RANDOMX_FLAG_SECURE);
+        if(use_dataset) flags = (randomx_flags)(flags | RANDOMX_FLAG_FULL_MEM);
+        cache_ = randomx_alloc_cache(flags);
+        if(!cache_){
+            // Retry without large pages/JIT if failed
+            if(flags & (RANDOMX_FLAG_LARGE_PAGES | RANDOMX_FLAG_JIT)){
+                flags = RANDOMX_FLAG_DEFAULT;
+                if(use_dataset) flags = (randomx_flags)(flags | RANDOMX_FLAG_FULL_MEM);
+                cache_ = randomx_alloc_cache(flags);
+            }
         }
-        
-        // Initialize cache with key
+        if(!cache_){ std::cerr << "Failed to allocate RandomX cache" << std::endl; return false; }
         randomx_init_cache(cache_, key.data(), key.size());
-        
-        // Create dataset (optional, for better performance)
-        if (use_dataset) {
-            dataset_ = randomx_alloc_dataset(RANDOMX_FLAG_DEFAULT);
-            if (dataset_) {
-                // Get dataset item count
+        if(use_dataset){
+            dataset_ = randomx_alloc_dataset(flags);
+            if(dataset_){
                 auto item_count = randomx_dataset_item_count();
                 randomx_init_dataset(dataset_, cache_, 0, item_count);
             }
         }
-        
-        // Create VM
-        randomx_flags flags = RANDOMX_FLAG_DEFAULT;
-        if (dataset_) {
-            flags |= RANDOMX_FLAG_FULL_MEM;
-            vm_ = randomx_create_vm(flags, cache_, dataset_);
-        } else {
-            vm_ = randomx_create_vm(flags, cache_, nullptr);
-        }
-        
-        if (!vm_) {
-            std::cerr << "Failed to create RandomX VM" << std::endl;
-            cleanup();
-            return false;
-        }
-        
-        initialized_ = true;
-        return true;
-        
-    } catch (const std::exception& e) {
-        std::cerr << "Exception in RandomX initialization: " << e.what() << std::endl;
-        cleanup();
-        return false;
-    }
+        vm_ = randomx_create_vm(flags, cache_, dataset_);
+        if(!vm_){ std::cerr << "Failed to create RandomX VM" << std::endl; cleanup(); return false; }
+        initialized_ = true; active_flags_ = flags; return true;
+    } catch(const std::exception& e){ std::cerr << "Exception in RandomX init: "<<e.what()<<std::endl; cleanup(); return false; }
 }
 
 Hash RandomXWrapper::hash(const void* data, size_t size) {

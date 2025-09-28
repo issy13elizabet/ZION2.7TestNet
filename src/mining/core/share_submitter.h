@@ -35,6 +35,13 @@ private:
     void run();
     PoolConnection* pool_;
     StratumClient* stratum_{nullptr};
+    // Lock-free SPSC ring buffer (producer: workers via enqueue, consumer: submitter thread)
+    static constexpr size_t RING_CAP = 4096; // power of two
+    struct RingSlot { std::atomic<bool> full{false}; ZionShare val; };
+    std::unique_ptr<RingSlot[]> ring_ = std::unique_ptr<RingSlot[]>(new RingSlot[RING_CAP]);
+    std::atomic<size_t> head_{0}; // producer index
+    std::atomic<size_t> tail_{0}; // consumer index
+    // Fallback queue (legacy) will remain until migration complete
     std::queue<ZionShare> queue_;
     std::mutex mutex_;
     std::condition_variable cv_;

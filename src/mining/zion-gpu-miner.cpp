@@ -445,3 +445,11 @@ void ZionGPUMiner::print_gpu_stats() const {
     std::cout << "🌟 Cosmic GPU Level: " << cosmic_gpu_level_.load() << std::endl;
     std::cout << "===================================\n" << std::endl;
 }
+
+// TODO(REAL_GPU): Replace simulated sleep/hash increments with actual GPU kernel launch sequence:
+//  1. Prepare per-job seed -> expand to dataset chunk on GPU
+//  2. Maintain per-GPU nonce buffer, fill kernel arguments
+//  3. Kernel computes N hashes per launch -> writes results + meets mask / diff predicate
+//  4. Host scans result buffer, submits valid shares via shared submitter interface
+//  5. Adaptive work size: tune global/local sizes based on occupancy heuristics (per vendor)
+//  6. Future: persistent kernel model to reduce launch latency

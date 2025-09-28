@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #include <conio.h>  // Windows specific for _kbhit() and _getch()
 #include "../mining/core/job_manager.h"
 #include "../mining/core/cpu_worker.h"
@@ -229,7 +230,7 @@ void handle_keypress() {
                     if(g_gpu_enabled.load()){
                         if(!g_gpu_miner){ g_gpu_miner.reset(new ZionGPUMiner()); }
                         g_gpu_miner->select_best_gpus(1);
-                        g_gpu_miner->start_gpu_mining(ZionGPUMiner::GPUOptimization::MAX_PERFORMANCE);
+                        g_gpu_miner->start_gpu_mining(GPUOptimization::MAX_PERFORMANCE);
                     } else {
                         if(g_gpu_miner) g_gpu_miner->stop_gpu_mining();
                     }
@@ -321,7 +322,8 @@ int main(int argc, char* argv[]) {
         job_manager.update_job(job);
     }
 
-    unsigned threads = std::max(1u, std::thread::hardware_concurrency());
+    unsigned hw_threads = std::thread::hardware_concurrency();
+    unsigned threads = (hw_threads > 0) ? hw_threads : 1;
     ZionMiningStatsAggregator stats(threads);
     g_stats = &stats;
     

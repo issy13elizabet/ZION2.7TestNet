@@ -12,6 +12,10 @@
 
 using namespace std::chrono_literals;
 
+// Bottleneck notes (pre-optimization):
+// 1. Per-hash std::vector<uint8_t> blob_copy allocation + full copy.
+// 2. Per-submission std::ostringstream (hex formatting) even when share not accepted yet.
+// 3. stats_.add_hashes(1) called every hash (atomic contention).
 ZionCpuWorker::ZionCpuWorker(ZionJobManager* jm, ZionShareSubmitter* submitter, const ZionCpuWorkerConfig& cfg, ZionMiningStatsAggregator* stats)
     : job_manager_(jm), submitter_(submitter), cfg_(cfg), agg_(stats) {}
 
@@ -24,23 +28,42 @@ uint32_t ZionCpuWorker::compute_next_nonce(uint64_t base_nonce, unsigned thread_
     return static_cast<uint32_t>(base_nonce + thread_index);
 }
 
+void ZionCpuWorker::apply_affinity(unsigned logical_index){
+#ifdef _WIN32
+    // Windows: use SetThreadAffinityMask
+    HANDLE h = (HANDLE)thread_.native_handle();
+    DWORD_PTR mask = (1ull << (logical_index % (sizeof(DWORD_PTR)*8)));
+    SetThreadAffinityMask(h, mask);
+#else
+    cpu_set_t cpuset; CPU_ZERO(&cpuset);
+    CPU_SET(logical_index % CPU_SETSIZE, &cpuset);
+    pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+#endif
+}
+
 void ZionCpuWorker::run(){
+    // Pin after thread starts (thread_ already created before run executes)
+    if(cfg_.pin_threads){
+        apply_affinity(cfg_.index);
+    }
     uint64_t local_epoch = 0;
     uint64_t nonce_cursor = cfg_.index * 13; // arbitrary spread
+    // Reusable mutable blob buffer (thread-local inside run loop)
+    std::vector<uint8_t> mutable_blob;
+    size_t cached_blob_size = 0;
 
     while(running_.load()){
         if(!job_manager_->has_job()) { std::this_thread::sleep_for(200ms); continue; }
         auto job = job_manager_->current_job();
+        bool job_changed=false;
         if(job.epoch_id != local_epoch){
             local_epoch = job.epoch_id;
-            // Reset per-job nonce base for this worker
-            nonce_cursor = (cfg_.index + 1) * 100003ULL; // distinct starting space
+            nonce_cursor = (cfg_.index + 1) * 100003ULL;
+            job_changed = true;
 #ifdef ZION_HAVE_RANDOMX
-            // Reinitialize RandomX if seed hash changed (job.seed_hash expected hex)
             if(cfg_.use_randomx && !job.seed_hash.empty()){
                 static thread_local std::string last_seed;
                 if(last_seed != job.seed_hash){
-                    // Convert hex seed to 32-byte key (truncate or pad)
                     zion::Hash key; key.fill(0);
                     auto hex_to_byte=[&](char c)->uint8_t{ if(c>='0'&&c<='9') return c-'0'; if(c>='a'&&c<='f') return 10+(c-'a'); if(c>='A'&&c<='F') return 10+(c-'A'); return 0; };
                     size_t out_i=0;
@@ -49,80 +72,70 @@ void ZionCpuWorker::run(){
                         key[out_i++] = v;
                     }
                     auto& rx = zion::RandomXWrapper::instance();
-                    rx.initialize(key, false); // light mode per job seed
+                    rx.initialize(key, false);
                     last_seed = job.seed_hash;
                 }
             }
 #endif
         }
-        // produce a batch of nonces
-        const int batch = 64;
+        // If blob size changed or new job, refresh mutable copy once
+        if(job_changed || job.blob.size() != cached_blob_size){
+            mutable_blob = job.blob; // single copy per job / size change
+            cached_blob_size = mutable_blob.size();
+        }
+        if(mutable_blob.size() < job.nonce_offset + 4){ std::this_thread::sleep_for(50ms); continue; }
+
+        const int batch = 128; // increased batch to amortize overhead
+        uint32_t local_hashes = 0; // batch counter
         for(int i=0;i<batch && running_.load();++i){
             uint32_t nonce = compute_next_nonce(nonce_cursor, cfg_.index, cfg_.total_threads);
-            nonce_cursor += cfg_.total_threads; // stride
-
-            // Insert nonce into blob copy
-            if(job.blob.size() < job.nonce_offset + 4) continue; // safety
-            std::vector<uint8_t> blob_copy = job.blob;
-            blob_copy[job.nonce_offset+0] = (nonce >> 0) & 0xFF;
-            blob_copy[job.nonce_offset+1] = (nonce >> 8) & 0xFF;
-            blob_copy[job.nonce_offset+2] = (nonce >> 16) & 0xFF;
-            blob_copy[job.nonce_offset+3] = (nonce >> 24) & 0xFF;
-
+            nonce_cursor += cfg_.total_threads;
+            // Write nonce directly into reusable buffer
+            mutable_blob[job.nonce_offset+0] = (nonce >> 0) & 0xFF;
+            mutable_blob[job.nonce_offset+1] = (nonce >> 8) & 0xFF;
+            mutable_blob[job.nonce_offset+2] = (nonce >> 16) & 0xFF;
+            mutable_blob[job.nonce_offset+3] = (nonce >> 24) & 0xFF;
             uint64_t difficulty_value = 0;
-#ifdef ZION_HAVE_RANDOMX
-            auto compare_hash=[&](const zion::Hash& h, const std::array<uint8_t,32>& target_mask)->bool{
-                // If mask all zero -> use numeric fallback
-                bool any=false; for(auto b: target_mask) if(b){ any=true; break; }
-                if(!any) return false; // can't decide here
-                // Hash produced is big-endian? RandomX returns 32 bytes (little-endian internal). We'll treat it as little-endian integer.
-                // Compare h <= target_mask (both little-endian). We'll convert to little-endian arrays if needed.
-                // If target_mask is little-endian, compare from most significant byte (index 31) down.
-                for(int i=31;i>=0;--i){
-                    uint8_t hv = h[i];
-                    uint8_t tv = target_mask[i];
-                    if(hv < tv) return true;
-                    if(hv > tv) return false;
-                }
-                return true; // equal
-            };
-#endif
             bool submitted=false;
 #ifdef ZION_HAVE_RANDOMX
             if(cfg_.use_randomx){
                 auto& rx = zion::RandomXWrapper::instance();
-                auto h = rx.hash(blob_copy.data(), blob_copy.size());
-                // Compute numeric diff only if no mask; else approximate difficulty from first 8B for UI
+                auto h = rx.hash(mutable_blob.data(), mutable_blob.size());
                 bool mask_ok=false;
                 if(!job.target_mask.empty()){
-                    mask_ok = compare_hash(h, job.target_mask);
+                    for(int bi=31; bi>=0; --bi){
+                        uint8_t hv = h[bi];
+                        uint8_t tv = job.target_mask[bi];
+                        if(hv < tv){ mask_ok=true; break; }
+                        if(hv > tv){ mask_ok=false; break; }
+                        if(bi==0) mask_ok=true;
+                    }
                 }
                 if(mask_ok){
-                    // approximate difficulty: inverse of first 8 bytes
-                    uint64_t val=0; for(int i=7;i>=0;--i) val = (val<<8) | h[i];
+                    uint64_t val=0; for(int ii=7; ii>=0; --ii) val = (val<<8) | h[ii];
                     difficulty_value = val? (UINT64_MAX/val) : UINT64_MAX;
                 } else if(job.target_difficulty){
                     difficulty_value = rx.hash_to_difficulty(h);
                 }
-                std::ostringstream oss; oss<<std::hex; for(int b=0;b<8;++b) oss<<std::setw(2)<<std::setfill('0')<<(int)h[b];
                 if( (mask_ok || (job.target_difficulty && difficulty_value >= job.target_difficulty)) && submitter_){
-                    submitter_->enqueue({job.job_id, nonce, oss.str(), difficulty_value});
+                    static const char* hexchars = "0123456789abcdef";
+                    char smallhex[17];
+                    for(int b=0;b<8;++b){ uint8_t v = h[b]; smallhex[b*2] = hexchars[v>>4]; smallhex[b*2+1] = hexchars[v & 0xF]; }
+                    smallhex[16]='\0';
+                    submitter_->enqueue({job.job_id, nonce, std::string(smallhex, 16), difficulty_value});
                     submitted=true;
                 }
             }
-#endif
-            if(!submitted){
-#ifndef ZION_HAVE_RANDOMX
-            // Stub fallback: simulate difficulty progression
+#else
             difficulty_value = (nonce & 0xFFFF);
             if(difficulty_value % 50000 == 0 && submitter_){
                 submitter_->enqueue({job.job_id, nonce, "deadbeef", difficulty_value});
+                submitted=true;
             }
-            }
-#endif // stub region
-            stats_.add_hashes(1);
+#endif
+            local_hashes++;
         }
-        // rate calculation / throttle a bit
+        if(local_hashes) stats_.add_hashes(local_hashes); // single atomic add per batch
         last_instant_hs_ = stats_.current_hs();
         if(agg_) agg_->update_thread_hashrate(cfg_.index, last_instant_hs_);
     }

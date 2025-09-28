@@ -1,4 +1,5 @@
-﻿#include "stratum_client.h"
+// Stratum client implementation
+#include "stratum_client.h"
 #include "../mining/core/job_manager.h"
 #include <sstream>
 #include <iostream>
