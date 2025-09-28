@@ -32,6 +32,39 @@ ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovano
 
 ## ⛏️ **ZION Cosmic Harmony Miner v1.3.0**
 
+### 🇨🇿 Jak spustit miner (návod)
+
+1. **Zkompilujte projekt**
+  - Otevřete PowerShell v root složce projektu
+  - Spusťte:
+    ```powershell
+    cmake -S . -B build-core -DENABLE_RANDOMX=ON -DENABLE_UI=ON
+    cmake --build build-core --config Release --target zion-core-ui
+    ```
+2. **Spusťte miner**
+  - Přejděte do složky s binárkou:
+    ```powershell
+    cd build-core\bin\Release
+    .\zion-core-ui.exe
+    ```
+  - Pro testovací režim bez poolu:
+    ```powershell
+    .\zion-core-ui.exe --no-stratum
+    ```
+3. **Ovládání v terminálu:**
+  - `[s]` Statistiky ON/OFF
+  - `[h]` Detailní hashrate ON/OFF
+  - `[b]` Benchmark metriky ON/OFF
+  - `[g]` GPU mining ON/OFF (zatím simulace)
+  - `[o]` Přepínání GPU algoritmu
+  - `[q]` Ukončit miner
+
+4. **Poznámky:**
+  - Pro reálné CPU těžení je nutná knihovna RandomX (viz níže).
+  - GPU backend je zatím simulovaný, reálné hashování bude ve verzi v1.4.0.
+  - Benchmark metriky ukazují průměr, nejlepší, odchylku a baseline.
+
+
 ### 🚀 Professional Multi-GPU Cryptocurrency Miner
 
 #### 📦 Release v1.3.0 (2025-09-28)
