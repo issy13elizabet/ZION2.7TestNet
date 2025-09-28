@@ -1,10 +1,12 @@
-# 🌐 ZION Blockchain v2.5 TestNet - Complete Multi-Chain Ecosystem
+# 🌐 ZION Blockchain v2.6 TestNet - Complete Multi-Chain Ecosystem
 
-![ZION Blockchain](https://img.shields.io/badge/ZION-v2.5%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green)
+![ZION Blockchain](https://img.shields.io/badge/ZION-v2.6%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green) ![Miner](https://img.shields.io/badge/GPU%20Miner-v1.0.0-orange)
 
 **🚀 Unified Multi-Chain Technology for Global Community 🌈**
 
-ZION v2.5 TestNet představuje **kompletní blockchain ecosystem** s unifikovanou TypeScript architekturou, multi-chain interoperabilitou a pokročilými DeFi funkcemi. Postavený na proven RandomX konsensu s moderní infrastrukturou pro cross-chain komunikaci a reálné využití.
+ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovanou TypeScript architekturou, multi-chain interoperabilitou a pokročilými DeFi funkcemi. Postavený na proven RandomX konsensu s moderní infrastrukturou pro cross-chain komunikaci a reálné využití.
+
+**NEW: ZION Cosmic Harmony Miner v1.0.0 - Professional XMRig-style multi-GPU miner** 🎯
 
 **🎯 Mission: Decentralizovaná technologie pro lidské prosperování 🌱**
 > *Budujeme mosty mezi komunitami, technologiemi a možnostmi.*
@@ -13,17 +15,71 @@ ZION v2.5 TestNet představuje **kompletní blockchain ecosystem** s unifikovano
 
 ## 📋 **OBSAH / TABLE OF CONTENTS**
 
-1. [🏗️ Architektura Projektu](#️-architektura-projektu)
-2. [🚀 Rychlý Start](#-rychlý-start)
-3. [🔗 Multi-Chain Philosophy](#-multi-chain-philosophy)
-4. [⚡ ZION CORE - Unified Architecture](#-zion-core---unified-architecture)
-5. [🏭 Komponenty Systému](#-komponenty-systému)
-6. [🛠️ Development Setup](#️-development-setup)
-7. [📊 Monitoring & Analytics](#-monitoring--analytics)
-8. [🌍 Community & Governance](#-community--governance)
-9. [🔮 Roadmap & Next Steps](#-roadmap--next-steps)
-10. [🤝 Contributing](#-contributing)
-11. [📚 Git Setup & Development](#-git-setup--development)
+1. [⛏️ ZION Cosmic Harmony Miner v1.0.0](#️-zion-cosmic-harmony-miner-v100)
+2. [🏗️ Architektura Projektu](#️-architektura-projektu)
+3. [🚀 Rychlý Start](#-rychlý-start)
+4. [🔗 Multi-Chain Philosophy](#-multi-chain-philosophy)
+5. [⚡ ZION CORE - Unified Architecture](#-zion-core---unified-architecture)
+6. [🏭 Komponenty Systému](#-komponenty-systému)
+7. [🛠️ Development Setup](#️-development-setup)
+8. [📊 Monitoring & Analytics](#-monitoring--analytics)
+9. [🌍 Community & Governance](#-community--governance)
+10. [🔮 Roadmap & Next Steps](#-roadmap--next-steps)
+11. [🤝 Contributing](#-contributing)
+12. [📚 Git Setup & Development](#-git-setup--development)
+
+---
+
+## ⛏️ **ZION Cosmic Harmony Miner v1.0.0**
+
+### 🚀 Professional Multi-GPU Cryptocurrency Miner
+
+**NEW RELEASE**: Professional XMRig-style multi-GPU miner s podporou NVIDIA a AMD grafických karet.
+
+#### ✨ Klíčové Vlastnosti
+
+- **🎨 XMRig-Style Professional UI** - Krásné terminálové rozhraní s real-time statistikami
+- **🖥️ Multi-GPU Support** - NVIDIA CUDA a AMD OpenCL akcelerace
+- **⚡ ZION Cosmic Harmony Algorithm** - Vlastní optimalizovaný mining algoritmus
+- **📊 Real-time Monitoring** - Live hashrate, teplota a rychlost ventilátorů
+- **📈 Share Statistics** - Accept/reject míry s procentuálními výpočty
+
+#### 🎯 GPU Support Matrix
+
+| GPU Rodina | Podpora | Výkon |
+|------------|---------|-------|
+| NVIDIA RTX 40-series | ✅ Plná | Vynikající |
+| NVIDIA RTX 30-series | ✅ Plná | Velmi dobrý |
+| AMD RDNA 3 (RX 7000) | ✅ Plná | Vynikající |
+| AMD RDNA 2 (RX 6000) | ✅ Plná | Velmi dobrý |
+
+#### 🚀 Rychlé Spuštění
+
+```bash
+# CPU Mining
+cd build-minimal/Release
+./zion-cpu-miner.exe
+
+# GPU Mining (Doporučeno)
+./zion-gpu-miner.exe
+```
+
+#### 📊 Performance Preview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                ZION COSMIC HARMONY GPU MINER               │
+│                    XMRig-Style Interface                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─ GPU DEVICES ──────────────────────────────────────────────┐
+│ GPU 0: RTX 4070 Super  │  0.3 MH/s │ 64°C │ 77% │
+│ GPU 1: RTX 3080        │  0.3 MH/s │71°C │ 88% │  
+└─────────────────────────────────────────────────────────────┘
+
+🚀 CUDA & OpenCL Multi-GPU Support Active
+⚡ ZION Cosmic Harmony Algorithm Running
+```
 
 ---
 

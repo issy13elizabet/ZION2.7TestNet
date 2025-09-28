@@ -53,10 +53,10 @@ endif()
 
 # XMRig-Style UI Executable
 add_executable(zion-xmrig-ui
-    src/main/zion-xmrig-simple.cpp
-    src/mining/zion-simple-miner.cpp
-    src/mining/zion-gpu-miner.cpp
-    src/algorithms/zion-cosmic-harmony.cpp
+    src/main/zion-xmrig-style.cpp
+    ${MINING_SOURCES}
+    ${GPU_SOURCES}
+    ${NETWORK_SOURCES}
 )
 
 # Link libraries for XMRig-style UI
