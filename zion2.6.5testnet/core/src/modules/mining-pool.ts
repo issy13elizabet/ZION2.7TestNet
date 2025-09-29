@@ -15,6 +15,7 @@ import {
   ZION_CONSTANTS
 } from '../types.js';
 import { DaemonBridge } from './daemon-bridge.js';
+import { PlaceholderShareValidator, IShareValidator } from './pow/validator.js';
 
 /**
  * ZION Mining Pool Module
@@ -70,12 +71,21 @@ export class MiningPool implements IMiningPool {
 
   // Optional external daemon bridge (legacy core)
   private daemonBridge: DaemonBridge | null = null;
+  private shareValidator: IShareValidator | null = null;
+  private validationStats = { accepted: 0, rejected: 0, reasons: new Map<string, number>() };
 
   constructor(bridge?: DaemonBridge) {
     this.router = Router();
     if (bridge && bridge.isEnabled()) {
       this.daemonBridge = bridge;
       console.log('[bridge] MiningPool: external daemon bridge enabled');
+    }
+    // Initialize share validator (lazy)
+    this.shareValidator = new PlaceholderShareValidator();
+    if (this.shareValidator.isEnabled()) {
+      console.log('[pow] Share validation ENABLED (placeholder mode)');
+    } else {
+      console.log('[pow] Share validation disabled (set POW_VALIDATION_ENABLED=true to enable)');
     }
     this.setupRoutes();
   }
@@ -441,14 +451,36 @@ export class MiningPool implements IMiningPool {
     }
   }
 
-  private handleSubmit(minerId: string, request: any): void {
+  private async handleSubmit(minerId: string, request: any): Promise<void> {
     const miner = this.miners.get(minerId);
     if (!miner || !miner.socket) return;
 
     const [worker, jobId, nonce] = request.params;
-    
-    // Validate share
-    const isValid = this.validateShare(jobId, nonce);
+    let isValid = false;
+    let reason: string | undefined;
+    if (this.shareValidator && this.shareValidator.isEnabled()) {
+      try {
+        const job = this.jobs.get(jobId);
+        const blob = this.rxTemplate?.blob || '00';
+        const res = await this.shareValidator.validate({
+          jobId,
+          nonce,
+            data: blob,
+          difficulty: miner.difficulty,
+          algorithm: this.currentAlgorithm,
+          address: miner.address
+        });
+        isValid = res.valid;
+        reason = res.reason;
+        this.trackValidation(res.valid, reason);
+      } catch (e:any) {
+        reason = 'validator_error';
+        this.trackValidation(false, reason);
+      }
+    } else {
+      isValid = this.validateShare(jobId, nonce);
+      this.trackValidation(isValid, isValid ? undefined : 'basic_invalid');
+    }
     
     // Create share record
     const share: Share = {
@@ -474,7 +506,7 @@ export class MiningPool implements IMiningPool {
     const response = {
       id: request.id,
       result: isValid,
-      error: isValid ? null : 'Invalid share'
+      error: isValid ? null : (reason || 'Invalid share')
     };
 
     (miner.socket as any).write(JSON.stringify(response) + '\n');
@@ -590,14 +622,26 @@ export class MiningPool implements IMiningPool {
     }
   }
 
-  private handleCryptoNoteSubmit(minerId: string, request: any): void {
+  private async handleCryptoNoteSubmit(minerId: string, request: any): Promise<void> {
     const miner = this.miners.get(minerId);
     if (!miner || !miner.socket) return;
 
     const { id, job_id, nonce, result } = request.params;
     
-    // Validate share
-    const isValid = this.validateShare(job_id, nonce);
+    let isValid = false;
+    let reason: string | undefined;
+    if (this.shareValidator && this.shareValidator.isEnabled()) {
+      try {
+        const blob = this.rxTemplate?.blob || '00';
+        const res = await this.shareValidator.validate({ jobId: job_id, nonce, data: blob, difficulty: miner.difficulty, algorithm: 'randomx', address: miner.address });
+        isValid = res.valid; reason = res.reason; this.trackValidation(res.valid, reason);
+      } catch (e:any) {
+        reason = 'validator_error'; this.trackValidation(false, reason);
+      }
+    } else {
+      isValid = this.validateShare(job_id, nonce);
+      this.trackValidation(isValid, isValid ? undefined : 'basic_invalid');
+    }
     
     // Create share record
     const share: Share = {
@@ -622,10 +666,8 @@ export class MiningPool implements IMiningPool {
     // Send submit response
     const response = {
       id: request.id,
-      result: {
-        status: isValid ? 'OK' : 'INVALID'
-      },
-      error: null
+      result: { status: isValid ? 'OK' : 'INVALID' },
+      error: isValid ? null : { code: -1, message: reason || 'Invalid share' }
     };
 
     (miner.socket as any).write(JSON.stringify(response) + '\n');
@@ -636,6 +678,16 @@ export class MiningPool implements IMiningPool {
       // Check if it's a block
       if (this.isBlockShare(share)) {
         this.handleBlockFound(share);
+      }
+    }
+  }
+
+  private trackValidation(valid: boolean, reason?: string) {
+    if (valid) this.validationStats.accepted++; else {
+      this.validationStats.rejected++;
+      if (reason) {
+        const prev = this.validationStats.reasons.get(reason) || 0;
+        this.validationStats.reasons.set(reason, prev + 1);
       }
     }
   }
