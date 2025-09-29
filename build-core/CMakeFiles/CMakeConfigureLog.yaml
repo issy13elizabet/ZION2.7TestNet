@@ -3553,3 +3553,789 @@ events:
         - "C:/Program Files/CMake"
         - "C:/Program Files (x86)/ZionXMRigStyle"
 ...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/FindCUDA.cmake:843 (find_program)"
+      - "CMakeLists.txt:162 (find_package)"
+    mode: "program"
+    variable: "CUDA_TOOLKIT_ROOT_DIR_NVCC"
+    description: "Toolkit location."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "nvcc"
+      - "nvcc.exe"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files\\PowerShell\\7-preview"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\dotnet\\"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\CMake\\bin"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PowerShell\\7-preview\\preview"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Launcher\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Users\\anaha\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Ninja-build.Ninja_Microsoft.Winget.Source_8wekyb3d8bbwe"
+        - "C:\\Users\\anaha\\AppData\\Roaming\\npm"
+        - "c:\\Users\\anaha\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\debugCommand"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/ZionXMRigStyle"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "C:/Program Files"
+        - "C:/Program Files (x86)"
+        - "C:/Program Files/CMake"
+        - "C:/Program Files (x86)/ZionXMRigStyle"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:197 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:320 (_ipo_run_language_check)"
+      - "CMakeLists.txt:223 (check_ipo_supported)"
+    directories:
+      source: "E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src"
+      binary: "E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild verze 17.14.19+164abd434 pro .NET Framework
+        Vytv├í┼Öen├ş sestaven├ş bylo zah├íjeno 28.09.2025 22:06:21.
+        
+        Projekt E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj (2) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (3) v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (3) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj (4) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\foo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          foo.cpp
+        Lib:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\boo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          main.cpp
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /IMPLIB:"E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.lib" /MACHINE:X64 boo.dir\\Debug\\main.obj
+          Vytv├í┼Ö├ş se k├│d.
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Vytv├í┼Öen├ş k├│du se dokon─Źilo.
+          boo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        
+        Vytv├í┼Öen├ş sestaven├ş bylo ├║sp─Ť┼ín─Ť dokon─Źeno.
+            0 upozorn─Ťn├ş
+            Po─Źet chyb: 0
+        
+        Uplynul├Ż ─Źas 00:00:05.04
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:197 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:320 (_ipo_run_language_check)"
+      - "CMakeLists.txt:223 (check_ipo_supported)"
+    directories:
+      source: "E:/build-core/CMakeFiles/_CMakeLTOTest-C/src"
+      binary: "E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild verze 17.14.19+164abd434 pro .NET Framework
+        Vytv├í┼Öen├ş sestaven├ş bylo zah├íjeno 28.09.2025 22:06:27.
+        
+        Projekt E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj (2) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (3) v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (3) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj (4) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\foo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          foo.c
+        Lib:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\boo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          main.c
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /IMPLIB:"E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.lib" /MACHINE:X64 boo.dir\\Debug\\main.obj
+          Vytv├í┼Ö├ş se k├│d.
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Vytv├í┼Öen├ş k├│du se dokon─Źilo.
+          boo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        
+        Vytv├í┼Öen├ş sestaven├ş bylo ├║sp─Ť┼ín─Ť dokon─Źeno.
+            0 upozorn─Ťn├ş
+            Po─Źet chyb: 0
+        
+        Uplynul├Ż ─Źas 00:00:05.10
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/FindCUDA.cmake:843 (find_program)"
+      - "CMakeLists.txt:163 (find_package)"
+    mode: "program"
+    variable: "CUDA_TOOLKIT_ROOT_DIR_NVCC"
+    description: "Toolkit location."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "nvcc"
+      - "nvcc.exe"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files\\PowerShell\\7-preview"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\dotnet\\"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\CMake\\bin"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PowerShell\\7-preview\\preview"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Launcher\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Users\\anaha\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Ninja-build.Ninja_Microsoft.Winget.Source_8wekyb3d8bbwe"
+        - "C:\\Users\\anaha\\AppData\\Roaming\\npm"
+        - "c:\\Users\\anaha\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\debugCommand"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/ZionXMRigStyle"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "C:/Program Files"
+        - "C:/Program Files (x86)"
+        - "C:/Program Files/CMake"
+        - "C:/Program Files (x86)/ZionXMRigStyle"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:197 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:320 (_ipo_run_language_check)"
+      - "CMakeLists.txt:224 (check_ipo_supported)"
+    directories:
+      source: "E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src"
+      binary: "E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild verze 17.14.19+164abd434 pro .NET Framework
+        Vytv├í┼Öen├ş sestaven├ş bylo zah├íjeno 28.09.2025 22:10:24.
+        
+        Projekt E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj (2) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (3) v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (3) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj (4) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\foo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          foo.cpp
+        Lib:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\boo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          main.cpp
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /IMPLIB:"E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.lib" /MACHINE:X64 boo.dir\\Debug\\main.obj
+          Vytv├í┼Ö├ş se k├│d.
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Vytv├í┼Öen├ş k├│du se dokon─Źilo.
+          boo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        
+        Vytv├í┼Öen├ş sestaven├ş bylo ├║sp─Ť┼ín─Ť dokon─Źeno.
+            0 upozorn─Ťn├ş
+            Po─Źet chyb: 0
+        
+        Uplynul├Ż ─Źas 00:00:04.04
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:197 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:320 (_ipo_run_language_check)"
+      - "CMakeLists.txt:224 (check_ipo_supported)"
+    directories:
+      source: "E:/build-core/CMakeFiles/_CMakeLTOTest-C/src"
+      binary: "E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild verze 17.14.19+164abd434 pro .NET Framework
+        Vytv├í┼Öen├ş sestaven├ş bylo zah├íjeno 28.09.2025 22:10:29.
+        
+        Projekt E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj (2) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (3) v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (3) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj (4) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\foo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          foo.c
+        Lib:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\boo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          main.c
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /IMPLIB:"E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.lib" /MACHINE:X64 boo.dir\\Debug\\main.obj
+          Vytv├í┼Ö├ş se k├│d.
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Vytv├í┼Öen├ş k├│du se dokon─Źilo.
+          boo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        
+        Vytv├í┼Öen├ş sestaven├ş bylo ├║sp─Ť┼ín─Ť dokon─Źeno.
+            0 upozorn─Ťn├ş
+            Po─Źet chyb: 0
+        
+        Uplynul├Ż ─Źas 00:00:04.03
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/FindCUDA.cmake:843 (find_program)"
+      - "CMakeLists.txt:163 (find_package)"
+    mode: "program"
+    variable: "CUDA_TOOLKIT_ROOT_DIR_NVCC"
+    description: "Toolkit location."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "nvcc"
+      - "nvcc.exe"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files\\PowerShell\\7-preview"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\dotnet\\"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\CMake\\bin"
+        - "C:\\Program Files\\Docker\\Docker\\resources\\bin"
+        - "C:\\Program Files\\nodejs\\"
+        - "C:\\Program Files\\PowerShell\\7-preview\\preview"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Python312\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Python\\Launcher\\"
+        - "C:\\Users\\anaha\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\anaha\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Users\\anaha\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Ninja-build.Ninja_Microsoft.Winget.Source_8wekyb3d8bbwe"
+        - "C:\\Users\\anaha\\AppData\\Roaming\\npm"
+        - "c:\\Users\\anaha\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\debugCommand"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/ZionXMRigStyle"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "C:/Program Files"
+        - "C:/Program Files (x86)"
+        - "C:/Program Files/CMake"
+        - "C:/Program Files (x86)/ZionXMRigStyle"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:197 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:320 (_ipo_run_language_check)"
+      - "CMakeLists.txt:224 (check_ipo_supported)"
+    directories:
+      source: "E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src"
+      binary: "E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild verze 17.14.19+164abd434 pro .NET Framework
+        Vytv├í┼Öen├ş sestaven├ş bylo zah├íjeno 29.09.2025 14:10:14.
+        
+        Projekt E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj (2) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (3) v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (3) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj (4) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\foo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          foo.cpp
+        Lib:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\boo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          main.cpp
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /IMPLIB:"E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.lib" /MACHINE:X64 boo.dir\\Debug\\main.obj
+          Vytv├í┼Ö├ş se k├│d.
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Vytv├í┼Öen├ş k├│du se dokon─Źilo.
+          boo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        
+        Vytv├í┼Öen├ş sestaven├ş bylo ├║sp─Ť┼ín─Ť dokon─Źeno.
+            0 upozorn─Ťn├ş
+            Po─Źet chyb: 0
+        
+        Uplynul├Ż ─Źas 00:00:06.97
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:197 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake:320 (_ipo_run_language_check)"
+      - "CMakeLists.txt:224 (check_ipo_supported)"
+    directories:
+      source: "E:/build-core/CMakeFiles/_CMakeLTOTest-C/src"
+      binary: "E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild verze 17.14.19+164abd434 pro .NET Framework
+        Vytv├í┼Öen├ş sestaven├ş bylo zah├íjeno 29.09.2025 14:10:22.
+        
+        Projekt E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj (2) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (1) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (3) v uzlu 1 (v├Żchoz├ş c├şle).
+        Prob├şh├í sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (3) ÔÇô E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj (4) v uzlu 1 (v├Żchoz├ş c├şle).
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe foo.dir\\Debug\\foo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"foo.dir\\Debug\\\\" /Fd"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          foo.c
+        Lib:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe boo.dir\\Debug\\boo.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          Optimalizuj├şc├ş kompil├ítor C/C++ spole─Źnosti Microsoft (R) verze 19.44.35215 pro procesory x64
+          Copyright (C) Microsoft Corporation. V┼íechna pr├íva vyhrazena.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          main.c
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /IMPLIB:"E:/build-core/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.lib" /MACHINE:X64 boo.dir\\Debug\\main.obj
+          Vytv├í┼Ö├ş se k├│d.
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Vytv├í┼Öen├ş k├│du se dokon─Źilo.
+          boo.vcxproj -> E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        PrepareForBuild:
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\.
+          Strukturovan├Ż v├Żstup je povolen├Ż. Form├ítov├ín├ş diagnostiky kompil├ítoru bude odr├í┼żet hierarchii chyb. Dal┼í├ş podrobnosti najdete na https://aka.ms/cpp/structured-output.
+          Prob├şh├í vytv├í┼Öen├ş adres├í┼Öe x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\.
+        InitializeBuildStatus:
+          Prob├şh├í vytv├í┼Öen├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild v d┼»sledku zad├ín├ş AlwaysCreate.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+        CustomBuild:
+          Building Custom Rule E:/build-core/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Prob├şh├í odstra┼łov├ín├ş souboru x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild.
+          Prob├şh├í aktualizace ─Źasov├ęho raz├ştka pro x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate.
+        Sestaven├ş projektu E:\\build-core\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj (s v├Żchoz├şmi c├şli) bylo dokon─Źeno.
+        
+        Vytv├í┼Öen├ş sestaven├ş bylo ├║sp─Ť┼ín─Ť dokon─Źeno.
+            0 upozorn─Ťn├ş
+            Po─Źet chyb: 0
+        
+        Uplynul├Ż ─Źas 00:00:06.29
+        
+      exitCode: 0
+...

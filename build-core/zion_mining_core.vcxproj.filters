@@ -25,6 +25,9 @@
     <ClCompile Include="E:\src\network\pool-connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="E:\src\mining\zion-gpu-miner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="E:\CMakeLists.txt" />

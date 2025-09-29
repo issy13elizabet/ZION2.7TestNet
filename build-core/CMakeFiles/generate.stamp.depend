@@ -9,6 +9,13 @@ C:/Program Files/CMake/share/cmake-4.1/Modules/CMakePushCheckState.cmake
 C:/Program Files/CMake/share/cmake-4.1/Modules/CMakeRCInformation.cmake
 C:/Program Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake
 C:/Program Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported.cmake
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported/CMakeLists-C.txt.in
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported/CMakeLists-CXX.txt.in
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported/foo.c
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported/foo.cpp
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported/main.c
+C:/Program Files/CMake/share/cmake-4.1/Modules/CheckIPOSupported/main.cpp
 C:/Program Files/CMake/share/cmake-4.1/Modules/CheckSymbolExists.cmake
 C:/Program Files/CMake/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake
 C:/Program Files/CMake/share/cmake-4.1/Modules/Compiler/MSVC-C.cmake

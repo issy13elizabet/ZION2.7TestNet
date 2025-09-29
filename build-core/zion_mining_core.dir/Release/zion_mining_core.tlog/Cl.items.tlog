@@ -6,3 +6,4 @@ E:\src\mining\core\mining_stats.cpp;E:\build-core\zion_mining_core.dir\Release\m
 E:\src\algorithms\zion-cosmic-harmony.cpp;E:\build-core\zion_mining_core.dir\Release\zion-cosmic-harmony.obj
 E:\src\network\stratum_client.cpp;E:\build-core\zion_mining_core.dir\Release\stratum_client.obj
 E:\src\network\pool-connection.cpp;E:\build-core\zion_mining_core.dir\Release\pool-connection.obj
+E:\src\mining\zion-gpu-miner.cpp;E:\build-core\zion_mining_core.dir\Release\zion-gpu-miner.obj
