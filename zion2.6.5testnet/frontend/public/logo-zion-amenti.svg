@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ZION Amenti Logo">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#0e6f5c"/>
+      <stop offset="70%" stop-color="#153b6a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7e9b5"/>
+      <stop offset="100%" stop-color="#c7a134"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="512" cy="512" r="460" fill="url(#bg)"/>
+
+  <!-- 12x12 lattice star inspired by Amenti visuals -->
+  <g transform="translate(512,512)" fill="none" stroke="#E7C34E" stroke-opacity="0.45" stroke-width="2">
+    <circle r="380"/>
+    <circle r="260"/>
+    <circle r="160"/>
+    <g opacity="0.7">
+      <!-- star spokes -->
+      <g id="spokes">
+        <line x1="0" y1="-420" x2="0" y2="420"/>
+        <line x1="-420" y1="0" x2="420" y2="0"/>
+      </g>
+      <use href="#spokes" transform="rotate(30)"/>
+      <use href="#spokes" transform="rotate(60)"/>
+      <use href="#spokes" transform="rotate(90)"/>
+      <use href="#spokes" transform="rotate(120)"/>
+      <use href="#spokes" transform="rotate(150)"/>
+    </g>
+  </g>
+
+  <!-- Heart/Rose glyph (no letter Z) -->
+  <g transform="translate(512,580)">
+    <path d="M0,0 c 54,-80 180,-80 206,26 c 0,128 -154,150 -206,252 c -52,-102 -206,-124 -206,-252 c 26,-106 152,-106 206,-26 Z" fill="url(#gold)" opacity="0.9"/>
+  </g>
+
+  <g font-family="Montserrat,Inter,system-ui" font-size="72" font-weight="800" fill="#E7C34E" opacity="0.95">
+    <text x="512" y="208" text-anchor="middle">ZION</text>
+    <text x="512" y="288" text-anchor="middle" font-size="28" opacity="0.85">A M E N T I</text>
+  </g>
+</svg>

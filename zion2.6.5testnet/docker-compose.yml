@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  core:
+    image: zion-core-full
+    container_name: zion-core
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-8602}:8601"      # Používám 8602 kvůli SSH server konfliktu
+      - "${STRATUM_PORT:-3334}:3333"  # Používám 3334 kvůli SSH server konfliktu  
+    environment:
+      - PORT=8601
+      - STRATUM_PORT=3333
+      - INITIAL_DIFFICULTY=1000
+    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.frontend
+    container_name: zion-frontend
+    depends_on:
+      - core
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+  miner:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.miner
+    container_name: zion-miner
+    depends_on:
+      - core
+    restart: unless-stopped
+    entrypoint: ["/app/zion-miner"]

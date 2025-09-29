@@ -1,0 +1,12 @@
+{
+  "block_time_seconds": 120,
+  "difficulty_window": 60,
+  "reward_halving_interval": 210000,
+  "min_version": "2.6.5",
+  "protocol_features": {
+    "cosmic_harmony": true,
+    "randomx": true,
+    "multi_algo_future": false
+  },
+  "notes": "PLACEHOLDER - upravit dle realne specifikace"
+}

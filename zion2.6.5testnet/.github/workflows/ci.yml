@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: core/package-lock.json
+      - name: Install deps (core)
+        run: |
+          cd core
+          npm install
+          npm install --save-dev @types/node @types/express
+      - name: Build core
+        run: cd core && npm run build
+      - name: Version sync check
+        run: |
+          chmod +x scripts/verify-version-sync.sh
+          ./scripts/verify-version-sync.sh
+      - name: Health test (dev run)
+        run: |
+          node core/dist/server.js &
+          sleep 2
+          curl -f http://localhost:8601/healthz
+  build-miner:
+    runs-on: ubuntu-latest
+    needs: build-core
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build deps
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake pkg-config libssl-dev libtbb-dev libgsl-dev libfftw3-dev libeigen3-dev
+      - name: Configure miner
+        run: |
+          mkdir -p miner/build
+          cd miner/build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+      - name: Build miner
+        run: cd miner/build && make -j$(nproc)
