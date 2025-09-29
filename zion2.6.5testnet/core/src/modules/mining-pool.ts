@@ -16,6 +16,8 @@ import {
 } from '../types.js';
 import { DaemonBridge } from './daemon-bridge.js';
 import { PlaceholderShareValidator, IShareValidator } from './pow/validator.js';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any; // fallback if node types absent
 
 /**
  * ZION Mining Pool Module
@@ -92,28 +94,28 @@ export class MiningPool implements IMiningPool {
 
   private setupRoutes(): void {
     // Pool statistics
-    this.router.get('/stats', (_req, res) => {
+    this.router.get('/stats', (_req: any, res: any) => {
       res.json(this.getStats());
     });
 
     // Active miners
-    this.router.get('/miners', (_req, res) => {
+    this.router.get('/miners', (_req: any, res: any) => {
       res.json(this.getMiners());
     });
 
     // Current job
-    this.router.get('/job', (_req, res) => {
+    this.router.get('/job', (_req: any, res: any) => {
       res.json(this.currentJob);
     });
 
     // Shares history
-    this.router.get('/shares', (_req, res) => {
+    this.router.get('/shares', (_req: any, res: any) => {
       const limit = parseInt(String(_req.query.limit)) || 100;
       res.json(this.shares.slice(-limit));
     });
 
     // Process payout
-    this.router.post('/payout', async (_req, res) => {
+    this.router.post('/payout', async (_req: any, res: any) => {
       try {
         const { minerId, amount } = _req.body;
         const transaction = await this.processPayout(minerId, amount);
@@ -134,15 +136,33 @@ export class MiningPool implements IMiningPool {
       
       // Start Stratum server
       await this.startStratumServer();
-      
-  // Create initial synthetic mining job
-  this.generateNewJob();
 
-  // Start synthetic job rotation
-  this.startJobUpdates();
+      // Strict mode detection
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
 
-  // Start RandomX block template refresh loop
-  this.startTemplateLoop();
+      if (strictRequired) {
+        if (!this.daemonBridge || !this.daemonBridge.isEnabled()) {
+          throw new MiningError('STRICT mode: daemon bridge not enabled for mining', 'STRICT_MINING_NO_BRIDGE');
+        }
+        const available = await this.daemonBridge.isAvailable();
+        if (!available) {
+          throw new MiningError('STRICT mode: daemon bridge unavailable for mining', 'STRICT_MINING_BRIDGE_UNAVAILABLE');
+        }
+        // Fetch an initial real block template from bridge
+        try {
+          const tpl = await this.daemonBridge.getBlockTemplate(true);
+          this.applyBridgeTemplate(tpl);
+          console.log('[strict] Real block template loaded for mining');
+        } catch (e:any) {
+          throw new MiningError(`Failed to load real block template: ${e.message}`, 'STRICT_TEMPLATE_FAIL');
+        }
+      } else {
+        // Non-strict mode retains synthetic fallback behavior
+        this.generateNewJob();
+        this.startJobUpdates();
+        this.startTemplateLoop();
+      }
       
       this.status = 'ready';
       console.log(`✅ Mining Pool initialized - Listening on port ${this.poolPort}`);
@@ -153,6 +173,28 @@ export class MiningPool implements IMiningPool {
       console.error('❌ Failed to initialize Mining Pool:', err.message);
       throw new MiningError(`Pool initialization failed: ${err.message}`, 'POOL_INIT_FAILED');
     }
+  }
+
+  private applyBridgeTemplate(tpl:any) {
+    if (!tpl) return;
+    // Map bridge template fields to mining job structure
+    const jobId = randomBytes(8).toString('hex');
+    // The existing MiningJob interface is tailored for Bitcoin-like fields; provide placeholder mapping
+    const newJob = {
+      id: jobId,
+      prevhash: tpl.prev_hash || tpl.prevhash || '00'.repeat(32),
+      coinb1: '00',
+      coinb2: '00',
+      merkleBranch: [],
+      version: (tpl.major_version || 1).toString(16).padStart(8,'0'),
+      nbits: (tpl.difficulty || tpl.wide_difficulty || 1).toString(16).padStart(8,'0'),
+      ntime: Math.floor(Date.now()/1000).toString(16),
+      cleanJobs: true,
+      createdAt: Date.now(),
+      algorithm: this.currentAlgorithm
+    } as MiningJob;
+    this.currentJob = newJob;
+    this.jobs.set(jobId, newJob);
   }
 
   public async shutdown(): Promise<void> {
@@ -285,7 +327,7 @@ export class MiningPool implements IMiningPool {
 
   private async startStratumServer(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.stratumServer = createServer((socket) => {
+  this.stratumServer = createServer((socket: any) => {
         const minerId = `miner_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
         
         console.log(`⛏️  New miner connected: ${minerId} from ${socket.remoteAddress}`);
@@ -306,7 +348,7 @@ export class MiningPool implements IMiningPool {
         
         this.miners.set(minerId, miner);
 
-        socket.on('data', (data) => {
+  socket.on('data', (data: any) => {
           this.handleStratumMessage(minerId, data.toString());
         });
 
@@ -315,7 +357,7 @@ export class MiningPool implements IMiningPool {
           this.miners.delete(minerId);
         });
 
-        socket.on('error', (error) => {
+  socket.on('error', (error: any) => {
           console.error(`⛏️  Miner ${minerId} error:`, error.message);
           this.miners.delete(minerId);
         });
@@ -331,7 +373,7 @@ export class MiningPool implements IMiningPool {
         resolve();
       });
 
-      this.stratumServer.on('error', (error) => {
+  this.stratumServer.on('error', (error: any) => {
         console.error('⛏️  Stratum server error:', error.message);
         reject(error);
       });
@@ -895,7 +937,7 @@ export class MiningPool implements IMiningPool {
 
   private async startAlgorithmServer(algorithm: string, port: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      const server = createServer((socket) => {
+  const server = createServer((socket: any) => {
         const minerId = `${algorithm}_miner_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
         
         console.log(`🎮 New ${algorithm.toUpperCase()} miner: ${minerId} from ${socket.remoteAddress}`);
@@ -917,7 +959,7 @@ export class MiningPool implements IMiningPool {
         
         this.miners.set(minerId, miner);
 
-        socket.on('data', (data) => {
+  socket.on('data', (data: any) => {
           this.handleAlgorithmStratumMessage(minerId, algorithm, data.toString());
         });
 
@@ -926,7 +968,7 @@ export class MiningPool implements IMiningPool {
           this.miners.delete(minerId);
         });
 
-        socket.on('error', (error) => {
+  socket.on('error', (error: any) => {
           console.error(`🎮 ${algorithm.toUpperCase()} miner ${minerId} error:`, error.message);
           this.miners.delete(minerId);
         });

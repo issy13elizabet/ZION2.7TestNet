@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any;
 import { DaemonBridge } from './daemon-bridge.js';
 import {
   IRPCAdapter,
@@ -148,6 +150,8 @@ export class RPCAdapter implements IRPCAdapter {
   }
 
   private async getInfo(): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
     if (this.bridge) {
       try {
         const now = Date.now();
@@ -157,10 +161,16 @@ export class RPCAdapter implements IRPCAdapter {
         }
         return this.lastInfo;
       } catch (e:any) {
+        if (strictRequired) {
+          throw new ZionError('STRICT mode: get_info failed via bridge: ' + e.message, 'STRICT_RPC_GET_INFO_FAIL', 'rpc');
+        }
         console.warn('[bridge] get_info fallback:', e.message);
       }
     }
-    // Mock fallback
+    if (strictRequired) {
+      throw new ZionError('STRICT mode: no mock fallback for get_info', 'STRICT_NO_FALLBACK', 'rpc');
+    }
+    // Non-strict mock fallback
     return {
       status: 'OK',
       height: 142857,
@@ -199,27 +209,43 @@ export class RPCAdapter implements IRPCAdapter {
   }
 
   private async getHeight(): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
     if (this.bridge) {
       try {
         const h = await this.bridge.getHeight();
         return { status: 'OK', height: h, hash: 'N/A' };
       } catch (e:any) {
+        if (strictRequired) {
+          throw new ZionError('STRICT mode: get_height failed via bridge: ' + e.message, 'STRICT_RPC_GET_HEIGHT_FAIL', 'rpc');
+        }
         console.warn('[bridge] get_height fallback:', e.message);
       }
+    }
+    if (strictRequired) {
+      throw new ZionError('STRICT mode: no mock fallback for get_height', 'STRICT_NO_FALLBACK', 'rpc');
     }
     return { status: 'OK', height: 142857, hash: 'mock_block_hash_' + Math.random().toString(36).substr(2, 32) };
   }
 
   private async getBlock(params: unknown): Promise<any> {
     const height = (params as any)?.height || 142857;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
     if (this.bridge) {
       try {
         return await this.bridge.getBlock(height);
       } catch (e:any) {
+        if (strictRequired) {
+          throw new ZionError('STRICT mode: get_block failed via bridge: ' + e.message, 'STRICT_RPC_GET_BLOCK_FAIL', 'rpc');
+        }
         console.warn('[bridge] get_block fallback:', e.message);
       }
     }
-    // Mock fallback
+    if (strictRequired) {
+      throw new ZionError('STRICT mode: no mock fallback for get_block', 'STRICT_NO_FALLBACK', 'rpc');
+    }
+    // Non-strict mock fallback
     return {
       status: 'OK',
       block_header: {
@@ -243,12 +269,20 @@ export class RPCAdapter implements IRPCAdapter {
   }
 
   private async getBlockTemplate(params: unknown): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
     if (this.bridge) {
       try {
         return await this.bridge.getBlockTemplate();
       } catch (e:any) {
+        if (strictRequired) {
+          throw new ZionError('STRICT mode: get_block_template failed via bridge: ' + e.message, 'STRICT_RPC_GET_TEMPLATE_FAIL', 'rpc');
+        }
         console.warn('[bridge] get_block_template fallback:', e.message);
       }
+    }
+    if (strictRequired) {
+      throw new ZionError('STRICT mode: no mock fallback for get_block_template', 'STRICT_NO_FALLBACK', 'rpc');
     }
     const walletAddress = (params as any)?.wallet_address || 'ZiONTestWalletAddress';
     return {
@@ -267,12 +301,20 @@ export class RPCAdapter implements IRPCAdapter {
 
   private async submitBlock(params: unknown): Promise<any> {
     const blockBlob = (params as any)?.[0] || '';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
     if (this.bridge) {
       try {
         return await this.bridge.submitBlock(blockBlob);
       } catch (e:any) {
+        if (strictRequired) {
+          throw new ZionError('STRICT mode: submit_block failed via bridge: ' + e.message, 'STRICT_RPC_SUBMIT_FAIL', 'rpc');
+        }
         console.warn('[bridge] submit_block fallback:', e.message);
       }
+    }
+    if (strictRequired) {
+      throw new ZionError('STRICT mode: no mock fallback for submit_block', 'STRICT_NO_FALLBACK', 'rpc');
     }
     if (blockBlob.length < 64) {
       return { status: 'FAIL', error: 'Invalid block blob' };
@@ -281,7 +323,21 @@ export class RPCAdapter implements IRPCAdapter {
   }
 
   private async getConnections(): Promise<any> {
-    // Placeholder (bridge get_connections not implemented yet)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
+    if (this.bridge) {
+      try {
+        return await this.bridge.getConnections();
+      } catch (e:any) {
+        if (strictRequired) {
+          throw new ZionError('STRICT mode: get_connections failed via bridge: ' + e.message, 'STRICT_RPC_CONNECTIONS_FAIL', 'rpc');
+        }
+        console.warn('[bridge] get_connections fallback:', e.message);
+      }
+    }
+    if (strictRequired) {
+      throw new ZionError('STRICT mode: no mock fallback for get_connections', 'STRICT_NO_FALLBACK', 'rpc');
+    }
     return { status: 'OK', connections: [] };
   }
 }

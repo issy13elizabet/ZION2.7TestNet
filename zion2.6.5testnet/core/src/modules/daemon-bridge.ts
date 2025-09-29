@@ -1,5 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { ZionError } from '../types.js';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any; // fallback if @types/node absent
 
 /**
  * DaemonBridge
@@ -11,12 +13,17 @@ import { ZionError } from '../types.js';
 export class DaemonBridge {
   private rpc: AxiosInstance;
   private enabled: boolean;
+  private strictRequired: boolean;
   private cache: {
     info?: { ts: number; data: any };
     template?: { ts: number; data: any };
+    connections?: { ts: number; data: any };
+    txPool?: { ts: number; data: any };
   } = {};
   private readonly infoTTL = 2000; // ms
   private readonly templateTTL = 5000; // ms
+  private readonly connectionsTTL = 5000; // ms
+  private readonly txPoolTTL = 3000; // ms
   private walletAddress: string;
   private reserveSize: number;
 
@@ -29,6 +36,7 @@ export class DaemonBridge {
   }) {
     const url = opts?.url || process.env.DAEMON_RPC_URL || 'http://127.0.0.1:18081';
     this.enabled = opts?.enabled ?? (process.env.EXTERNAL_DAEMON_ENABLED === 'true');
+  this.strictRequired = process.env.STRICT_BRIDGE_REQUIRED === 'true';
     this.walletAddress = opts?.walletAddress || process.env.TEMPLATE_WALLET || 'Z3_PLACEHOLDER_POOL_ADDRESS';
     this.reserveSize = opts?.reserveSize ? Number(opts.reserveSize) : 8;
     const timeout = opts?.timeoutMs || Number(process.env.BRIDGE_TIMEOUT_MS || 4000);
@@ -47,6 +55,22 @@ export class DaemonBridge {
       return false;
     }
   }
+
+  public requireAvailable = async (): Promise<void> => {
+    if (!this.enabled) {
+      if (this.strictRequired) {
+        throw new ZionError('STRICT mode: external daemon bridge disabled', 'BRIDGE_REQUIRED_DISABLED', 'bridge');
+      }
+      throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    }
+    const ok = await this.isAvailable();
+    if (!ok) {
+      if (this.strictRequired) {
+        throw new ZionError('STRICT mode: external daemon unavailable', 'BRIDGE_REQUIRED_UNAVAILABLE', 'bridge');
+      }
+      throw new ZionError('External daemon unavailable', 'BRIDGE_UNAVAILABLE', 'bridge');
+    }
+  };
 
   private async jsonRpc(method: string, params: any = {}, retries = 1): Promise<any> {
     try {
@@ -89,6 +113,44 @@ export class DaemonBridge {
   public async getBlock(height: number): Promise<any> {
     if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
     return this.jsonRpc('get_block', { height });
+  }
+
+  public async sendRawTransaction(hex: string): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    return this.jsonRpc('send_raw_transaction', { tx_as_hex: hex });
+  }
+
+  public async getConnections(force = false): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    const now = Date.now();
+    if (!force && this.cache.connections && now - this.cache.connections.ts < this.connectionsTTL) {
+      return this.cache.connections.data;
+    }
+    const data = await this.jsonRpc('get_connections');
+    this.cache.connections = { ts: now, data };
+    return data;
+  }
+
+  public async getTxPool(force = false): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    const now = Date.now();
+    if (!force && this.cache.txPool && now - this.cache.txPool.ts < this.txPoolTTL) {
+      return this.cache.txPool.data;
+    }
+    // Some CryptoNote daemons use 'get_tx_pool' or 'get_transaction_pool'; try sequentially
+    try {
+      const data = await this.jsonRpc('get_tx_pool');
+      this.cache.txPool = { ts: now, data };
+      return data;
+    } catch (e) {
+      try {
+        const data2 = await this.jsonRpc('get_transaction_pool');
+        this.cache.txPool = { ts: now, data: data2 };
+        return data2;
+      } catch (e2) {
+        throw e2;
+      }
+    }
   }
 
   public async getHeight(): Promise<number> {

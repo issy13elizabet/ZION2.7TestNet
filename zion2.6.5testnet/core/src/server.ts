@@ -83,6 +83,15 @@ class ZionCore {
     } else {
       console.log('[bridge] external daemon bridge disabled (set EXTERNAL_DAEMON_ENABLED=true to enable)');
     }
+    // Strict mode enforcement (fail fast during construction if required and not available)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
+    if (strictRequired) {
+      if (!this.daemonBridge.isEnabled()) {
+        console.error('[strict] STRICT_BRIDGE_REQUIRED=true but EXTERNAL_DAEMON_ENABLED is not true. Failing fast.');
+        process.exit(66); // EX_NOINPUT style code
+      }
+    }
     // Core modules
     this.blockchain = new BlockchainCore();
     this.gpu = new GPUMining();
@@ -218,6 +227,28 @@ class ZionCore {
         res.status(503).json({ enabled: true, error: (e as Error).message });
       }
     });
+
+    // Transaction submit endpoint (raw hex)
+    this.app.post('/api/tx/submit', async (req: Request, res: Response) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
+      if (!this.daemonBridge || !this.daemonBridge.isEnabled()) {
+        if (strictRequired) {
+          return res.status(503).json({ error: 'STRICT mode: daemon bridge disabled' });
+        }
+        return res.status(503).json({ error: 'daemon bridge disabled' });
+      }
+      try {
+        const { tx_hex } = req.body;
+        if (!tx_hex || typeof tx_hex !== 'string') {
+          return res.status(400).json({ error: 'tx_hex required' });
+        }
+        const result = await this.daemonBridge.sendRawTransaction(tx_hex);
+        res.json({ status: 'OK', result });
+      } catch (e:any) {
+        res.status(500).json({ error: e.message || 'submit failed' });
+      }
+    });
   }
   
   private setupStratumEvents(): void {
@@ -231,6 +262,16 @@ class ZionCore {
   
   public async start(): Promise<void> {
     try {
+      // Final strict availability check before starting services
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const strictRequired = (process as any)?.env?.STRICT_BRIDGE_REQUIRED === 'true';
+      if (strictRequired) {
+        const available = await this.daemonBridge.isAvailable();
+        if (!available) {
+          console.error('[strict] External daemon unavailable while STRICT_BRIDGE_REQUIRED=true. Exiting.');
+          process.exit(67);
+        }
+      }
       // Start HTTP server
       this.app.listen(this.port, () => {
         console.log(`[zion-core] HTTP server running on port ${this.port} (version ${this.version})`);
