@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { DaemonBridge } from './daemon-bridge.js';
 import {
   IRPCAdapter,
   ModuleStatus,
@@ -15,15 +16,23 @@ export class RPCAdapter implements IRPCAdapter {
   private status: ModuleStatus['status'] = 'stopped';
   private startTime: number = 0;
   private router: Router;
+  private bridge: DaemonBridge | null = null;
+  private lastInfo: any = null;
+  private lastInfoTs = 0;
+  private readonly INFO_TTL = 3000; // ms
 
-  constructor() {
+  constructor(bridge?: DaemonBridge) {
     this.router = Router();
+    if (bridge && bridge.isEnabled()) {
+      this.bridge = bridge;
+      console.log('[bridge] RPCAdapter: external daemon bridge enabled');
+    }
     this.setupRoutes();
   }
 
   private setupRoutes(): void {
     // JSON-RPC endpoint
-    this.router.post('/json_rpc', async (_req, res) => {
+  this.router.post('/json_rpc', async (_req: Request, res: Response) => {
       try {
         const { method, params, id } = _req.body;
         const result = await this.handleRequest(method, params);
@@ -47,12 +56,12 @@ export class RPCAdapter implements IRPCAdapter {
     });
 
     // Legacy daemon endpoints
-    this.router.get('/get_info', async (_req, res) => {
+  this.router.get('/get_info', async (_req: Request, res: Response) => {
       const result = await this.handleRequest('get_info', {});
       res.json(result);
     });
 
-    this.router.get('/get_height', async (_req, res) => {
+  this.router.get('/get_height', async (_req: Request, res: Response) => {
       const result = await this.handleRequest('get_height', {});
       res.json(result);
     });
@@ -138,13 +147,26 @@ export class RPCAdapter implements IRPCAdapter {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  private getInfo(): unknown {
+  private async getInfo(): Promise<any> {
+    if (this.bridge) {
+      try {
+        const now = Date.now();
+        if (now - this.lastInfoTs > this.INFO_TTL) {
+          this.lastInfo = await this.bridge.getInfo();
+          this.lastInfoTs = now;
+        }
+        return this.lastInfo;
+      } catch (e:any) {
+        console.warn('[bridge] get_info fallback:', e.message);
+      }
+    }
+    // Mock fallback
     return {
       status: 'OK',
       height: 142857,
       target_height: 142857,
       difficulty: 1000000,
-      target: 120, // 2 minutes
+      target: 120,
       tx_count: 123456,
       tx_pool_size: 42,
       alt_blocks_count: 0,
@@ -153,7 +175,7 @@ export class RPCAdapter implements IRPCAdapter {
       rpc_connections_count: 1,
       white_peerlist_size: 50,
       grey_peerlist_size: 100,
-      mainnet: false, // testnet
+      mainnet: false,
       testnet: true,
       stagenet: false,
       nettype: 'testnet',
@@ -163,30 +185,41 @@ export class RPCAdapter implements IRPCAdapter {
       block_weight_limit: 600000,
       block_size_median: 300000,
       block_weight_median: 300000,
-      start_time: Math.floor(Date.now() / 1000) - 86400, // 24 hours ago
-      free_space: 1000000000, // 1GB
+      start_time: Math.floor(Date.now() / 1000) - 86400,
+      free_space: 1000000000,
       offline: false,
       untrusted: false,
       bootstrap_daemon_address: '',
       height_without_bootstrap: 142857,
       was_bootstrap_ever_used: false,
-      database_size: 500000000, // 500MB
+      database_size: 500000000,
       update_available: false,
       version: '2.5.0-testnet'
     };
   }
 
-  private getHeight(): unknown {
-    return {
-      status: 'OK',
-      height: 142857,
-      hash: 'mock_block_hash_' + Math.random().toString(36).substr(2, 32)
-    };
+  private async getHeight(): Promise<any> {
+    if (this.bridge) {
+      try {
+        const h = await this.bridge.getHeight();
+        return { status: 'OK', height: h, hash: 'N/A' };
+      } catch (e:any) {
+        console.warn('[bridge] get_height fallback:', e.message);
+      }
+    }
+    return { status: 'OK', height: 142857, hash: 'mock_block_hash_' + Math.random().toString(36).substr(2, 32) };
   }
 
-  private getBlock(params: unknown): unknown {
+  private async getBlock(params: unknown): Promise<any> {
     const height = (params as any)?.height || 142857;
-    
+    if (this.bridge) {
+      try {
+        return await this.bridge.getBlock(height);
+      } catch (e:any) {
+        console.warn('[bridge] get_block fallback:', e.message);
+      }
+    }
+    // Mock fallback
     return {
       status: 'OK',
       block_header: {
@@ -203,104 +236,52 @@ export class RPCAdapter implements IRPCAdapter {
         num_txes: 1,
         orphan_status: false,
         prev_hash: 'mock_prev_hash_' + Math.random().toString(36).substr(2, 32),
-        reward: 333000000, // 333 ZION
+        reward: 333000000,
         timestamp: Math.floor(Date.now() / 1000)
-      },
-      json: JSON.stringify({
-        major_version: 16,
-        minor_version: 16,
-        timestamp: Math.floor(Date.now() / 1000),
-        prev_id: 'mock_prev_hash_' + Math.random().toString(36).substr(2, 32),
-        nonce: Math.floor(Math.random() * 4294967295),
-        miner_tx: {
-          version: 2,
-          unlock_time: 0,
-          vin: [{
-            gen: {
-              height
-            }
-          }],
-          vout: [{
-            amount: 333000000,
-            target: {
-              key: 'mock_key_' + Math.random().toString(36).substr(2, 32)
-            }
-          }],
-          extra: [],
-          rct_signatures: {
-            type: 0
-          }
-        },
-        tx_hashes: []
-      }),
-      miner_tx_hash: 'mock_miner_tx_hash_' + Math.random().toString(36).substr(2, 32)
+      }
     };
   }
 
-  private getBlockTemplate(params: unknown): unknown {
+  private async getBlockTemplate(params: unknown): Promise<any> {
+    if (this.bridge) {
+      try {
+        return await this.bridge.getBlockTemplate();
+      } catch (e:any) {
+        console.warn('[bridge] get_block_template fallback:', e.message);
+      }
+    }
     const walletAddress = (params as any)?.wallet_address || 'ZiONTestWalletAddress';
-    
     return {
       status: 'OK',
       blocktemplate_blob: 'mock_blocktemplate_' + Math.random().toString(36).substr(2, 64),
-      blockhashing_blob: 'mock_blockhashing_' + Math.random().toString(36).substr(2, 64),
       difficulty: 1000000,
       expected_reward: 333000000,
-      height: 142858, // Next block
+      height: 142858,
       prev_hash: 'mock_prev_hash_' + Math.random().toString(36).substr(2, 32),
       reserved_offset: 130,
-      wide_difficulty: '0x' + (1000000).toString(16),
       seed_hash: 'mock_seed_hash_' + Math.random().toString(36).substr(2, 32),
-      next_seed_hash: 'mock_next_seed_hash_' + Math.random().toString(36).substr(2, 32)
+      next_seed_hash: 'mock_next_seed_hash_' + Math.random().toString(36).substr(2, 32),
+      wallet_address: walletAddress
     };
   }
 
-  private submitBlock(params: unknown): unknown {
+  private async submitBlock(params: unknown): Promise<any> {
     const blockBlob = (params as any)?.[0] || '';
-    
-    console.log(`🔌 Block submitted: ${blockBlob.substr(0, 32)}...`);
-    
-    // Validate block (mock)
-    if (blockBlob.length < 64) {
-      return {
-        status: 'FAIL',
-        error: 'Invalid block blob'
-      };
+    if (this.bridge) {
+      try {
+        return await this.bridge.submitBlock(blockBlob);
+      } catch (e:any) {
+        console.warn('[bridge] submit_block fallback:', e.message);
+      }
     }
-    
-    return {
-      status: 'OK'
-    };
+    if (blockBlob.length < 64) {
+      return { status: 'FAIL', error: 'Invalid block blob' };
+    }
+    return { status: 'OK' };
   }
 
-  private getConnections(): unknown {
-    return {
-      status: 'OK',
-      connections: [
-        {
-          address: '127.0.0.1:18080',
-          avg_download: 1024,
-          avg_upload: 512,
-          connection_id: 'conn_1',
-          current_download: 0,
-          current_upload: 0,
-          height: 142857,
-          host: '127.0.0.1',
-          incoming: false,
-          ip: '127.0.0.1',
-          live_time: 3600,
-          local_ip: false,
-          localhost: true,
-          peer_id: 'peer_1',
-          port: '18080',
-          recv_count: 1000,
-          recv_idle_time: 30,
-          send_count: 800,
-          send_idle_time: 30,
-          state: 'active',
-          support_flags: 1
-        }
-      ]
-    };
+  private async getConnections(): Promise<any> {
+    // Placeholder (bridge get_connections not implemented yet)
+    return { status: 'OK', connections: [] };
   }
 }

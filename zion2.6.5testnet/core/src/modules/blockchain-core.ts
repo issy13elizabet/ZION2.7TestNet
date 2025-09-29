@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import {
   IBlockchainCore,
   BlockchainStats,
@@ -6,6 +6,7 @@ import {
   ZionError,
   ZION_CONSTANTS
 } from '../types.js';
+import { DaemonBridge } from './daemon-bridge.js';
 
 /**
  * ZION Blockchain Core Module
@@ -21,14 +22,20 @@ export class BlockchainCore implements IBlockchainCore {
   private txCount: number = 0;
   private txPoolSize: number = 0;
   private router: Router;
+  private bridge: DaemonBridge | null = null;
+  private syncTimer: any = null; // NodeJS.Timeout (simplified)
 
-  constructor() {
+  constructor(bridge?: DaemonBridge) {
     this.router = Router();
+    if (bridge && bridge.isEnabled()) {
+      this.bridge = bridge;
+      console.log('[bridge] BlockchainCore: external daemon bridge enabled');
+    }
     this.setupRoutes();
   }
 
   private setupRoutes(): void {
-    this.router.get('/info', (req, res) => {
+  this.router.get('/info', (req: Request, res: Response) => {
       res.json({
         height: this.currentHeight,
         difficulty: this.currentDifficulty,
@@ -40,11 +47,11 @@ export class BlockchainCore implements IBlockchainCore {
       });
     });
 
-    this.router.get('/stats', (req, res) => {
+  this.router.get('/stats', (req: Request, res: Response) => {
       res.json(this.getStats());
     });
 
-    this.router.get('/status', (req, res) => {
+  this.router.get('/status', (req: Request, res: Response) => {
       res.json(this.getStatus());
     });
   }
@@ -56,14 +63,16 @@ export class BlockchainCore implements IBlockchainCore {
       this.status = 'starting';
       this.startTime = Date.now();
       
-      // Initialize blockchain connection
-      await this.connectToNetwork();
-      
-      // Load current blockchain state
-      await this.loadBlockchainState();
-      
-      // Start sync process
-      await this.startSync();
+      if (this.bridge) {
+        // Immediate fetch from real daemon
+        await this.refreshFromBridge(true);
+        this.startBridgeSyncLoop();
+      } else {
+        // Legacy mock bootstrap
+        await this.connectToNetwork();
+        await this.loadBlockchainState();
+        await this.startSync();
+      }
       
       this.status = 'ready';
       console.log('✅ Blockchain Core initialized successfully');
@@ -82,9 +91,7 @@ export class BlockchainCore implements IBlockchainCore {
     try {
       this.status = 'stopped';
       
-      // Disconnect from network
-      // Save current state
-      // Clean up resources
+  if (this.syncTimer) clearInterval(this.syncTimer);
       
       console.log('✅ Blockchain Core shut down successfully');
       
@@ -124,35 +131,48 @@ export class BlockchainCore implements IBlockchainCore {
   }
 
   private async connectToNetwork(): Promise<void> {
-    // Initialize blockchain daemon functionality
-    console.log('🌐 Connecting to ZION network...');
-    
-    // Bootstrap mode - start with height 1 for testing
+    if (this.bridge) return; // handled by bridge
+    console.log('🌐 Connecting to ZION network (mock)...');
     this.currentHeight = 1;
     this.currentDifficulty = 100;
-    
-    console.log('✅ Connected to ZION network');
+    console.log('✅ Connected (mock)');
   }
 
   private async loadBlockchainState(): Promise<void> {
-    // Load blockchain state - bootstrap mode for testing
-    console.log('📦 Loading blockchain state...');
-    
-    // Bootstrap values for initial testing
+    if (this.bridge) return; // real state via bridge
+    console.log('📦 Loading blockchain state (mock)...');
     this.currentHeight = 1;
     this.currentDifficulty = 100;
     this.txCount = 0;
     this.txPoolSize = 0;
-    
-    console.log(`✅ Loaded blockchain state - Height: ${this.currentHeight}, Difficulty: ${this.currentDifficulty}`);
+    console.log(`✅ Loaded mock state - Height: ${this.currentHeight}, Difficulty: ${this.currentDifficulty}`);
   }
 
   private async startSync(): Promise<void> {
-    // Start blockchain sync - bootstrap mode allows immediate mining
-    console.log('🔄 Starting blockchain sync...');
-    
-    // In bootstrap mode, we're ready immediately
-    console.log('✅ Blockchain sync completed (bootstrap mode)');
+    if (this.bridge) return; // bridge drives sync
+    console.log('🔄 Starting blockchain sync (mock)...');
+    console.log('✅ Blockchain sync completed (mock bootstrap)');
+  }
+
+  private startBridgeSyncLoop() {
+    if (!this.bridge) return;
+    if (this.syncTimer) clearInterval(this.syncTimer);
+    this.syncTimer = setInterval(() => this.refreshFromBridge(false).catch(() => {}), 5000);
+  }
+
+  private async refreshFromBridge(force: boolean) {
+    if (!this.bridge) return;
+    try {
+      const info = await this.bridge.getInfo(force);
+      if (info) {
+        this.currentHeight = info.height ?? this.currentHeight;
+        this.currentDifficulty = info.difficulty ?? info.wide_difficulty ?? this.currentDifficulty;
+        this.txCount = info.tx_count ?? this.txCount;
+        this.txPoolSize = info.tx_pool_size ?? this.txPoolSize;
+      }
+    } catch (e:any) {
+      console.warn('[bridge] blockchain refresh failed:', e.message);
+    }
   }
 
   // New daemon functionality methods
@@ -174,26 +194,28 @@ export class BlockchainCore implements IBlockchainCore {
   }
 
   public async submitBlock(blockBlob: string): Promise<any> {
-    // Handle block submission
-    console.log(`🎉 Block submitted! Height: ${this.currentHeight + 1}`);
+    if (this.bridge) {
+      try {
+        const res = await this.bridge.submitBlock(blockBlob);
+        // After submit, force refresh of new height
+        await this.refreshFromBridge(true);
+        return res;
+      } catch (e:any) {
+        throw new ZionError(`Bridge submit failed: ${e.message}`, 'BLOCK_SUBMIT_FAILED', 'blockchain');
+      }
+    }
+    console.log(`🎉 (mock) Block submitted height=${this.currentHeight + 1}`);
     this.currentHeight += 1;
-    
-    return {
-      status: 'OK'
-    };
+    return { status: 'OK' };
   }
 
   public getInfo(): any {
-    // Compatible with Monero get_info RPC
     return {
       height: this.currentHeight,
       difficulty: this.currentDifficulty,
       tx_count: this.txCount,
       tx_pool_size: this.txPoolSize,
-      status: 'OK',
-      version: '0.18.0.0', // Monero compatibility
-      bootstrap_daemon_address: '',
-      nettype: 'mainnet'
+      status: 'OK'
     };
   }
 
@@ -215,14 +237,14 @@ export class BlockchainCore implements IBlockchainCore {
       throw new ZionError('Blockchain not ready', 'BLOCKCHAIN_NOT_READY', 'blockchain');
     }
     
-    // Return mock block data
-    return {
-      height,
-      hash: `block_${height}_${Math.random().toString(36).substr(2, 16)}`,
-      timestamp: Date.now(),
-      difficulty: this.currentDifficulty,
-      reward: ZION_CONSTANTS.INITIAL_REWARD
-    };
+    if (this.bridge) {
+      try {
+        return await this.bridge.getBlock(height);
+      } catch (e:any) {
+        console.warn('[bridge] getBlock fallback to mock:', e.message);
+      }
+    }
+    return { height, hash: `mock_block_${height}`, timestamp: Date.now(), difficulty: this.currentDifficulty, reward: ZION_CONSTANTS.INITIAL_REWARD };
   }
 
   public isReady(): boolean {

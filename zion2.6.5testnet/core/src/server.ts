@@ -1,6 +1,10 @@
 #!/usr/bin/env node
+/// <reference types="node" />
+// Fallback declaration if @types/node not yet installed in environment (will be shadowed once types present)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any;
 
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -18,6 +22,8 @@ import { LightningNetwork } from './modules/lightning-network.js';
 import { WalletService } from './modules/wallet-service.js';
 import { P2PNetwork } from './modules/p2p-network.js';
 import { RPCAdapter } from './modules/rpc-adapter.js';
+import { DaemonBridge } from './modules/daemon-bridge.js';
+import { MiningPool } from './modules/mining-pool.js';
 
 // Load environment
 dotenv.config();
@@ -47,6 +53,8 @@ class ZionCore {
   private readonly wallet: WalletService;
   private readonly p2p: P2PNetwork;
   private readonly rpc: RPCAdapter;
+  private readonly daemonBridge: DaemonBridge;
+  private readonly miningPool: MiningPool;
   
   private readonly version: string;
   private readonly port: number;
@@ -66,12 +74,24 @@ class ZionCore {
     this.setupMiddleware();
     
     // Initialize integrated modules FIRST
+    // Initialize external daemon bridge (legacy real chain) if enabled (before rpc & pool)
+    this.daemonBridge = new DaemonBridge();
+    if (this.daemonBridge.isEnabled()) {
+      this.daemonBridge.isAvailable()
+        .then(avail => console.log(`[bridge] external daemon ${avail ? 'available ✅' : 'unreachable ⚠️'}`))
+        .catch(e => console.warn('[bridge] availability check error:', (e as Error).message));
+    } else {
+      console.log('[bridge] external daemon bridge disabled (set EXTERNAL_DAEMON_ENABLED=true to enable)');
+    }
+    // Core modules
     this.blockchain = new BlockchainCore();
     this.gpu = new GPUMining();
     this.lightning = new LightningNetwork();
     this.wallet = new WalletService();
     this.p2p = new P2PNetwork();
-    this.rpc = new RPCAdapter();
+    this.rpc = new RPCAdapter(this.daemonBridge.isEnabled() ? this.daemonBridge : undefined);
+    // Mining pool (injected bridge if enabled)
+    this.miningPool = new MiningPool(this.daemonBridge.isEnabled() ? this.daemonBridge : undefined);
     
     // Setup routes AFTER modules are initialized
     this.setupRoutes();
@@ -120,7 +140,7 @@ class ZionCore {
   
   private setupRoutes(): void {
     // Health check (preserved from skeleton)
-    this.app.get('/healthz', (_req, res) => {
+  this.app.get('/healthz', (_req: Request, res: Response) => {
       res.json({ 
         status: 'ok', 
         version: this.version, 
@@ -133,12 +153,13 @@ class ZionCore {
           wallet: this.wallet.getStatus().status,
           p2p: this.p2p.getStatus().status,
           rpc: this.rpc.getStatus().status
+          ,miningPool: this.miningPool.getStatus().status
         }
       });
     });
     
     // Module status endpoints
-    this.app.get('/api/status', (_req, res) => {
+  this.app.get('/api/status', (_req: Request, res: Response) => {
       res.json({
         version: this.version,
         uptime: process.uptime(),
@@ -150,7 +171,8 @@ class ZionCore {
         blockchain: this.blockchain.getStats(),
         p2p: {
           peers: this.p2p.getPeerCount()
-        }
+        },
+        bridge: this.daemonBridge.isEnabled() ? 'enabled' : 'disabled'
       });
     });
     
@@ -173,11 +195,35 @@ class ZionCore {
     if (this.rpc.getRouter) {
       this.app.use('/api/rpc', this.rpc.getRouter());
     }
+
+    // Mining pool router
+    if (this.miningPool.getRouter) {
+      this.app.use('/api/pool', this.miningPool.getRouter());
+    }
+
+    // Bridge status endpoint
+  this.app.get('/api/bridge/status', async (_req: Request, res: Response) => {
+      if (!this.daemonBridge || !this.daemonBridge.isEnabled()) {
+        return res.json({ enabled: false });
+      }
+      try {
+        const info = await this.daemonBridge.getInfo();
+        res.json({
+          enabled: true,
+          height: info.height,
+          difficulty: info.difficulty,
+          status: info.status
+        });
+      } catch (e) {
+        res.status(503).json({ enabled: true, error: (e as Error).message });
+      }
+    });
   }
   
   private setupStratumEvents(): void {
     // Preserve original share handling (placeholder)
-    this.stratum.on('share', (shareData: any) => {
+  // Cast to any to access EventEmitter .on (StratumServer extends EventEmitter)
+  (this.stratum as any).on('share', (shareData: any) => {
       console.log('[stratum] share received:', shareData);
       // TODO: Forward to blockchain module for real validation
     });
@@ -201,6 +247,7 @@ class ZionCore {
       await this.lightning.initialize();
       await this.wallet.initialize();
       await this.rpc.initialize();
+  await this.miningPool.initialize();
       
       // Start Stratum server (po inicializaci blockchain pro real block templates)
       await this.stratum.start();
@@ -228,6 +275,7 @@ class ZionCore {
       
       // Shutdown integrated modules
       await this.rpc.shutdown();
+  await this.miningPool.shutdown();
       await this.wallet.shutdown();
       await this.lightning.shutdown();
       await this.gpu.shutdown();

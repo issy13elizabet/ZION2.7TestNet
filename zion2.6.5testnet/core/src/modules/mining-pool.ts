@@ -14,6 +14,7 @@ import {
   MiningError,
   ZION_CONSTANTS
 } from '../types.js';
+import { DaemonBridge } from './daemon-bridge.js';
 
 /**
  * ZION Mining Pool Module
@@ -67,8 +68,15 @@ export class MiningPool implements IMiningPool {
   private algorithmServers: Map<string, NetServer> = new Map();
   private currentAlgorithm: string = 'randomx';
 
-  constructor() {
+  // Optional external daemon bridge (legacy core)
+  private daemonBridge: DaemonBridge | null = null;
+
+  constructor(bridge?: DaemonBridge) {
     this.router = Router();
+    if (bridge && bridge.isEnabled()) {
+      this.daemonBridge = bridge;
+      console.log('[bridge] MiningPool: external daemon bridge enabled');
+    }
     this.setupRoutes();
   }
 
@@ -754,31 +762,59 @@ export class MiningPool implements IMiningPool {
     const now = Date.now();
     if (now - this.lastTemplateFetch < this.TEMPLATE_TTL_MS) return; // throttle
     this.lastTemplateFetch = now;
+    // Prefer external daemon bridge if available
+    if (this.daemonBridge) {
+      try {
+        const tpl = await this.daemonBridge.getBlockTemplate();
+        if (tpl?.blocktemplate_blob) {
+          this.rxTemplate = {
+            blob: tpl.blocktemplate_blob,
+            difficulty: tpl.difficulty || tpl.difficulty_top64 || 1000,
+            height: tpl.height || 0,
+            seed_hash: tpl.seed_hash,
+            next_seed_hash: tpl.next_seed_hash,
+            prev_hash: tpl.prev_hash,
+            timestamp: Date.now()
+          };
+          console.log(`[bridge] ✅ template height=${this.rxTemplate.height} diff=${this.rxTemplate.difficulty} blobLen=${this.rxTemplate.blob.length}`);
+          return; // success path
+        } else {
+          console.warn('[bridge] ⚠️ template missing blocktemplate_blob (fallback)');
+        }
+      } catch (e: any) {
+        console.warn('[bridge] ⚠️ template fetch failed (fallback):', e.message);
+      }
+    }
+    // Fallback original synthetic fetch logic (local RPC attempt first)
     try {
-      const body = {
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'get_block_template',
-        params: { wallet_address: this.poolAddress, reserve_size: 8 }
-      };
-      const res = await axios.post('http://127.0.0.1:18081/json_rpc', body, { timeout: 4000 });
+      const body = { jsonrpc: '2.0', id: 1, method: 'get_block_template', params: { wallet_address: this.poolAddress, reserve_size: 8 } };
+      const res = await axios.post('http://127.0.0.1:18081/json_rpc', body, { timeout: 3000 });
       if (res.data?.result?.blocktemplate_blob) {
         const r = res.data.result;
         this.rxTemplate = {
           blob: r.blocktemplate_blob,
-            difficulty: r.difficulty || r.difficulty_top64 || 1000,
-            height: r.height || 0,
-            seed_hash: r.seed_hash,
-            next_seed_hash: r.next_seed_hash,
-            prev_hash: r.prev_hash,
-            timestamp: Date.now()
+          difficulty: r.difficulty || r.difficulty_top64 || 1000,
+          height: r.height || 0,
+          seed_hash: r.seed_hash,
+          next_seed_hash: r.next_seed_hash,
+          prev_hash: r.prev_hash,
+          timestamp: Date.now()
         };
-        console.log(`🧩 Template height=${this.rxTemplate.height} diff=${this.rxTemplate.difficulty} blobLen=${this.rxTemplate.blob.length}`);
-      } else {
-        console.warn('⚠️  Template response missing blocktemplate_blob');
+        console.log(`🧩 (local) template height=${this.rxTemplate.height} diff=${this.rxTemplate.difficulty} blobLen=${this.rxTemplate.blob.length}`);
+        return;
       }
-    } catch (e: any) {
-      console.warn('⚠️  fetchBlockTemplate failed:', e.message);
+    } catch (e:any) {
+      // silent fallback
+    }
+    // Final fallback: keep existing template or leave as null (synthetic jobs still work)
+    if (!this.rxTemplate) {
+      console.log('[template] Using synthetic template fallback');
+      this.rxTemplate = {
+        blob: '01' + 'c'.repeat(230),
+        difficulty: 1000,
+        height: 1,
+        timestamp: Date.now()
+      };
     }
   }
 
