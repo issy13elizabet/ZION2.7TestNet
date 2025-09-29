@@ -1,0 +1,20 @@
+#ifndef BUILD_INFO_H
+#define BUILD_INFO_H
+
+#define ZION_VERSION ""
+#define ZION_BUILD_TYPE "Release"
+#define ZION_COMPILER "GNU 14.2.0"
+#define ZION_BUILD_DATE ""
+
+#cmakedefine CUDA_ENABLED
+#cmakedefine OPENCL_ENABLED
+
+#ifdef CUDA_ENABLED
+#define ZION_CUDA_VERSION "12.2"
+#endif
+
+#ifdef OPENCL_ENABLED
+#define ZION_OPENCL_VERSION "3.0"
+#endif
+
+#endif // BUILD_INFO_H
