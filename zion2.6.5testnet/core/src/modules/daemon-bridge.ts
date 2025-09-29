@@ -157,4 +157,77 @@ export class DaemonBridge {
     const info = await this.getInfo();
     return info?.height || 0;
   }
+
+  public async getBlockByHash(hash: string): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    return this.jsonRpc('get_block', { hash });
+  }
+
+  public async getLastBlockHeader(): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    return this.jsonRpc('get_last_block_header');
+  }
+
+  public async getBlockHeaderByHeight(height: number): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    return this.jsonRpc('get_block_header_by_height', { height });
+  }
+
+  public async getBlockHeaderByHash(hash: string): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    return this.jsonRpc('get_block_header_by_hash', { hash });
+  }
+
+  public async getBulkPayments(paymentId: string, minBlockHeight: number): Promise<any> {
+    if (!this.enabled) throw new ZionError('Daemon bridge disabled', 'BRIDGE_DISABLED', 'bridge');
+    return this.jsonRpc('get_bulk_payments', { payment_ids: [paymentId], min_block_height: minBlockHeight });
+  }
+
+  // Enhanced caching and metrics
+  public getCacheStats(): any {
+    const now = Date.now();
+    return {
+      info: {
+        cached: !!this.cache.info,
+        age: this.cache.info ? now - this.cache.info.ts : null,
+        ttl: this.infoTTL
+      },
+      template: {
+        cached: !!this.cache.template,
+        age: this.cache.template ? now - this.cache.template.ts : null,
+        ttl: this.templateTTL
+      },
+      connections: {
+        cached: !!this.cache.connections,
+        age: this.cache.connections ? now - this.cache.connections.ts : null,
+        ttl: this.connectionsTTL
+      },
+      txPool: {
+        cached: !!this.cache.txPool,
+        age: this.cache.txPool ? now - this.cache.txPool.ts : null,
+        ttl: this.txPoolTTL
+      }
+    };
+  }
+
+  public clearCache(): void {
+    this.cache = {};
+    console.log('[bridge] Cache cleared');
+  }
+
+  public async healthCheck(): Promise<{ available: boolean; latency?: number; error?: string }> {
+    const start = Date.now();
+    try {
+      await this.getInfo(true);
+      return {
+        available: true,
+        latency: Date.now() - start
+      };
+    } catch (error) {
+      return {
+        available: false,
+        error: (error as Error).message
+      };
+    }
+  }
 }
