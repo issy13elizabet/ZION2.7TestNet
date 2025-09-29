@@ -1,0 +1,27 @@
+# 🌟 ZION PRODUCTION - SIMPLE DOCKER COMPOSE
+version: '3.8'
+
+services:
+  zion-production:
+    build: 
+      context: ./zion2.6.5testnet
+      dockerfile: Dockerfile
+    container_name: zion-production-server
+    ports:
+      - "8888:8888"
+    environment:
+      - NODE_ENV=production
+      - PORT=8888
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - zion-network
+
+networks:
+  zion-network:
+    driver: bridge
