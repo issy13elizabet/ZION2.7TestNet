@@ -5,6 +5,7 @@
 #include <atomic>
 #include <chrono>
 #include <iomanip>
+#include <algorithm>
 #include "../mining/core/job_manager.h"
 #include "../mining/core/cpu_worker.h"
 #include "../mining/core/share_submitter.h"
@@ -57,7 +58,8 @@ int main(int argc, char* argv[]){
         job_manager.update_job(job);
     }
 
-    unsigned threads = std::max(1u, std::thread::hardware_concurrency());
+    unsigned threads = std::thread::hardware_concurrency();
+    if(threads == 0) threads = 1;
     ZionMiningStatsAggregator stats(threads);
     ZionShareSubmitter submitter(&pool, stratum.get(), &stats);
     submitter.set_result_callback([&](const ZionShare& sh, bool ok){
