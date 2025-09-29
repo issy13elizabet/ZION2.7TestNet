@@ -1,0 +1,11 @@
+route:
+  receiver: 'stdout'
+
+receivers:
+  - name: 'stdout'
+    webhook_configs:
+      - url: 'http://127.0.0.1:1/'
+        send_resolved: true
+        
+# Note: Using an unreachable webhook to avoid external calls by default.
+# Replace with your actual webhook/email/PagerDuty as needed.

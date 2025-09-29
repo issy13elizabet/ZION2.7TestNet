@@ -1,0 +1,10 @@
+^E:\BUILD-CORE\CMAKEFILES\_CMAKELTOTEST-CXX\BIN\CMAKEFILES\093D833370BB0BB54FB0E5CF19E2BB27\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SE:/build-core/CMakeFiles/_CMakeLTOTest-CXX/src -BE:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/lto-test.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,23 @@
+FROM ubuntu:22.04 AS build
+ARG XMRIG_VERSION=v6.21.3
+RUN set -eux; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates git build-essential cmake libssl-dev libhwloc-dev libuv1-dev; \
+    update-ca-certificates
+WORKDIR /src
+RUN git clone --depth 1 --branch ${XMRIG_VERSION} https://github.com/xmrig/xmrig.git .
+RUN mkdir build && cd build && cmake -DXMRIG_DEPS=ON -DWITH_HWLOC=ON -DWITH_HTTP=ON .. && \
+    cmake --build . -- -j2 && \
+    install -m 0755 xmrig /usr/local/bin/xmrig
+
+FROM ubuntu:22.04
+RUN set -eux; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates libssl3 libhwloc15 libuv1 && \
+    update-ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=build /usr/local/bin/xmrig /usr/local/bin/xmrig
+WORKDIR /app
+ENTRYPOINT ["/usr/local/bin/xmrig"]

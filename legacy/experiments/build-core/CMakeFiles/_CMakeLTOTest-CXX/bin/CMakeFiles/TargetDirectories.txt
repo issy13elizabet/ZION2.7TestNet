@@ -1,0 +1,4 @@
+E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/foo.dir
+E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/boo.dir
+E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/ALL_BUILD.dir
+E:/build-core/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/ZERO_CHECK.dir

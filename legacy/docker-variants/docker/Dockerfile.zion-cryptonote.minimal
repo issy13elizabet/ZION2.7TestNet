@@ -1,0 +1,96 @@
+# Lightweight production build for ZION CryptoNote
+FROM ubuntu:22.04 AS build
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install minimal build dependencies
+RUN echo 'Acquire::CompressionTypes::Order { "gz"; };' > /etc/apt/apt.conf.d/99use-gzip && \
+    (apt-get update || (sleep 3 && apt-get update)) && apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        git \
+        ca-certificates \
+        libminiupnpc-dev \
+        libboost-system-dev \
+        libboost-filesystem-dev \
+        libboost-thread-dev \
+        libboost-date-time-dev \
+        libboost-chrono-dev \
+        libboost-regex-dev \
+        libboost-serialization-dev \
+        libboost-program-options-dev \
+        libssl-dev \
+        pkg-config \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+
+# Allow building even if local submodule 'zion-cryptonote/' is empty by cloning from upstream.
+# You can override the repo/ref via build args.
+ARG ZION_CORE_REPO="https://github.com/Yose144/zion-cryptonote.git"
+ARG ZION_CORE_REF="zion-mainnet"
+
+COPY zion-cryptonote/ /src/zion-cryptonote/
+
+# If the copied directory is empty, fetch sources from the upstream repo.
+RUN if [ -z "$(ls -A /src/zion-cryptonote 2>/dev/null)" ]; then \
+            echo "[build] Local zion-cryptonote/ is empty; cloning ${ZION_CORE_REPO} (${ZION_CORE_REF})" && \
+            rm -rf /src/zion-cryptonote && \
+            git clone --depth 1 --branch "${ZION_CORE_REF}" "${ZION_CORE_REPO}" /src/zion-cryptonote && \
+            (cd /src/zion-cryptonote && git submodule update --init --recursive || true); \
+        else \
+            echo "[build] Using local zion-cryptonote/ sources"; \
+        fi
+
+WORKDIR /src/zion-cryptonote
+# Vypneme UPNP a přidáme linkování miniupnpc (některé forky CryptoNote jej jinak nezalinkují)
+RUN cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DUSE_UPNP=OFF -DUPNP_USE=OFF -DUPNP_ENABLE=OFF -DNO_UPNP=ON \
+        -DCMAKE_EXE_LINKER_FLAGS="-lminiupnpc" && \
+    cmake --build build -j $(nproc)
+
+# Lightweight runtime stage
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install minimal runtime dependencies
+RUN echo 'Acquire::CompressionTypes::Order { "gz"; };' > /etc/apt/apt.conf.d/99use-gzip && \
+    (apt-get update || (sleep 3 && apt-get update)) && apt-get install -y --no-install-recommends \
+        libminiupnpc17 \
+        libboost-system1.74.0 \
+        libboost-filesystem1.74.0 \
+        libboost-thread1.74.0 \
+        libboost-date-time1.74.0 \
+        libboost-chrono1.74.0 \
+        libboost-regex1.74.0 \
+        libboost-serialization1.74.0 \
+        libboost-program-options1.74.0 \
+        libssl3 \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -u 1000 zion && \
+    mkdir -p /data /config /home/zion/.zion && \
+    chown -R zion:zion /data /config /home/zion/.zion
+
+# Copy binaries from build stage
+COPY --from=build /src/zion-cryptonote/build/src/zion* /usr/local/bin/
+COPY --from=build /src/zion-cryptonote/build/src/*d /usr/local/bin/
+
+# Copy configuration (use mainnet.conf by default; override via bind mount if needed)
+COPY config/mainnet.conf /config/zion.conf
+
+USER zion
+WORKDIR /data
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:18081/getinfo || exit 1
+
+EXPOSE 18080 18081
+
+CMD ["ziond", "--config-file=/config/zion.conf"]

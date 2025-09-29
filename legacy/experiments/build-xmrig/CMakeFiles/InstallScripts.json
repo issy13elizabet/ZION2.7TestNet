@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"E:/build-xmrig/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

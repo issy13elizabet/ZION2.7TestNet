@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.16)
+project(ZionSimpleMiner VERSION 1.3.0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Compiler options
+if(NOT WIN32)
+    add_compile_options(-Wall -Wextra -O3)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-march=native)
+    endif()
+endif()
+
+# Simple standalone ZION miner
+add_executable(zion-simple-miner zion-simple-miner.cpp)
+
+# Link pthread for Linux
+if(NOT WIN32)
+    target_link_libraries(zion-simple-miner PRIVATE pthread)
+endif()
+
+set_target_properties(zion-simple-miner PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+message(STATUS "Simple ZION Miner configured successfully!")
+message(STATUS "Output directory: ${CMAKE_BINARY_DIR}/bin")

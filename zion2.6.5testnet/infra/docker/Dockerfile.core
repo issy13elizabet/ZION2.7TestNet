@@ -1,0 +1,16 @@
+# Zion Core 2.6.5 - Integrated blockchain node
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY VERSION ./
+COPY core/package.json core/tsconfig.json ./core/
+COPY core/src ./core/src
+RUN cd core && npm install && npm run build
+
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=build /app/VERSION ./
+COPY --from=build /app/core/package.json ./core/
+COPY --from=build /app/core/dist ./core/dist
+COPY --from=build /app/core/node_modules ./core/node_modules
+EXPOSE 8601 3333
+CMD ["node", "core/dist/server.js"]

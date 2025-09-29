@@ -1,0 +1,10 @@
+^E:\BUILD-XMRIG\CMAKEFILES\675A57ED05B5435BC8B417319E411688\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SE:/ -BE:/build-xmrig --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/build-xmrig/ZionXMRigStyle.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

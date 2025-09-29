@@ -1,0 +1,49 @@
+# Production-ready multi-stage build for Zion CryptoNote
+FROM --platform=linux/amd64 ubuntu:22.04 AS build
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo 'Acquire::CompressionTypes::Order { "gz"; };' > /etc/apt/apt.conf.d/99use-gzip && \
+    (apt-get update || (sleep 3 && apt-get update)) && \
+    apt-get install -y --no-install-recommends \
+        build-essential cmake git pkg-config \
+        libboost-all-dev libssl-dev libpthread-stubs0-dev libc6-dev libminiupnpc-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY zion-cryptonote/ /src/zion-cryptonote/
+
+WORKDIR /src/zion-cryptonote
+RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build build -j 2
+
+# Production runtime stage with proper healthcheck
+FROM --platform=linux/amd64 ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo 'Acquire::CompressionTypes::Order { "gz"; };' > /etc/apt/apt.conf.d/99use-gzip && \
+    (apt-get update || (sleep 3 && apt-get update)) && \
+    apt-get install -y --no-install-recommends \
+        libboost-all-dev libc6 procps miniupnpc curl netcat && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy all built binaries
+COPY --from=build /src/zion-cryptonote/build/src/ziond /usr/local/bin/ziond
+COPY --from=build /src/zion-cryptonote/build/src/zion_wallet /usr/local/bin/zion_wallet
+COPY --from=build /src/zion-cryptonote/build/src/zion_walletd /usr/local/bin/zion_walletd
+
+# Create non-root user
+RUN useradd -m -s /bin/bash zion && \
+    mkdir -p /home/zion/.zion && \
+    chown -R zion:zion /home/zion
+
+# Switch to non-root user
+USER zion
+WORKDIR /home/zion
+
+# Expose standard ports
+EXPOSE 18080 18081 8070
+
+# Healthcheck with process check (more reliable than HTTP endpoint)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD pgrep -x ziond >/dev/null || exit 1
+
+ENTRYPOINT ["/usr/local/bin/ziond"]
+CMD ["--data-dir", "/home/zion/.zion", "--p2p-bind-port", "18080", "--rpc-bind-port", "18081", "--rpc-bind-ip", "0.0.0.0"]

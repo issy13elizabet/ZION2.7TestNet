@@ -1,0 +1,61 @@
+services:
+  # ZION CORE Backend
+  zion-core:
+    build:
+      context: ./zion-core
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8888:8888"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+    networks:
+      - zion-network
+
+  # Mining Pool
+  mining-pool:
+    build:
+      context: ./pool
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+    environment:
+      - POOL_PORT=3333
+      - POOL_BIND=0.0.0.0
+    depends_on:
+      - zion-core
+    networks:
+      - zion-network
+
+  # Wallet Adapter
+  wallet-adapter:
+    build:
+      context: ./adapters/wallet-adapter
+      dockerfile: Dockerfile
+    ports:
+      - "18099:18099"
+    environment:
+      - ADAPTER_PORT=18099
+    depends_on:
+      - zion-core
+    networks:
+      - zion-network
+
+  # RPC Shim
+  rpc-shim:
+    build:
+      context: ./adapters/zion-rpc-shim
+      dockerfile: Dockerfile
+    ports:
+      - "18089:18089"
+    environment:
+      - RPC_PORT=18089
+    depends_on:
+      - zion-core
+    networks:
+      - zion-network
+
+networks:
+  zion-network:
+    driver: bridge

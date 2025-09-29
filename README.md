@@ -1,10 +1,13 @@
-# 🌐 ZION Blockchain v2.5 TestNet - Complete Multi-Chain Ecosystem
+# 🌐 ZION Blockchain v2.6 TestNet - Complete Multi-Chain Ecosystem
 
-![ZION Blockchain](https://img.shields.io/badge/ZION-v2.5%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green)
+![ZION Blockchain](https://img.shields.io/badge/ZION-v2.6%20TestNet-purple) ![Multi-Chain](https://img.shields.io/badge/Multi--Chain-Dharma%20Ecosystem-gold) ![TypeScript](https://img.shields.io/badge/ZION%20CORE-TypeScript%20Unified-blue) ![TestNet](https://img.shields.io/badge/Status-Production%20Ready-green) ![Miner](https://img.shields.io/badge/GPU%20Miner-v1.3.0-orange) ![Gaming](https://img.shields.io/badge/AI%20Systems-Gaming%20Ecosystem-cyan)
 
 **🚀 Unified Multi-Chain Technology for Global Community 🌈**
 
-ZION v2.5 TestNet představuje **kompletní blockchain ecosystem** s unifikovanou TypeScript architekturou, multi-chain interoperabilitou a pokročilými DeFi funkcemi. Postavený na proven RandomX konsensu s moderní infrastrukturou pro cross-chain komunikaci a reálné využití.
+ZION v2.6 TestNet představuje **kompletní blockchain ecosystem** s unifikovanou TypeScript architekturou, multi-chain interoperabilitou a pokročilými DeFi funkcemi. Postavený na proven RandomX konsensu s moderní infrastrukturou pro cross-chain komunikaci a reálné využití.
+
+**NEW: ZION Cosmic Harmony Miner v1.3.0 – Performance optimalizace (CPU), benchmark metriky, GPU scaffolding, hybrid share queue** 🎯  
+**NEW: AI Systems Gaming Ecosystem – Ready Player One inspirované gaming, ZION OS, AI Chat, ZION RIG, ZION CRAFT** 🎮
 
 **🎯 Mission: Decentralizovaná technologie pro lidské prosperování 🌱**
 > *Budujeme mosty mezi komunitami, technologiemi a možnostmi.*
@@ -13,16 +16,344 @@ ZION v2.5 TestNet představuje **kompletní blockchain ecosystem** s unifikovano
 
 ## 📋 **OBSAH / TABLE OF CONTENTS**
 
-1. [🏗️ Architektura Projektu](#️-architektura-projektu)
-2. [🚀 Rychlý Start](#-rychlý-start)
-3. [🔗 Multi-Chain Philosophy](#-multi-chain-philosophy)
-4. [⚡ ZION CORE - Unified Architecture](#-zion-core---unified-architecture)
-5. [🏭 Komponenty Systému](#-komponenty-systému)
-6. [🛠️ Development Setup](#️-development-setup)
-7. [📊 Monitoring & Analytics](#-monitoring--analytics)
-8. [🌍 Community & Governance](#-community--governance)
-9. [🔮 Roadmap & Next Steps](#-roadmap--next-steps)
-10. [🤝 Contributing](#-contributing)
+1. [⛏️ ZION Cosmic Harmony Miner v1.3.0](#️-zion-cosmic-harmony-miner-v130)
+2. [🎮 AI Systems Gaming Ecosystem](#-ai-systems-gaming-ecosystem)
+3. [🏗️ Architektura Projektu](#️-architektura-projektu)
+4. [🚀 Rychlý Start](#-rychlý-start)
+5. [🔗 Multi-Chain Philosophy](#-multi-chain-philosophy)
+6. [⚡ ZION CORE - Unified Architecture](#-zion-core---unified-architecture)
+7. [🏭 Komponenty Systému](#-komponenty-systému)
+8. [🛠️ Development Setup](#️-development-setup)
+9. [📊 Monitoring & Analytics](#-monitoring--analytics)
+10. [🌍 Community & Governance](#-community--governance)
+11. [🔮 Roadmap & Next Steps](#-roadmap--next-steps)
+12. [🤝 Contributing](#-contributing)
+13. [📚 Git Setup & Development](#-git-setup--development)
+
+---
+
+## 🎮 **AI Systems Gaming Ecosystem**
+
+### 🌟 Ready Player One inspirovaný Gaming Ecosystem
+
+ZION Blockchain nyní obsahuje kompletní **AI Systems Gaming Ecosystem** inspirovaný filmem Ready Player One, který přináší revolučních 6 gamingových aplikací:
+
+#### 🎯 Gaming Applications
+
+| Aplikace | Popis | Status | Features |
+|----------|-------|--------|----------|
+| **🏛️ OASIS GAME** | Ready Player One inspirované RPG | ✅ Live | Questy, Leaderboard, Světy, Achievements |
+| **💻 ZION OS** | Kompletní AI operační systém | ✅ Live | Desktop, Terminal, Procesy, Soubory |
+| **🤖 AI CHAT** | GitHub Copilot AI asistent | ✅ Live | Kontextové odpovědi, Real-time chat |
+| **⚡ ZION RIG** | Hybrid Mining/Gaming/AI systém | ✅ Live | Multi-mode dashboard, Performance monitoring |
+| **🧱 ZION CRAFT** | Minecraft × Roblox fusion | ✅ Live | 3D building, Scripting, Multiplayer |
+| **🌌 STARGATE** | Sci-fi portal system | ✅ Live | Galaktické cestování |
+
+#### 🚀 Technické Specifikace
+
+- **Framework**: Next.js 14.2.5 s App Router
+- **Styling**: Tailwind CSS s glass morphism designem
+- **Animace**: Framer-motion pro smooth interakce
+- **UI/UX**: Purple-blue gradient téma s rounded glass kontejnery
+- **Navigace**: Unified dropdown systém s click-outside handling
+
+#### 🎮 Gaming Features
+
+**OASIS GAME**:
+```typescript
+- Interaktivní quest systém (Collect Crystals, Complete Challenges)
+- Real-time leaderboard s Ready Player One postavami
+- Multiple světy (Central Plaza, Distracted Globe, Tomb of Horrors)
+- Achievement systém s progresí
+- Immersivní player HUD s credits a leveling
+```
+
+**ZION OS**:
+```typescript
+- Kompletní desktop prostředí s okny a ikonami
+- Funkční terminal s příkazy (ls, pwd, echo, clear, help)
+- Process manager s real-time monitoring
+- File explorer s directory navigation
+- Multi-tab interface pro různé OS komponenty
+```
+
+**ZION CRAFT**:
+```typescript
+- Block palette pro 3D stavění (Stone, Wood, Glass, etc.)
+- World creation system s template gallery
+- JavaScript script editor pro custom logiku
+- 3D building canvas s real-time preview
+- Social features pro community sharing
+```
+
+#### 🌐 Přístup k Gaming Ecosystem
+
+```bash
+# Spuštění development serveru
+cd frontend
+npm install
+npm run dev
+
+# Přístup na http://localhost:3000
+# Navigace: AI Systems → [Vybrat aplikaci]
+```
+
+#### 🎯 UX Optimalizace
+
+- **Glass Morphism**: Unified design systém s průhlednými kontejnery
+- **Smooth Animations**: Framer-motion pro všechny interakce  
+- **Responsive Design**: Optimalizováno pro všechny device velikosti
+- **Purple-Blue Theme**: Konzistentní barevná paleta napříč aplikacemi
+
+---
+
+## ⛏️ **ZION Cosmic Harmony Miner v1.3.0**
+
+### 🇨🇿 Jak spustit miner (návod)
+
+1. **Zkompilujte projekt**
+  - Otevřete PowerShell v root složce projektu
+  - Spusťte:
+    ```powershell
+    cmake -S . -B build-core -DENABLE_RANDOMX=ON -DENABLE_UI=ON
+    cmake --build build-core --config Release --target zion-core-ui
+    ```
+2. **Spusťte miner**
+  - Přejděte do složky s binárkou:
+    ```powershell
+    cd build-core\bin\Release
+    .\zion-core-ui.exe
+    ```
+  - Pro testovací režim bez poolu:
+    ```powershell
+    .\zion-core-ui.exe --no-stratum
+    ```
+3. **Ovládání v terminálu:**
+  - `[s]` Statistiky ON/OFF
+  - `[h]` Detailní hashrate ON/OFF
+  - `[b]` Benchmark metriky ON/OFF
+  - `[g]` GPU mining ON/OFF (zatím simulace)
+  - `[o]` Přepínání GPU algoritmu
+  - `[q]` Ukončit miner
+
+4. **Poznámky:**
+  - Pro reálné CPU těžení je nutná knihovna RandomX (viz níže).
+  - GPU backend je zatím simulovaný, reálné hashování bude ve verzi v1.4.0.
+  - Benchmark metriky ukazují průměr, nejlepší, odchylku a baseline.
+
+
+### 🚀 Professional Multi-GPU Cryptocurrency Miner
+
+#### 📦 Release v1.3.0 (2025-09-28)
+Klíčové změny od v1.1.0:
+1. CPU RandomX optimalizace: reuse buffer, batch hashing (128), snížené atomiky, rychlý hex encoder.
+2. Thread affinity (--pin-threads) pro stabilnější výkon.
+3. RandomX rozšířené flagy: huge pages, JIT, secure mód, full-mem dataset.
+4. Hybridní lock-free ring buffer + fallback queue pro odesílání shares.
+5. Benchmark metriky (avg, best, σ, baseline delta) přepínatelné klávesou [b].
+6. GPU mining scaffolding (detekce zařízení, připravený pipeline blueprint).
+7. Rozšířený UI panel + real-time ovládání: [s] stats, [h] detail, [g] GPU, [o] algoritmus, [b] benchmark.
+8. Build vylepšení: LTO/IPO + -march=native volitelné přes CMake.
+9. Základ clean-up a sjednocení kódu (příprava na skutečné GPU kernely).
+
+Poznámky:
+- GPU část je zatím simulovaná; reálné hashování přijde ve verzi v1.4.0.
+- Baseline metrika se inicializuje po prvním okně; delta ukazuje rel. zlepšení.
+- Pokud selže huge pages/JIT, miner fallbackne elegantně bez pádu.
+
+Sekce níže ponechána kvůli historii v1.1.0 (posunuta dolů):
+
+---
+
+## ⛏️ **ZION Cosmic Harmony Miner v1.1.0** (Historická release)
+Klíčové změny od v1.0.0:
+1. RandomX jádro (CPU) – Stratum client (subscribe/authorize/job) + dynamický seed reinit.
+2. 256-bit target mask a porovnání hash <= target (přesnější validace share).
+3. Agregátor statistik: per-thread hashrate, počty accepted/rejected, recent events.
+4. UI tabulka rozšířena: FOUND / ACCEPT / REJECT sloupce.
+5. Share submit pipeline s callback hook (příprava pro realtime UI notifikace).
+6. Dokumentace: README sekce RandomX integration.
+7. Refaktoring kódu (oddělení core vs. legacy simulace) – příprava pro skutečnou GPU implementaci.
+
+Poznámky:
+- GPU část zatím placeholder (CUDA/OpenCL plánováno v dalších verzích).
+- Přesná difficulty prezentace se ještě doladí (aktuálně aproximace u mask shares).
+- Legacy simulace bude odstraněna po dokončení GPU backendu.
+
+**NEW RELEASE**: Professional XMRig-style multi-GPU miner s podporou NVIDIA a AMD grafických karet.
+
+#### ✨ Klíčové Vlastnosti
+
+- **🎨 XMRig-Style Professional UI** - Krásné terminálové rozhraní s real-time statistikami
+- **🖥️ Multi-GPU Support** - NVIDIA CUDA a AMD OpenCL akcelerace
+- **⚡ ZION Cosmic Harmony Algorithm** - Vlastní optimalizovaný mining algoritmus
+- **📊 Real-time Monitoring** - Live hashrate, teplota a rychlost ventilátorů
+- **📈 Share Statistics** - Accept/reject míry s procentuálními výpočty
+
+#### 🎯 GPU Support Matrix
+
+| GPU Rodina | Podpora | Výkon |
+|------------|---------|-------|
+| NVIDIA RTX 40-series | ✅ Plná | Vynikající |
+| NVIDIA RTX 30-series | ✅ Plná | Velmi dobrý |
+| AMD RDNA 3 (RX 7000) | ✅ Plná | Vynikající |
+| AMD RDNA 2 (RX 6000) | ✅ Plná | Velmi dobrý |
+
+#### 🚀 Rychlé Spuštění
+
+```bash
+# CPU Mining
+cd build-minimal/Release
+./zion-cpu-miner.exe
+
+# GPU Mining (Doporučeno)
+./zion-gpu-miner.exe
+```
+
+#### 📊 Performance Preview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                ZION COSMIC HARMONY GPU MINER               │
+│                    XMRig-Style Interface                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─ GPU DEVICES ──────────────────────────────────────────────┐
+│ GPU 0: RTX 4070 Super  │  0.3 MH/s │ 64°C │ 77% │
+│ GPU 1: RTX 3080        │  0.3 MH/s │71°C │ 88% │  
+└─────────────────────────────────────────────────────────────┘
+
+🚀 CUDA & OpenCL Multi-GPU Support Active
+⚡ ZION Cosmic Harmony Algorithm Running
+```
+
+---
+
+### 🧠 RandomX / Real Mining Integration (WIP Transition)
+
+The legacy Cosmic Harmony simulation layer is being replaced by a full RandomX + Stratum core. Current status:
+
+Status Matrix:
+- Core Stratum client: ✅ (subscribe, authorize, job notify, share submit)
+- RandomX wrapper (cache + dataset VM, dynamic key): ✅
+- Per-job seed reinitialization: ✅
+- 256-bit target mask & hash comparison: ✅
+- Accurate difficulty reporting: ⏳ (display uses approximate value; full 256-bit normalization pending)
+- GPU real RandomX backend: ⏳ (planned; currently placeholder GPU metrics)
+
+#### Build Flags
+The C++ mining core uses CMake options (auto-detected if not set):
+```
+-DENABLE_RANDOMX=ON        # Enable RandomX hashing backend
+-DENABLE_UI=ON             # Enable console UI target(s)
+-DENABLE_CUDA=ON/OFF       # (Planned) CUDA RandomX kernels
+-DENABLE_OPENCL=ON/OFF     # (Planned) OpenCL kernels for AMD
+-DEXPERIMENTAL_COSMIC=OFF  # Legacy placeholder algorithm
+```
+
+#### RandomX Library Detection
+Search order when configuring the build:
+1. System install (find_package(RandomX))
+2. Environment variable `RANDOMX_ROOT` (expects include/ and lib/ subdirs)
+3. Vendored path `external/RandomX` inside repo (drop upstream source there)
+
+Example (Windows PowerShell):
+```powershell
+git clone https://github.com/tevador/RandomX external/RandomX
+cmake -S . -B build-core -DENABLE_RANDOMX=ON
+cmake --build build-core --config Release --target zion-core-miner
+```
+
+Example (Linux):
+```bash
+git clone https://github.com/tevador/RandomX external/RandomX
+cmake -S . -B build-core -DENABLE_RANDOMX=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build-core -j$(nproc) --target zion-core-miner
+```
+
+#### Runtime Behavior
+- New job (Stratum) with changed seed triggers RandomX re-key & dataset rebuild (dataset mode configurable later).
+- Worker threads insert nonces, compute hash, compare against 256-bit target mask.
+- Valid shares queued to ShareSubmitter and sent via Stratum JSON-RPC (submit).
+- UI (legacy `zion-xmrig-simple`) now shows ACCEPT / REJECT; soon will be wired to real core callbacks.
+
+#### Planned Next Steps
+- Full per-thread hashrate breakdown in UI.
+- Precise difficulty (convert target -> numeric diff 64-bit for display).
+- GPU RandomX kernels (CUDA & OpenCL path selection and memory init).
+- Huge pages / NUMA affinity optimization.
+- Removal of legacy simulation miners after parity.
+
+> Temporary Note: If RandomX library is not found the build will fall back to the legacy placeholder algorithm; ensure you provide the library for real mining.
+
+---
+
+## 📚 **GIT SETUP & DEVELOPMENT**
+
+### 🛠️ Inicializace projektu
+
+Projekt je již nastaven s Git repozitářem:
+
+```bash
+# Projekt obsahuje kompletní Git historii
+git log --oneline
+
+# Kontrola stavu
+git status
+```
+
+### 🔗 Připojení k Remote Repository
+
+```bash
+# Přidání remote repozitáře (GitHub/GitLab/Bitbucket)
+git remote add origin <URL_VAŠEHO_REPOZITÁŘE>
+
+# Například pro GitHub:
+git remote add origin https://github.com/username/zion-project.git
+
+# Nebo pomocí SSH:
+git remote add origin git@github.com:username/zion-project.git
+
+# Push počátečního commitu
+git push -u origin master
+
+# Ověření remote připojení
+git remote -v
+```
+
+### 🌿 Branching Strategy
+
+```bash
+# Vytvoření feature branch
+git checkout -b feature/nova-funkcnost
+
+# Development workflow
+git add .
+git commit -m "feat: přidána nová funkcnost"
+git push origin feature/nova-funkcnost
+
+# Vytvoření release branch
+git checkout -b release/v2.6.0
+```
+
+### 📋 Commit Conventions
+
+```bash
+# Struktura commit zpráv:
+feat: nová funkcnost
+fix: oprava chyby  
+docs: aktualizace dokumentace
+style: code formatting
+refactor: refaktoring kódu
+test: přidání testů
+chore: build/tool changes
+
+# Příklady:
+git commit -m "feat(mining): přidána podpora pro Autolykos algoritmus"
+git commit -m "fix(pool): oprava connection timeout"
+git commit -m "docs(readme): aktualizace deployment guide"
+```
+>>>>>>> e24beae1449d76e6216c0a2dea767960a6c920fa
 
 ---
 
