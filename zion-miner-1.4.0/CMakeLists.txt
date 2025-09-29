@@ -84,7 +84,8 @@ if(ENABLE_OPENCL)
 endif()
 
 # Compiler definitions
-add_definitions(-DZION_VERSION="1.4.0")
+# Synchronizace s root VERSION (aktualne 2.6.5) – pri zmene verze aktualizovat.
+add_definitions(-DZION_VERSION="2.6.5")
 add_definitions(-DZION_COSMIC_HARMONY_ENABLED)
 
 if(ENABLE_CUDA)
@@ -100,6 +101,8 @@ set(ZION_SOURCES
     zion-cosmic-harmony.cpp
     zion-gpu-miner-unified.cpp
     zion-miner-main.cpp
+    stratum_client.cpp
+    zion-share-submitter.cpp
 )
 
 # CUDA sources (if available)
@@ -110,11 +113,17 @@ if(ENABLE_CUDA)
 endif()
 
 # Create the executable
-if(ENABLE_CUDA)
+option(FORCE_DISABLE_CUDA "Force build without CUDA even if found" ON)
+
+if(ENABLE_CUDA AND NOT FORCE_DISABLE_CUDA)
     add_executable(zion-miner ${ZION_SOURCES} ${ZION_CUDA_SOURCES})
     set_property(TARGET zion-miner PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 else()
+    if(ENABLE_CUDA AND FORCE_DISABLE_CUDA)
+        message(WARNING "CUDA detected but FORCE_DISABLE_CUDA=ON -> building CPU/OpenCL only miner")
+    endif()
     add_executable(zion-miner ${ZION_SOURCES})
+    set(ENABLE_CUDA OFF)
 endif()
 
 # Link libraries
@@ -133,10 +142,7 @@ target_link_libraries(zion-miner
 )
 
 if(ENABLE_CUDA)
-    target_link_libraries(zion-miner
-        ${CUDA_LIBRARIES}
-        ${CUDA_curand_LIBRARY}
-    )
+    target_link_libraries(zion-miner ${CUDA_LIBRARIES} ${CUDA_curand_LIBRARY})
 endif()
 
 if(ENABLE_OPENCL)

@@ -1,6 +1,6 @@
 {
   "name": "zion-core",
-  "version": "2.5.0",
+  "version": "2.6.5",
   "description": "ZION Core - Unified blockchain node with mining pool, RPC, wallet adapter, and GPU Lightning Network support",
   "main": "dist/server.js",
   "type": "module",
