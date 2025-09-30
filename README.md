@@ -50,10 +50,47 @@
 
 ## 🚀 **INSTANT DEPLOYMENT**
 
-### **🤖 One-Command Complete Deployment**
+### **🚀 One-Command Complete System Startup**
 ```bash
-# Deploy complete ZION 2.6.75 + AI Miner 1.4 system
-./deploy-zion-2675-with-ai-miner.sh
+# Start complete ZION 2.7 TestNet (Backend + Frontend)
+./start_zion_27.sh
+
+# Start only backend (Python FastAPI)
+./start_zion_27.sh backend
+
+# Start only frontend (Next.js)
+./start_zion_27.sh frontend
+
+# Check system status
+./start_zion_27.sh status
+
+# Stop all services
+./start_zion_27.sh stop
+```
+
+### **🐳 Individual Service Management**
+```bash
+# Backend only (Python FastAPI on port 8889)
+python3 start_zion_27_backend.py
+
+# Frontend only (Next.js on port 3000)
+./start_zion_27_frontend.sh
+```
+
+### **📦 Manual Installation**
+```bash
+# Clone repository
+git clone https://github.com/issy13elizabet/ZION2.7TestNet.git
+cd zion-2.7
+
+# Install Python dependencies
+pip3 install -r requirements.txt
+
+# Install frontend dependencies
+cd frontend && npm install && cd ..
+
+# Start complete system
+./start_zion_27.sh
 ```
 
 ### **🐳 Docker Production Deployment**

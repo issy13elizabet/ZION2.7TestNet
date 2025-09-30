@@ -1,5 +1,5 @@
 """
-ZION RPC Server v2.6.75
+ZION RPC Server v2.7.0
 
 FastAPI-based RPC server replacing Node.js RPC shim layer.
 Provides CryptoNote-compatible JSON-RPC endpoints with real blockchain integration.

@@ -13,16 +13,16 @@ import LightningWidget from './components/LightningWidget';
 export default function Page() {
   const { t } = useLanguage();
   
-  // ZION CORE v2.5 Integration
+  // ZION 2.7 TestNet Integration
   const [zionStats, setZionStats] = useState<any>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const backoffRef = useRef<number>(10000); // start with 10s
   const mountedRef = useRef<boolean>(false);
 
-  // ZION CORE v2.5 Data Fetcher
+  // ZION 2.7 TestNet Data Fetcher
   const fetchZionCoreStats = async () => {
     try {
-      const response = await fetch('/api/zion-core', {
+      const response = await fetch('/api/backend-connector?endpoint=stats', {
         method: 'GET',
         cache: 'no-store',
         signal: AbortSignal.timeout(5000)

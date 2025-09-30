@@ -1,11 +1,11 @@
 """
-ZION Blockchain v2.6.75 - Python-Native Multi-Chain Ecosystem
+ZION Blockchain v2.7 TestNet - Python-Native Multi-Chain Ecosystem
 
 A high-performance blockchain implementation with integrated mining,
 multi-chain bridges, and real-time capabilities.
 """
 
-__version__ = "2.6.75"
+__version__ = "2.7.0"
 __author__ = "Maitreya ZionNet"
 __email__ = "maitreya@zionnet.org"
 

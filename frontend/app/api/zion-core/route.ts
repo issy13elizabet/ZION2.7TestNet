@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ZION_CORE_BASE = process.env.ZION_CORE_BASE || "http://localhost:8888";
+const ZION_CORE_BASE = process.env.ZION_CORE_BASE || "http://localhost:8889";
 
 /**
- * ZION CORE v2.5 API Proxy
- * Routes frontend requests to unified TypeScript backend
+ * ZION 2.7 TestNet API Proxy
+ * Routes frontend requests to Python-native ZION backend
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${ZION_CORE_BASE}${coreEndpoint}`, {
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'ZION-Frontend-v2.5'
+        'User-Agent': 'ZION-Frontend-v2.7'
       },
       // Add timeout for production reliability
       signal: AbortSignal.timeout(5000)
