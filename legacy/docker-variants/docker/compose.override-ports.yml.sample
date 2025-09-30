@@ -1,7 +1,0 @@
-# Sample override mapping public ports 443/80 to pool stratum 3333
-services:
-  zion-core:
-    ports:
-      - "3333:3333"
-      - "443:3333"  # if 443 is free (or fronted by socat/nginx)
-      - "80:3333"   # optional HTTP port, if free

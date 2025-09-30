@@ -1,5 +1,0 @@
-E:/build-core/CMakeFiles/zion_mining_core.dir
-E:/build-core/CMakeFiles/zion-core-miner.dir
-E:/build-core/CMakeFiles/zion-core-ui.dir
-E:/build-core/CMakeFiles/ALL_BUILD.dir
-E:/build-core/CMakeFiles/ZERO_CHECK.dir

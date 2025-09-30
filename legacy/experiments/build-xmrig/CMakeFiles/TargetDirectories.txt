@@ -1,3 +1,0 @@
-E:/build-xmrig/CMakeFiles/zion-xmrig-ui.dir
-E:/build-xmrig/CMakeFiles/ALL_BUILD.dir
-E:/build-xmrig/CMakeFiles/ZERO_CHECK.dir

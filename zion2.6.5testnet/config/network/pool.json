@@ -1,7 +1,0 @@
-{
-  "stratum_port": 3333,
-  "payout_interval_blocks": 60,
-  "min_payout": 10,
-  "difficulty_vardiff": false,
-  "notes": "PLACEHOLDER - pridat payout schema a fee strukturu"
-}
