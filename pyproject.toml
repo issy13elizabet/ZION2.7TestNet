@@ -1,0 +1,136 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zion-blockchain"
+version = "2.6.75"
+description = "ZION - Python-Native Multi-Chain Blockchain"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Maitreya ZionNet", email = "maitreya@zionnet.org"},
+]
+keywords = ["blockchain", "cryptocurrency", "mining", "randomx", "multi-chain"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Networking",
+]
+
+dependencies = [
+    # Core blockchain
+    "pycryptodome>=3.19.0",
+    "fastapi>=0.104.1",
+    "uvicorn[standard]>=0.24.0",
+    "websockets>=12.0",
+    "asyncio-extras>=1.3.2",
+    
+    # Mining & RandomX  
+    "psutil>=5.9.6",
+    
+    # Multi-chain bridges
+    "solders>=0.20.0",  # Solana (faster than solana-py)
+    "stellar-sdk>=8.10.0",
+    "tronapi>=2.2.1",
+    
+    # Monitoring & deployment
+    "prometheus-client>=0.19.0",
+    "pyyaml>=6.0.1",
+    
+    # Development & testing
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0", 
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+]
+
+gui = [
+    # GUI dependencies (tkinter is built-in)
+    "pillow>=10.0.0",
+    "matplotlib>=3.7.0",
+]
+
+docker = [
+    "docker>=6.1.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/Maitreya-ZionNet/Zion-2.6.75"
+Documentation = "https://zionnet.org/docs"
+Repository = "https://github.com/Maitreya-ZionNet/Zion-2.6.75.git"
+"Bug Tracker" = "https://github.com/Maitreya-ZionNet/Zion-2.6.75/issues"
+
+[project.scripts]
+zion-node = "zion.cli:main_node"
+zion-miner = "zion.cli:main_miner"  
+zion-wallet = "zion.cli:main_wallet"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["zion*"]
+exclude = ["tests*", "legacy*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312', 'py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | legacy
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+skip_glob = ["legacy/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "e2e: marks tests as end-to-end tests",
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+exclude = ["legacy/", "build/", "dist/"]
