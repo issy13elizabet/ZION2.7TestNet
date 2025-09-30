@@ -66,3 +66,4 @@ legacy/miners/*/
 # Temporary files
 tmp/
 temp/
+randomx-build/
