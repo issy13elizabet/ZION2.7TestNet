@@ -1,0 +1,76 @@
+{
+  "system_info": {
+    "cpu_model": "AMD Ryzen 5 3600 6-Core Processor",
+    "cpu_cores": 12,
+    "memory_gb": 30.227619171142578,
+    "architecture": "x86_64",
+    "system": "Linux 6.14.0-32-generic"
+  },
+  "tests": {},
+  "final_verdict": "ZION_WINS",
+  "xmrig_estimates": {
+    "1_threads": {
+      "threads": 1,
+      "estimated_hashrate": 220.0,
+      "per_thread": 220.0
+    },
+    "6_threads": {
+      "threads": 6,
+      "estimated_hashrate": 585.6910124999999,
+      "per_thread": 97.61516875
+    },
+    "11_threads": {
+      "threads": 11,
+      "estimated_hashrate": 476.43605850454867,
+      "per_thread": 43.31236895495897
+    },
+    "12_threads": {
+      "threads": 12,
+      "estimated_hashrate": 441.7861633405815,
+      "per_thread": 36.815513611715126
+    }
+  },
+  "zion_results": {
+    "1_threads": {
+      "threads": 1,
+      "duration": 8.013845443725586,
+      "total_hashes": 8198008,
+      "hashrate": 1022980.5475495667,
+      "per_thread": 1022980.5475495667,
+      "test_type": "fallback"
+    },
+    "6_threads": {
+      "threads": 6,
+      "duration": 8.454784154891968,
+      "total_hashes": 8609483,
+      "hashrate": 1018297.1962706491,
+      "per_thread": 169716.19937844152,
+      "test_type": "fallback"
+    },
+    "11_threads": {
+      "threads": 11,
+      "duration": 9.608007431030273,
+      "total_hashes": 9862398,
+      "hashrate": 1026476.9329952993,
+      "per_thread": 93316.08481775448,
+      "test_type": "fallback"
+    },
+    "12_threads": {
+      "threads": 12,
+      "duration": 10.504332304000854,
+      "total_hashes": 10630214,
+      "hashrate": 1011983.7884366243,
+      "per_thread": 84331.9823697187,
+      "test_type": "fallback"
+    }
+  },
+  "best_zion": {
+    "threads": 11,
+    "duration": 9.608007431030273,
+    "total_hashes": 9862398,
+    "hashrate": 1026476.9329952993,
+    "per_thread": 93316.08481775448,
+    "test_type": "fallback"
+  },
+  "best_xmrig_estimate": 585.6910124999999
+}
