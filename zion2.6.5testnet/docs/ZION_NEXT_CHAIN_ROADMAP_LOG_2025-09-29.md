@@ -35,6 +35,7 @@ Tento log zachycuje plán vývoje nové experimentální "Zion Next Chain" vrstv
 - Přechod z composite na memory-hard fázi A (parametrování paměť/iterace).
 - Epoch seed = hash(parentHash || epochNumber).
 - Referenční JS + plán Rust/WASM modulu.
+- RandomX podpora: hybrid režim (počáteční CPU onboarding) – viz `RANDOMX_INTEGRATION_PLAN.md`.
 
 ## FÁZE 5 – Mining & Pool integrace
 - Template builder (mempool -> merkle -> header skeleton).

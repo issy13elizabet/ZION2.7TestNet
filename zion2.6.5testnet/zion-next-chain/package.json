@@ -6,7 +6,8 @@
   "scripts": {
     "genesis": "ts-node --swc scripts/genesis.ts",
     "verify:genesis": "ts-node --swc scripts/verify-genesis.ts",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "bench:pow": "ts-node --swc scripts/bench-pow.ts"
   },
   "dependencies": {
     "blake3": "^2.1.7",
