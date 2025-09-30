@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rose Heart">
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <g transform="translate(256,280)">
+    <path d="M0,0 c 40,-60 140,-60 160,20 c 0,100 -120,120 -160,200 c -40,-80 -160,-100 -160,-200 c 20,-80 120,-80 160,-20 Z" fill="#E7C34E" opacity="0.9"/>
+  </g>
+</svg>

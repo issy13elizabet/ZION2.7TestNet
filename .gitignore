@@ -73,6 +73,7 @@ docker-volumes/
 tmp/
 temp/
 *.tmp
+randomx-build/
 
 # Binary files
 *.exe

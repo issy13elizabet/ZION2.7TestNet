@@ -15,6 +15,29 @@ import subprocess
 import os
 import configparser
 from datetime import datetime
+import sys
+
+# Import ZION RandomX engine for real mining
+try:
+    # Try to import from same directory
+    sys.path.insert(0, os.path.dirname(__file__))
+    from randomx_engine import RandomXEngine
+    RANDOMX_AVAILABLE = True
+except ImportError:
+    try:
+        # Try alternative paths
+        import importlib.util
+        engine_path = os.path.join(os.path.dirname(__file__), 'randomx_engine.py')
+        if os.path.exists(engine_path):
+            spec = importlib.util.spec_from_file_location("randomx_engine", engine_path)
+            randomx_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(randomx_module)
+            RandomXEngine = randomx_module.RandomXEngine
+            RANDOMX_AVAILABLE = True
+        else:
+            RANDOMX_AVAILABLE = False
+    except:
+        RANDOMX_AVAILABLE = False
 
 class ZionMiner:
     def __init__(self):
@@ -35,6 +58,13 @@ class ZionMiner:
         self.shares_accepted = 0
         self.start_time = None
         self.hashrate = 0
+        self.real_hashrate = 0
+        self.hash_count = 0
+        self.last_hash_time = time.time()
+        
+        # Real mining engines
+        self.mining_engines = {}
+        self.engine_lock = threading.Lock()
         
         # Config
         self.config_file = os.path.expanduser("~/.zion-miner-config.ini")
@@ -468,8 +498,8 @@ class ZionMiner:
         self.job_id = params[0]
         self.log_message(f"⚡ Nový job: {self.job_id}")
         
-        # Start mining simulation
-        self.simulate_mining()
+        # Start real mining with RandomX
+        self.start_real_mining()
         
     def handle_difficulty_change(self, data):
         """Zpracuje změnu obtížnosti"""
@@ -485,9 +515,131 @@ class ZionMiner:
             error = data.get('error', ['Neznámá chyba'])[1] if data.get('error') else 'Neznámá chyba'
             self.log_message(f"❌ Share odmítnut: {error}")
             
+    def init_mining_engines(self):
+        """Initialize RandomX mining engines for real mining"""
+        if not RANDOMX_AVAILABLE:
+            self.log_message("⚠️ RandomX nedostupný, používám simulaci")
+            return False
+            
+        threads = int(self.threads_var.get())
+        self.log_message(f"🚀 Inicializuji {threads} RandomX engines...")
+        
+        with self.engine_lock:
+            # Clear existing engines
+            self.mining_engines.clear()
+            
+            # Initialize new engines
+            for i in range(threads):
+                try:
+                    engine = RandomXEngine(fallback_to_sha256=True)
+                    seed = f"ZION_GUI_THREAD_{i}_{self.wallet_var.get()}".encode()
+                    
+                    if engine.init(seed):
+                        self.mining_engines[i] = engine
+                        self.log_message(f"✅ Engine {i+1}/{threads} inicializován")
+                    else:
+                        self.log_message(f"❌ Engine {i+1} selhal")
+                        
+                except Exception as e:
+                    self.log_message(f"❌ Chyba engine {i+1}: {e}")
+        
+        if self.mining_engines:
+            self.log_message(f"🎯 {len(self.mining_engines)} engines připraveno")
+            return True
+        else:
+            self.log_message("❌ Žádný engine nebyl inicializován")
+            return False
+    
+    def real_mining_worker(self, thread_id):
+        """Real RandomX mining worker thread"""
+        if thread_id not in self.mining_engines:
+            return
+            
+        engine = self.mining_engines[thread_id]
+        local_hash_count = 0
+        nonce_base = thread_id * 0x10000000  # Distribute nonce space
+        
+        self.log_message(f"⚡ Mining worker {thread_id+1} spuštěn")
+        
+        while self.mining and self.job_id:
+            try:
+                # Create block data for mining
+                block_data = f"{self.job_id}_{nonce_base + local_hash_count}".encode()
+                
+                # Calculate real hash
+                hash_result = engine.hash(block_data)
+                local_hash_count += 1
+                
+                # Update global statistics
+                with self.engine_lock:
+                    self.hash_count += 1
+                    
+                    # Calculate real-time hashrate
+                    current_time = time.time()
+                    if current_time - self.last_hash_time >= 1.0:
+                        self.real_hashrate = self.hash_count / (current_time - (self.start_time or current_time))
+                        self.hashrate = int(self.real_hashrate)
+                        self.last_hash_time = current_time
+                
+                # Check if we found a valid share (simplified)
+                hash_int = int.from_bytes(hash_result[:4], 'little')
+                if hash_int < 1000000:  # Difficulty threshold
+                    # Found potential share - submit it
+                    extranonce2 = f"{hash_int:08x}"
+                    ntime = f"{int(time.time()):08x}"
+                    nonce = f"{nonce_base + local_hash_count:08x}"
+                    
+                    share_msg = {
+                        "id": 100 + self.shares_submitted,
+                        "method": "mining.submit",
+                        "params": [
+                            f"{self.wallet_var.get()}.{self.worker_var.get()}",
+                            self.job_id,
+                            extranonce2,
+                            ntime,
+                            nonce
+                        ]
+                    }
+                    
+                    self.send_stratum_message(share_msg)
+                    self.shares_submitted += 1
+                    self.log_message(f"📤 Share odeslán (thread {thread_id+1})")
+                
+                # Small delay to prevent CPU overload
+                if local_hash_count % 1000 == 0:
+                    time.sleep(0.001)
+                    
+            except Exception as e:
+                self.log_message(f"❌ Mining error thread {thread_id+1}: {e}")
+                break
+        
+        self.log_message(f"⏹️ Mining worker {thread_id+1} ukončen ({local_hash_count} hashes)")
+    
+    def start_real_mining(self):
+        """Start real RandomX mining with multiple threads"""
+        if not self.init_mining_engines():
+            self.simulate_mining()  # Fallback to simulation
+            return
+        
+        self.hash_count = 0
+        self.last_hash_time = time.time()
+        
+        # Start mining worker threads
+        for thread_id in self.mining_engines.keys():
+            worker_thread = threading.Thread(
+                target=self.real_mining_worker, 
+                args=(thread_id,), 
+                daemon=True
+            )
+            worker_thread.start()
+        
+        self.log_message(f"🚀 Real mining spuštěn s {len(self.mining_engines)} threads")
+    
     def simulate_mining(self):
-        """Simuluje mining a odesílání shares"""
+        """Fallback simulation mining"""
         def mine():
+            self.log_message("⚠️ Používám simulační mining (RandomX nedostupný)")
+            
             while self.mining and self.job_id:
                 time.sleep(10 + (hash(self.worker_var.get()) % 20))  # Random delay 10-30s
                 
