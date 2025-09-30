@@ -1,0 +1,452 @@
+version: '3.8'
+
+# ZION 2.6.75 Production Docker Compose
+# Sacred Technology + Battle-Tested Infrastructure
+# 🕉️ Complete production deployment with legacy integration 🕉️
+
+services:
+  # Legacy ZION Daemon (Battle-tested CryptoNote base)
+  legacy-daemon:
+    build:
+      context: ../legacy/experiments/zion-cryptonote
+      dockerfile: ../../../../docker/Dockerfile.zion-cryptonote.minimal
+    container_name: zion-legacy-daemon
+    ports:
+      - "18081:18081"     # Legacy RPC port
+      - "18080:18080"     # P2P port
+    environment:
+      - CXXFLAGS=-O2
+      - DATA_DIR=/var/lib/zion
+      - LOG_LEVEL=1
+    volumes:
+      - zion_legacy_data:/var/lib/zion
+      - ./config:/opt/zion/config:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:18081/json_rpc"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=legacy-daemon"
+      - "zion.version=2.6.75"
+
+  # ZION Sacred Core (2.6.75 Master Orchestrator)
+  zion-core:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-sacred-core
+    container_name: zion-sacred-core
+    depends_on:
+      legacy-daemon:
+        condition: service_healthy
+    ports:
+      - "${CORE_PORT:-8602}:8601"         # Sacred core API
+      - "${STRATUM_PORT:-3334}:3333"      # Mining stratum
+      - "${LIGHTNING_PORT:-9735}:9735"    # Lightning Network
+      - "${BRIDGE_PORT:-8080}:8080"       # Multi-chain bridges
+    environment:
+      - NODE_ENV=production
+      - CORE_PORT=8601
+      - STRATUM_PORT=3333
+      - LIGHTNING_PORT=9735
+      - BRIDGE_PORT=8080
+      - LEGACY_DAEMON_HOST=legacy-daemon
+      - LEGACY_DAEMON_PORT=18081
+      - SACRED_MINING_ENABLED=true
+      - CONSCIOUSNESS_CONSENSUS=true
+      - DHARMA_REWARDS=true
+      - GOLDEN_RATIO_OPTIMIZATION=true
+      - DIVINE_FREQUENCY=432.0
+      - AI_GPU_BRIDGE_ENABLED=true
+    volumes:
+      - zion_core_data:/opt/zion/data
+      - zion_sacred_logs:/opt/zion/logs
+      - ./config/sacred:/opt/zion/sacred:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8601/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=sacred-core"
+      - "zion.version=2.6.75"
+      - "zion.sacred=true"
+
+  # ZION Production Server (API Gateway + Services)
+  zion-production-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-production
+    container_name: zion-production-server
+    depends_on:
+      zion-core:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8000}:8000"          # Production API
+      - "${ADMIN_PORT:-8001}:8001"        # Admin interface
+    environment:
+      - NODE_ENV=production
+      - API_PORT=8000
+      - ADMIN_PORT=8001
+      - ZION_CORE_HOST=zion-core
+      - ZION_CORE_PORT=8601
+      - LEGACY_DAEMON_HOST=legacy-daemon
+      - LEGACY_DAEMON_PORT=18081
+      - REDIS_URL=redis://zion-redis:6379
+      - MONGODB_URL=mongodb://zion-mongo:27017/zion
+      - JWT_SECRET=${JWT_SECRET:-sacred_dharma_liberation_2675}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,https://zion.lol}
+      - RATE_LIMIT_ENABLED=true
+      - HELMET_SECURITY=true
+      - SACRED_API_ENABLED=true
+    volumes:
+      - zion_api_logs:/opt/zion/logs
+      - ./config/api:/opt/zion/config:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=production-server"
+      - "zion.version=2.6.75"
+
+  # Multi-Chain Bridge Manager
+  zion-bridge-manager:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-bridges
+    container_name: zion-bridge-manager
+    depends_on:
+      - zion-core
+    ports:
+      - "${BRIDGE_API_PORT:-8080}:8080"   # Bridge API
+      - "${RAINBOW_PORT:-4444}:4444"      # Rainbow Bridge 44.44 Hz
+    environment:
+      - BRIDGE_API_PORT=8080
+      - RAINBOW_PORT=4444
+      - ZION_CORE_HOST=zion-core
+      - ZION_CORE_PORT=8601
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      - STELLAR_HORIZON_URL=${STELLAR_HORIZON_URL:-https://horizon.stellar.org}
+      - CARDANO_NODE_URL=${CARDANO_NODE_URL:-https://cardano-mainnet.blockfrost.io}
+      - TRON_NODE_URL=${TRON_NODE_URL:-https://api.trongrid.io}
+      - RAINBOW_FREQUENCY=44.44
+      - SACRED_BRIDGE_ENABLED=true
+      - GOLDEN_RATIO_OPTIMIZATION=true
+    volumes:
+      - zion_bridge_data:/opt/zion/bridges
+      - zion_bridge_logs:/opt/zion/logs
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=bridge-manager"
+      - "zion.version=2.6.75"
+
+  # Lightning Network Service
+  zion-lightning:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-lightning
+    container_name: zion-lightning
+    depends_on:
+      - zion-core
+    ports:
+      - "${LN_PORT:-9735}:9735"           # Lightning P2P
+      - "${LN_REST_PORT:-8181}:8181"      # Lightning REST API
+    environment:
+      - LN_PORT=9735
+      - LN_REST_PORT=8181
+      - ZION_CORE_HOST=zion-core
+      - ZION_CORE_PORT=8601
+      - LND_DATA_DIR=/opt/lnd/data
+      - LND_LOG_DIR=/opt/lnd/logs
+      - DHARMA_FEES_ENABLED=true
+      - SACRED_CHANNELS=true
+      - LIBERATION_ROUTING=true
+    volumes:
+      - zion_lightning_data:/opt/lnd/data
+      - zion_lightning_logs:/opt/lnd/logs
+      - ./config/lightning:/opt/lnd/config:ro
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=lightning"
+      - "zion.version=2.6.75"
+
+  # Real Mining Pool
+  zion-mining-pool:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-mining
+    container_name: zion-mining-pool
+    depends_on:
+      - zion-core
+      - legacy-daemon
+    ports:
+      - "${STRATUM_PORT:-3333}:3333"      # Stratum protocol
+      - "${POOL_API_PORT:-3334}:3334"     # Pool API
+    environment:
+      - STRATUM_PORT=3333
+      - POOL_API_PORT=3334
+      - ZION_CORE_HOST=zion-core
+      - ZION_CORE_PORT=8601
+      - LEGACY_DAEMON_HOST=legacy-daemon
+      - LEGACY_DAEMON_PORT=18081
+      - POOL_WALLET=${POOL_WALLET:-Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1}
+      - ALGORITHM=RandomX
+      - VARIANT=rx/0
+      - POOL_FEE=2.0
+      - MIN_PAYOUT=0.1
+      - DHARMA_MINING=true
+      - SACRED_BONUSES=true
+      - VARDIFF_ENABLED=true
+    volumes:
+      - zion_pool_data:/opt/zion/pool
+      - zion_pool_logs:/opt/zion/logs
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=mining-pool"
+      - "zion.version=2.6.75"
+
+  # AI-GPU Compute Bridge
+  zion-ai-gpu:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-ai-gpu
+    container_name: zion-ai-gpu
+    depends_on:
+      - zion-core
+      - zion-mining-pool
+    ports:
+      - "${AI_API_PORT:-8888}:8888"       # AI API
+    environment:
+      - AI_API_PORT=8888
+      - ZION_CORE_HOST=zion-core
+      - ZION_CORE_PORT=8601
+      - GPU_COMPUTE_ALLOCATION=0.7         # 70% mining, 30% AI
+      - HYBRID_MODE=true
+      - ON_THE_STAR_ENABLED=true
+      - CONSCIOUSNESS_MODEL=true
+      - NEURAL_NETWORKS=5
+      - DIVINE_FREQUENCY_SYNC=432.0
+      - GOLDEN_RATIO_COMPUTE=true
+    volumes:
+      - zion_ai_data:/opt/zion/ai
+      - zion_ai_models:/opt/zion/models
+      - zion_ai_logs:/opt/zion/logs
+    restart: unless-stopped
+    networks:
+      - zion-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    labels:
+      - "zion.service=ai-gpu"
+      - "zion.version=2.6.75"
+
+  # Frontend (Next.js Production)
+  zion-frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-frontend
+    container_name: zion-frontend
+    depends_on:
+      - zion-production-server
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"     # Frontend
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://zion-production-server:8000
+      - NEXT_PUBLIC_WS_URL=ws://zion-production-server:8000
+      - NEXT_PUBLIC_ZION_NETWORK=mainnet
+      - NEXT_PUBLIC_SACRED_MODE=true
+    volumes:
+      - zion_frontend_cache:/opt/zion/.next/cache
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=frontend"
+      - "zion.version=2.6.75"
+
+  # Redis (Caching & Session Store)
+  zion-redis:
+    image: redis:7-alpine
+    container_name: zion-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-sacred_dharma_cache}
+    volumes:
+      - zion_redis_data:/data
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=redis"
+
+  # MongoDB (Database)
+  zion-mongo:
+    image: mongo:6
+    container_name: zion-mongo
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER:-zion}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-sacred_dharma_db}
+      - MONGO_INITDB_DATABASE=zion
+    volumes:
+      - zion_mongo_data:/data/db
+      - zion_mongo_config:/data/configdb
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=mongodb"
+
+  # Prometheus (Monitoring)
+  zion-prometheus:
+    image: prom/prometheus:latest
+    container_name: zion-prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./config/prometheus:/etc/prometheus:ro
+      - zion_prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=prometheus"
+
+  # Grafana (Dashboards)
+  zion-grafana:
+    image: grafana/grafana:latest
+    container_name: zion-grafana
+    depends_on:
+      - zion-prometheus
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-sacred_dharma_viz}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - zion_grafana_data:/var/lib/grafana
+      - ./config/grafana:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=grafana"
+
+  # Nginx (Reverse Proxy & Load Balancer)
+  zion-nginx:
+    image: nginx:alpine
+    container_name: zion-nginx
+    depends_on:
+      - zion-frontend
+      - zion-production-server
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      - FRONTEND_HOST=zion-frontend
+      - API_HOST=zion-production-server
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./config/nginx:/etc/nginx/templates:ro
+      - zion_nginx_logs:/var/log/nginx
+      - zion_ssl_certs:/etc/ssl/certs:ro
+    restart: unless-stopped
+    networks:
+      - zion-network
+    labels:
+      - "zion.service=nginx"
+      - "zion.proxy=true"
+
+# Named Volumes for Data Persistence
+volumes:
+  zion_legacy_data:
+    driver: local
+    labels:
+      - "zion.data=legacy-daemon"
+  zion_core_data:
+    driver: local
+    labels:
+      - "zion.data=sacred-core"
+  zion_sacred_logs:
+    driver: local
+  zion_api_logs:
+    driver: local
+  zion_bridge_data:
+    driver: local
+  zion_bridge_logs:
+    driver: local
+  zion_lightning_data:
+    driver: local
+  zion_lightning_logs:
+    driver: local
+  zion_pool_data:
+    driver: local
+  zion_pool_logs:
+    driver: local
+  zion_ai_data:
+    driver: local
+  zion_ai_models:
+    driver: local
+  zion_ai_logs:
+    driver: local
+  zion_frontend_cache:
+    driver: local
+  zion_redis_data:
+    driver: local
+  zion_mongo_data:
+    driver: local
+  zion_mongo_config:
+    driver: local
+  zion_prometheus_data:
+    driver: local
+  zion_grafana_data:
+    driver: local
+  zion_nginx_logs:
+    driver: local
+  zion_ssl_certs:
+    driver: local
+
+# Networks
+networks:
+  zion-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    labels:
+      - "zion.network=sacred-infrastructure"

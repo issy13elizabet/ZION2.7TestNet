@@ -43,16 +43,24 @@ except ImportError as e:
     
 # Import production infrastructure
 try:
-    from zion_production_server import ZionProductionServer, ServerRequest, ServerResponse
-    from multi_chain_bridge_manager import ZionMultiChainBridgeManager, BridgeTransaction, ChainType  
-    from lightning_network_service import ZionLightningService, LightningPayment, PaymentStatus
-    from real_mining_pool import RealMiningPool, PoolJob, MinerSubmission
-    from sacred_genesis_core import SacredGenesisCore, ConsensusMetrics, SacredBlock
-    from ai_gpu_compute_bridge import AIGPUComputeBridge, GPUTask, ComputeResult
+    from zion_production_server import ZionProductionServer
+    from multi_chain_bridge_manager import ZionMultiChainBridgeManager, BridgeTransaction, ChainType, BridgeStatus
+    from lightning_network_service import ZionLightningService
+    from sacred_genesis_core import SacredGenesisCore
     from zion_ai_miner_14_integration import ZionAIMiner14Integration, MiningWorkUnit, MiningResult, MiningAlgorithm
+    
+    # Set availability flags
+    PRODUCTION_INFRASTRUCTURE_AVAILABLE = True
+    
 except ImportError as e:
     logging.warning(f"Production infrastructure not available: {e}")
     ZionAIMiner14Integration = None
+    PRODUCTION_INFRASTRUCTURE_AVAILABLE = False
+    
+    # Create placeholder ChainType if import fails
+    from enum import Enum
+    class ChainType(Enum):
+        ZION_CORE = {"name": "ZION Core", "symbol": "ZION", "decimals": 12, "frequency": 174.0}
 
 # Sacred Constants & Divine Mathematics
 GOLDEN_RATIO = 1.618033988749895

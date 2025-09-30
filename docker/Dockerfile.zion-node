@@ -1,0 +1,51 @@
+# ZION Node - Production Docker Image
+FROM python:3.13-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    curl \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install RandomX library
+WORKDIR /tmp
+RUN git clone https://github.com/tevador/RandomX.git && \
+    cd RandomX && \
+    mkdir build && \
+    cd build && \
+    cmake -DARCH=native .. && \
+    make && \
+    cp librandomx.so /usr/local/lib/ && \
+    ldconfig
+
+# Create app directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY zion/ ./zion/
+COPY scripts/ ./scripts/
+COPY config/ ./config/
+
+# Create data directories
+RUN mkdir -p /app/data /app/blockchain /app/logs
+
+# Set permissions
+RUN chmod +x scripts/*.py
+
+# Expose ports
+EXPOSE 18089 18090 19089 19090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:18089/health || exit 1
+
+# Default command
+CMD ["python", "-m", "zion.rpc.server"]

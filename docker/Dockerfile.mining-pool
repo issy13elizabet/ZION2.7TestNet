@@ -1,0 +1,35 @@
+# ZION Mining Pool - Production Docker Image
+FROM python:3.13-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    redis-tools \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements-pool.txt .
+RUN pip install --no-cache-dir -r requirements-pool.txt
+
+# Copy application code
+COPY zion/pool/ ./zion/pool/
+COPY zion/core/ ./zion/core/
+COPY scripts/ ./scripts/
+COPY sql/ ./sql/
+
+# Create data directories
+RUN mkdir -p /app/data /app/logs
+
+# Expose ports
+EXPOSE 4444 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/api/stats || exit 1
+
+# Default command
+CMD ["python", "-m", "zion.pool.mining_pool"]

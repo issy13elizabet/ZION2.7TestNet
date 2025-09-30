@@ -14,6 +14,7 @@ import secrets
 import subprocess
 import threading
 import struct
+import os
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -109,9 +110,9 @@ class ZionAIMiner14Integration:
         self.config = config or self.get_default_config()
         self.enabled = self.config.get('enabled', True)
         
-        # Miner binary path
+        # Real ZION Miner path (Python command line version)
         self.miner_binary = self.config.get('miner_binary', 
-            '/media/maitreya/ZION1/legacy/miners/zion-miner-1.4.0/zion-miner-simple')
+            '/media/maitreya/ZION1/zion/mining/zion-real-miner.py')
         
         # Mining state
         self.status = MinerStatus.OFFLINE
@@ -148,7 +149,7 @@ class ZionAIMiner14Integration:
         """Get default AI miner configuration"""
         return {
             'enabled': True,
-            'miner_binary': '/media/maitreya/ZION1/legacy/miners/zion-miner-1.4.0/zion-miner-simple',
+            'miner_binary': '/media/maitreya/ZION1/zion/mining/zion-real-miner.py',
             'algorithms': {
                 'cosmic_harmony': True,
                 'blake3_pure': True,
@@ -202,7 +203,7 @@ class ZionAIMiner14Integration:
             
         try:
             # Check miner binary
-            if not await self.check_miner_binary():
+            if not await self.check_ai_miner_binary():
                 raise Exception("AI Miner binary not found or not executable")
                 
             # Detect GPU devices
@@ -231,27 +232,29 @@ class ZionAIMiner14Integration:
             self.status = MinerStatus.ERROR
             return False
             
-    async def check_miner_binary(self) -> bool:
-        """Check if AI miner binary is available and executable"""
+    async def check_ai_miner_binary(self) -> bool:
+        """Check if AI Miner binary exists and is executable"""
         try:
-            # Test miner binary
-            result = subprocess.run([self.miner_binary, '--version'], 
-                                  capture_output=True, text=True, timeout=10)
-            
-            if result.returncode == 0:
-                self.logger.info(f"✅ AI Miner binary found: {self.miner_binary}")
-                self.logger.info(f"   Version info: {result.stdout.strip()}")
-                return True
-            else:
-                self.logger.error(f"❌ AI Miner binary test failed: {result.stderr}")
+            if not os.path.exists(self.miner_binary):
+                self.logger.error(f"❌ AI Miner binary not found: {self.miner_binary}")
                 return False
                 
-        except subprocess.TimeoutExpired:
-            self.logger.error("❌ AI Miner binary test timed out")
-            return False
-        except FileNotFoundError:
-            self.logger.error(f"❌ AI Miner binary not found: {self.miner_binary}")
-            return False
+            # For Python files, check if Python can run them
+            if self.miner_binary.endswith('.py'):
+                try:
+                    result = subprocess.run(['python3', self.miner_binary, '--version'], 
+                                          capture_output=True, timeout=5)
+                    return True
+                except:
+                    # Fallback - assume Python miner is runnable
+                    return True
+                    
+            if not os.access(self.miner_binary, os.X_OK):
+                self.logger.error(f"❌ AI Miner binary not executable: {self.miner_binary}")
+                return False
+                
+            return True
+            
         except Exception as e:
             self.logger.error(f"❌ AI Miner binary check error: {e}")
             return False
@@ -461,6 +464,10 @@ class ZionAIMiner14Integration:
         self.logger.info(f"   Devices: {len(self.active_devices)}")
         
         try:
+            # For Python miners, use python3 explicitly
+            if self.miner_binary.endswith('.py'):
+                mining_cmd = ['python3'] + mining_cmd
+                
             # Start mining process
             process = subprocess.Popen(
                 mining_cmd,

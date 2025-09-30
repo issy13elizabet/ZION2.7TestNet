@@ -1,0 +1,263 @@
+# ZION 2.6.75 Multi-Node Network Setup
+# Complete infrastructure with seed nodes, mining pool, and frontend
+
+version: '3.8'
+
+services:
+  # Seed Node 1 - Primary bootstrap node
+  seed1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-node
+    container_name: zion_seed1
+    ports:
+      - "19089:19089"
+      - "19090:19090"
+    environment:
+      - ZION_NODE_TYPE=seed
+      - ZION_SEED_ID=1
+      - ZION_LISTEN_PORT=19089
+      - ZION_WS_PORT=19090
+      - ZION_MAX_PEERS=200
+      - ZION_LOG_LEVEL=info
+    volumes:
+      - seed1_data:/app/data
+    networks:
+      - zion_network
+    restart: unless-stopped
+    
+  # Seed Node 2 - Secondary bootstrap node
+  seed2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-node
+    container_name: zion_seed2
+    ports:
+      - "19091:19089"
+      - "19092:19090"
+    environment:
+      - ZION_NODE_TYPE=seed
+      - ZION_SEED_ID=2
+      - ZION_LISTEN_PORT=19089
+      - ZION_WS_PORT=19090
+      - ZION_MAX_PEERS=200
+      - ZION_LOG_LEVEL=info
+    volumes:
+      - seed2_data:/app/data
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - seed1
+
+  # Full Node 1 - Regular network participant
+  node1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.zion-node
+    container_name: zion_node1
+    ports:
+      - "18089:18089"
+      - "18090:18090"
+    environment:
+      - ZION_NODE_TYPE=full
+      - ZION_RPC_PORT=18089
+      - ZION_WS_PORT=18090
+      - ZION_SEED_NODES=seed1:19089,seed2:19089
+      - ZION_MAX_PEERS=50
+      - ZION_MINING_ENABLED=true
+    volumes:
+      - node1_data:/app/data
+      - node1_blockchain:/app/blockchain
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - seed1
+      - seed2
+
+  # Mining Pool - Stratum server and pool management
+  mining_pool:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mining-pool
+    container_name: zion_mining_pool
+    ports:
+      - "4444:4444"   # Stratum port
+      - "8080:8080"   # Pool web interface
+    environment:
+      - ZION_POOL_HOST=0.0.0.0
+      - ZION_POOL_PORT=4444
+      - ZION_NODE_RPC=http://node1:18089
+      - ZION_POOL_ADDRESS=ZIONPOOL123456789ABCDEF
+      - ZION_POOL_FEE=1.0
+      - ZION_MIN_PAYOUT=10.0
+    volumes:
+      - pool_data:/app/data
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - node1
+
+  # Frontend - React/Next.js web interface
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: zion_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - ZION_RPC_URL=http://node1:18089
+      - ZION_WS_URL=ws://node1:18090
+      - ZION_POOL_URL=http://mining_pool:8080
+      - ZION_NETWORK=mainnet
+      - NODE_ENV=production
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - node1
+      - mining_pool
+
+  # Bridge Services - Multi-chain integration
+  rainbow_bridge:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.rainbow-bridge
+    container_name: zion_rainbow_bridge
+    ports:
+      - "9000:9000"   # Bridge API
+      - "9001:9001"   # Bridge WebSocket
+    environment:
+      - ZION_NODE_RPC=http://node1:18089
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL}
+      - STELLAR_NETWORK=${STELLAR_NETWORK:-testnet}
+      - CARDANO_NETWORK=${CARDANO_NETWORK:-testnet}
+      - TRON_NETWORK=${TRON_NETWORK:-shasta}
+      - BRIDGE_PRIVATE_KEY=${BRIDGE_PRIVATE_KEY}
+    volumes:
+      - bridge_data:/app/data
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - node1
+
+  # Monitoring - Prometheus metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: zion_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - zion_network
+    restart: unless-stopped
+
+  # Grafana - Monitoring dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: zion_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=zion_admin_2675
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # Redis - Caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: zion_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - zion_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # PostgreSQL - Pool and user data
+  postgres:
+    image: postgres:15-alpine
+    container_name: zion_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=zion_pool
+      - POSTGRES_USER=zion
+      - POSTGRES_PASSWORD=zion_db_2675
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - zion_network
+    restart: unless-stopped
+
+  # Nginx - Reverse proxy and load balancer
+  nginx:
+    image: nginx:alpine
+    container_name: zion_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+    networks:
+      - zion_network
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - mining_pool
+      - rainbow_bridge
+
+networks:
+  zion_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  # Node data
+  seed1_data:
+  seed2_data:
+  node1_data:
+  node1_blockchain:
+  
+  # Service data
+  pool_data:
+  bridge_data:
+  
+  # Monitoring
+  prometheus_data:
+  grafana_data:
+  
+  # Databases
+  redis_data:
+  postgres_data:
+  
+  # Logs
+  nginx_logs:

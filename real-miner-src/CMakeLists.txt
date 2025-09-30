@@ -1,0 +1,63 @@
+cmake_minimum_required(VERSION 3.16)
+project(ZionAIMiner VERSION 1.0.0 LANGUAGES CXX)
+
+# C++ Standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Find required packages
+find_package(Boost REQUIRED COMPONENTS system thread program_options)
+find_package(OpenSSL REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Threads REQUIRED)
+
+# Source files
+set(ZION_SOURCES
+    zion-miner-mit.cpp
+    cosmic-harmony-algo.cpp
+    stratum-client.cpp
+    zion-ai-mining.cpp
+    auto-donate.cpp
+)
+
+set(ZION_HEADERS
+    zion-miner-mit.h
+    zion-ai-mining.h
+    auto-donate.h
+)
+
+# Create executable
+add_executable(zion-miner ../main/desktop_main.cpp ${ZION_SOURCES})
+
+# Link libraries
+target_link_libraries(zion-miner PRIVATE
+    Boost::system
+    Boost::thread
+    Boost::program_options
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    nlohmann_json::nlohmann_json
+    Threads::Threads
+)
+
+# Windows-specific libraries
+if(WIN32)
+    target_link_libraries(zion-miner PRIVATE ws2_32 winmm crypt32)
+endif()
+
+# Compiler flags
+if(MSVC)
+    target_compile_options(zion-miner PRIVATE /W4 /O2)
+    target_compile_definitions(zion-miner PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+else()
+    target_compile_options(zion-miner PRIVATE -Wall -Wextra -O3)
+endif()
+
+# Install
+install(TARGETS zion-miner DESTINATION bin)
+
+message(STATUS "ZION AI Miner configured successfully!")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Boost version: ${Boost_VERSION}")
