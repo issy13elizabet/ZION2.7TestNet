@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Volumes/Zion/zion27_venv/bin/python
 """
 ZION 2.7 TestNet Unified Server
 FastAPI backend for ZION blockchain with frontend integration
@@ -42,14 +42,18 @@ async def main():
         
         logger.info("🌐 Starting FastAPI RPC server on http://localhost:8889")
         logger.info("🎯 Frontend can connect to: http://localhost:8889/api/v1/")
+        logger.info("💡 Test API: curl http://localhost:8889/api/v1/health")
+        logger.info("🔄 Server will run until manually stopped (Ctrl+C)")
         
-        # Run server
-        await rpc_server.start()
+        # Run server with signal handling
+        await rpc_server.start_server(host="0.0.0.0", port=8889)
         
     except KeyboardInterrupt:
         logger.info("⛔ Shutdown requested by user")
     except Exception as e:
         logger.error(f"❌ Server error: {e}")
+        import traceback
+        traceback.print_exc()
         raise
     finally:
         logger.info("👋 ZION 2.7 TestNet Backend stopped")

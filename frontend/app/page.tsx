@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage, LanguageSwitcher } from './components/LanguageContext';
 import SystemWidget from './components/SystemWidget';
 import ZionCoreWidget from './components/ZionCoreWidget';
-import MiningWidget from './components/MiningWidget';
+import ZionMiningWidget27 from './components/ZionMiningWidget27';
+import ZionBlockchainWidget27 from './components/ZionBlockchainWidget27';
 import GPUWidget from './components/GPUWidget';
 import LightningWidget from './components/LightningWidget';
 
@@ -19,10 +20,10 @@ export default function Page() {
   const backoffRef = useRef<number>(10000); // start with 10s
   const mountedRef = useRef<boolean>(false);
 
-  // ZION 2.7 TestNet Data Fetcher
+  // ZION 2.7 TestNet Data Fetcher - Direct Python Backend
   const fetchZionCoreStats = async () => {
     try {
-      const response = await fetch('/api/backend-connector?endpoint=stats', {
+      const response = await fetch('/api/stats', {
         method: 'GET',
         cache: 'no-store',
         signal: AbortSignal.timeout(5000)
@@ -139,11 +140,14 @@ export default function Page() {
         >
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-cyan-300 mb-2">
-              ⚡ ZION CORE v2.5 • Live Monitoring
+              ⚡ ZION CORE v2.7 • Live Monitoring
             </h2>
             <div className="text-sm text-gray-400">
-              📡 Source: <span className="text-cyan-400">{zionStats._meta?.source || 'ZION CORE'}</span> • 
-              🕒 Updated: <span className="text-green-400">{lastUpdate.toLocaleTimeString()}</span>
+              📡 Source: <span className="text-cyan-400">{zionStats?.source || 'ZION-2.7-Python'}</span> • 
+              🕒 Updated: <span className="text-green-400">{lastUpdate.toLocaleTimeString()}</span> •
+              🔗 Status: <span className={zionStats?.success ? "text-green-400" : "text-red-400"}>
+                {zionStats?.success ? "Connected" : "Disconnected"}
+              </span>
             </div>
           </div>
 
@@ -156,7 +160,7 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <SystemWidget stats={zionStats.system} />
+              <SystemWidget stats={zionStats?.data?.system} />
             </motion.div>
 
             {/* Blockchain Stats */}
@@ -166,29 +170,19 @@ export default function Page() {
               transition={{ delay: 0.2 }}
             >
               <ZionCoreWidget 
-                blockchain={zionStats.blockchain}
-                networkStatus={zionStats.blockchain?.height > 0 && 
-                              zionStats.mining?.status === 'mining' &&
-                              zionStats._meta?.source !== 'fallback' ? 'active' : 'syncing'}
+                blockchain={zionStats?.data?.blockchain}
+                networkStatus={zionStats?.data?.blockchain?.height > 0 && 
+                              zionStats?.data?.connection?.backend_connected &&
+                              zionStats?.success ? 'active' : 'syncing'}
               />
             </motion.div>
 
             {/* Mining Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <MiningWidget 
-                mining={zionStats.mining}
-                formatHashrate={(hashrate: number) => {
-                  if (hashrate >= 1e9) return `${(hashrate / 1e9).toFixed(2)} GH/s`;
-                  if (hashrate >= 1e6) return `${(hashrate / 1e6).toFixed(2)} MH/s`;
-                  if (hashrate >= 1e3) return `${(hashrate / 1e3).toFixed(2)} KH/s`;
-                  return `${hashrate.toFixed(2)} H/s`;
-                }}
-              />
-            </motion.div>
+            {/* ZION 2.7 Mining Widget */}
+            <ZionMiningWidget27 className="col-span-1" />
+
+            {/* ZION 2.7 Blockchain Widget */}
+            <ZionBlockchainWidget27 className="col-span-1" />
 
             {/* GPU Stats */}
             <motion.div
@@ -197,7 +191,7 @@ export default function Page() {
               transition={{ delay: 0.4 }}
             >
               <GPUWidget 
-                gpu={zionStats.gpu}
+                gpu={zionStats?.gpu || { totalHashrate: 0, totalPower: 0, gpus: [] }}
                 formatHashrate={(hashrate: number) => {
                   if (hashrate >= 1e9) return `${(hashrate / 1e9).toFixed(2)} GH/s`;
                   if (hashrate >= 1e6) return `${(hashrate / 1e6).toFixed(2)} MH/s`;
@@ -214,7 +208,7 @@ export default function Page() {
               transition={{ delay: 0.5 }}
             >
               <LightningWidget 
-                lightning={zionStats.lightning} 
+                lightning={zionStats?.lightning || { activeChannels: 0, balance: 0, peers: 0 }} 
                 formatZion={(amount: number) => {
                   if (amount >= 1e8) return `${(amount / 1e8).toFixed(4)} ZION`;
                   if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M sats`;
@@ -240,7 +234,9 @@ export default function Page() {
                   <span className="text-gray-300">Total Hashrate:</span>
                   <span className="text-green-400 font-mono text-sm">
                     {(() => {
-                      const total = zionStats.mining.hashrate + (zionStats.gpu.totalHashrate * 1e6);
+                      const miningHashrate = zionStats?.data?.mining?.randomx_engine?.hashrate || 0;
+                      const gpuHashrate = (zionStats?.gpu?.totalHashrate || 0) * 1e6;
+                      const total = miningHashrate + gpuHashrate;
                       if (total >= 1e9) return `${(total / 1e9).toFixed(2)} GH/s`;
                       if (total >= 1e6) return `${(total / 1e6).toFixed(2)} MH/s`;
                       if (total >= 1e3) return `${(total / 1e3).toFixed(2)} KH/s`;
@@ -251,12 +247,12 @@ export default function Page() {
                 
                 <div className="flex justify-between">
                   <span className="text-gray-300">Active Miners:</span>
-                  <span className="text-blue-400">{zionStats.mining.miners}</span>
+                  <span className="text-blue-400">{zionStats?.data?.mining?.requests_served || 0}</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-300">Lightning:</span>
-                  <span className="text-purple-400">{zionStats.lightning.activeChannels} channels</span>
+                  <span className="text-gray-300">Blockchain Height:</span>
+                  <span className="text-purple-400">{zionStats?.data?.blockchain?.height || 0}</span>
                 </div>
               </div>
 

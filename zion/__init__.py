@@ -16,8 +16,8 @@ from zion.rpc.server import ZionRPCServer
 
 # Version compatibility check
 import sys
-if sys.version_info < (3, 10):
-    raise RuntimeError("ZION requires Python 3.10 or later")
+if sys.version_info < (3, 9):
+    raise RuntimeError("ZION requires Python 3.9 or later")
 
 __all__ = [
     "ZionBlockchain",

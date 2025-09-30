@@ -153,6 +153,50 @@ class ZionRPCServer:
         @self.app.get("/blockchain/stats") 
         async def blockchain_stats():
             return await self._get_blockchain_stats()
+            
+        # API v1 endpoints for frontend
+        @self.app.get("/api/v1/stats")
+        async def api_v1_stats():
+            """Unified stats endpoint for frontend"""
+            blockchain_stats = await self._get_blockchain_stats()
+            mining_stats = await self._get_mining_stats()
+            
+            return {
+                "system": {
+                    "version": "2.7.0-TestNet",
+                    "backend": "Python-FastAPI",
+                    "status": "running",
+                    "uptime": int(time.time() - self.start_time),
+                    "timestamp": time.time()
+                },
+                "blockchain": blockchain_stats,
+                "mining": mining_stats,
+                "connection": {
+                    "backend_connected": True,
+                    "backend_url": "localhost:8889",
+                    "last_update": time.time()
+                }
+            }
+        
+        @self.app.get("/api/v1/mining/stats")
+        async def api_v1_mining_stats():
+            """Mining stats for frontend"""
+            return await self._get_mining_stats()
+            
+        @self.app.get("/api/v1/blockchain/info")
+        async def api_v1_blockchain_info():
+            """Blockchain info for frontend"""
+            return await self._get_blockchain_stats()
+            
+        @self.app.get("/api/v1/health")
+        async def api_v1_health():
+            """Health check for frontend"""
+            return {
+                "status": "healthy",
+                "version": "2.7.0-TestNet",
+                "uptime": int(time.time() - self.start_time),
+                "timestamp": time.time()
+            }
     
     async def _handle_json_rpc(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """Handle JSON-RPC 2.0 request"""
