@@ -2,8 +2,10 @@ import { INITIAL_TARGET, meetsTarget } from '../params.js';
 import { cosmicDharmaHash } from './cosmic_pow.js';
 import blake3 from 'blake3';
 import { keccak256 } from 'js-sha3';
+import { getSeedInfo } from './seed.js';
+import { getPowConfig } from '../../config/powConfig.js';
 
-export interface PowContext { height: number; epoch?: number; prevSeed?: string; }
+export interface PowContext { height: number; epoch?: number; seed?: string; prevSeed?: string; }
 export interface PowAlgorithm {
   name: string;
   hash(headerBytes: Uint8Array, nonce: bigint, ctx: PowContext): string;
@@ -49,18 +51,33 @@ export function selectPow(mode: PowMode, height: number): PowAlgorithm {
   switch (mode) {
     case 'COSMIC': return cosmicAlgo;
     case 'RANDOMX': return randomXAlgo;
-    case 'HYBRID':
-      // Simple heuristic: first 1000 blocks randomx then cosmic
-      return height < 1000 ? randomXAlgo : cosmicAlgo;
+    case 'HYBRID': {
+      const { hybridSwitchHeight } = getPowConfig();
+      return height < hybridSwitchHeight ? randomXAlgo : cosmicAlgo;
+    }
     case 'COMPOSITE':
     default: return compositeAlgo;
   }
 }
 
+/** Returns PowContext enriched with epoch + seed (deterministic) */
+function enrichContext(ctx: PowContext): PowContext {
+  if (ctx.epoch !== undefined && ctx.seed) return ctx; // already enriched
+  const seedInfo = getSeedInfo(ctx.height);
+  return { ...ctx, epoch: seedInfo.epoch, seed: seedInfo.seed };
+}
+
 export function powHash(headerBytes: Uint8Array, nonce: bigint, ctx: PowContext, mode: PowMode): string {
-  return selectPow(mode, ctx.height).hash(headerBytes, nonce, ctx);
+  const enriched = enrichContext(ctx);
+  return selectPow(mode, enriched.height).hash(headerBytes, nonce, enriched);
 }
 
 export function powVerify(headerBytes: Uint8Array, nonce: bigint, ctx: PowContext, mode: PowMode, target = INITIAL_TARGET): boolean {
-  return selectPow(mode, ctx.height).verify(headerBytes, nonce, target, ctx);
+  const enriched = enrichContext(ctx);
+  return selectPow(mode, enriched.height).verify(headerBytes, nonce, target, enriched);
+}
+
+// Helper for tests & diagnostics
+export function currentPowAlgorithm(height: number, mode: PowMode): string {
+  return selectPow(mode, height).name;
 }

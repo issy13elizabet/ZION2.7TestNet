@@ -6,7 +6,7 @@ Zajistit, aby nový PoW rámec podporoval CPU-friendly RandomX (kompatibilní s 
 ## Strategie Více Algoritmů
 | Vrstva | Popis | Stav |
 |--------|-------|------|
-| pow/index.ts | Abstraktní výběr algoritmu podle height / epoch / config | ČÁSTEČNĚ (routing + stub) |
+| pow/index.ts | Abstraktní výběr algoritmu podle height / epoch / config | ✅ (routing + seed integrace) |
 | randomx_pow.ts | Wrapper k nat. knihovně (C++ / WASM fallback) | STUB PŘED IMPLEMENTACÍ |
 | composite (blake3+keccak) | Aktuální placeholder pro genesis a testy | HOTOVO |
 | cosmic_pow.ts | Experimentální Phase A (memory-hard) | PROTOTYP |
@@ -24,6 +24,7 @@ Zajistit, aby nový PoW rámec podporoval CPU-friendly RandomX (kompatibilní s 
    ```
 2. Konfig řízení: env / config soubor:
    - `POW_MODE=RANDOMX|COMPOSITE|COSMIC|HYBRID`
+   - `POW_EPOCH_BLOCKS=<n>` (default 2048, definice velikosti epochy pro seed)
    - `POW_HYBRID_SWITCH_HEIGHT=<n>` (přepnutí z RandomX na Cosmic)
 3. RandomX modul:
    - Minimální TypeScript wrapper: dynamicky načte nativní modul `randomx.node` (není-li, použije WASM fallback → low performance, jen test).
@@ -64,10 +65,10 @@ Zajistit, aby nový PoW rámec podporoval CPU-friendly RandomX (kompatibilní s 
 ## Task Breakdown
 1. pow/index.ts + interface (routing)  ✅ (základ hotov)
 2. randomx_pow.ts stub (bez nativního kódu)  ✅ (zatím hash = tagovaný composite)
-3. Konfig env integration  ⏳
+3. Konfig env integration  ✅
 4. Validator refactor na interface  ⏳
 5. Genesis unaffected (jen doc update)  ⏳
-6. Seed schedule + test  ⏳
+6. Seed schedule + test  ✅ (deterministická derivace + Jest testy)
 7. Native binding research doc  ⏳
 8. Benchmark skript `bench-pow.ts`  ✅
 
