@@ -12,6 +12,11 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8888
+      - EXTERNAL_DAEMON_ENABLED=true
+      - STRICT_BRIDGE_REQUIRED=true
+      - DAEMON_RPC_URL=http://legacy-daemon:18081
+      - BRIDGE_TIMEOUT_MS=4000
+      - STELLAR_HORIZON_URL=https://horizon.stellar.org
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
@@ -22,6 +27,50 @@ services:
     networks:
       - zion-network
 
+  legacy-daemon:
+    build:
+      context: ./legacy/docker-variants
+      dockerfile: docker/Dockerfile.zion-cryptonote.minimal
+    image: zion-cryptonote:latest
+    container_name: zion-legacy-daemon
+    ports:
+      - "18080:18080" # P2P
+      - "18081:18081" # RPC
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "pgrep -x ziond >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - zion_data:/var/lib/zion
+    command: ["/usr/local/bin/ziond", "--data-dir", "/var/lib/zion", "--p2p-bind-port", "18080", "--rpc-bind-port", "18081"]
+    networks:
+      - zion-network
+
+  zion-go-bridge:
+    build:
+      context: ./bridge
+      dockerfile: Dockerfile
+    container_name: zion-go-bridge
+    environment:
+      - BRIDGE_PORT=8090
+      - LOG_LEVEL=info
+      - DAEMON_RPC_URL=http://legacy-daemon:18081
+      - STELLAR_HORIZON_URL=https://horizon.stellar.org
+      - LND_ENABLED=false
+    ports:
+      - "8090:8090"
+    depends_on:
+      - legacy-daemon
+    restart: unless-stopped
+    networks:
+      - zion-network
+
 networks:
   zion-network:
     driver: bridge
+
+volumes:
+  zion_data:

@@ -2,6 +2,9 @@
 
 const express = require('express');
 const http = require('http');
+const helmet = require('helmet');
+const promClient = require('prom-client');
+const https = require('https');
 
 class ZionProductionServer {
     constructor() {
@@ -31,6 +34,9 @@ class ZionProductionServer {
         // JSON parser
         this.app.use(express.json({ limit: '10mb' }));
         this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    // Security headers
+    this.app.use(helmet());
 
         // Basic rate limiting
         const requests = new Map();
@@ -80,10 +86,70 @@ class ZionProductionServer {
         }, 30000); // Update every 30 seconds
 
         console.log('✅ Bridge status initialized');
+
+        // Prometheus metrics setup
+        const collectDefaultMetrics = promClient.collectDefaultMetrics;
+        collectDefaultMetrics({ prefix: 'zion_', timeout: 5000 });
+
+        this.metricBridgeStatus = new promClient.Gauge({
+            name: 'zion_bridge_active_chains',
+            help: 'Count of active bridges'
+        });
+        this.metricDaemonUp = new promClient.Gauge({
+            name: 'zion_daemon_up',
+            help: 'Legacy daemon reachable (1/0)'
+        });
+
+        setInterval(() => {
+            const active = Object.values(this.bridgeStatus).filter(b => b.connected).length;
+            this.metricBridgeStatus.set(active);
+        }, 10000);
     }
 
     setupRoutes() {
         console.log('🛣️ Setting up API routes...');
+
+        // STRICT Bridge mode (daemon RPC proxy)
+        const STRICT_BRIDGE_REQUIRED = String(process.env.STRICT_BRIDGE_REQUIRED || 'false') === 'true';
+        const EXTERNAL_DAEMON_ENABLED = String(process.env.EXTERNAL_DAEMON_ENABLED || 'false') === 'true';
+        const DAEMON_RPC_URL = process.env.DAEMON_RPC_URL || 'http://legacy-daemon:18081';
+
+        const daemonFetch = async (path, body) => {
+            const url = `${DAEMON_RPC_URL}${path}`;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), Number(process.env.BRIDGE_TIMEOUT_MS || 4000));
+            try {
+                const resp = await fetch(url, {
+                    method: body ? 'POST' : 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body ? JSON.stringify(body) : undefined,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                if (!resp.ok) throw new Error(`daemon http ${resp.status}`);
+                const json = await resp.json();
+                this.metricDaemonUp && this.metricDaemonUp.set(1);
+                return json;
+            } catch (e) {
+                this.metricDaemonUp && this.metricDaemonUp.set(0);
+                throw e;
+            }
+        };
+
+        // Startup STRICT checks (performed on first health call to avoid blocking container boot)
+        this.app.get('/strict/verify', async (req, res) => {
+            try {
+                if (STRICT_BRIDGE_REQUIRED && !EXTERNAL_DAEMON_ENABLED) {
+                    return res.status(500).json({ error: 'STRICT mode requires EXTERNAL_DAEMON_ENABLED=true' });
+                }
+                if (STRICT_BRIDGE_REQUIRED) {
+                    await daemonFetch('/json_rpc', { jsonrpc: '2.0', id: 1, method: 'get_info' });
+                }
+                res.json({ ok: true });
+            } catch (e) {
+                res.status(500).json({ error: 'Daemon unreachable under STRICT', message: String(e) });
+            }
+        });
 
         // Health check
         this.app.get('/health', (req, res) => {
@@ -338,25 +404,61 @@ class ZionProductionServer {
             });
         });
 
-        // Metrics endpoint (Prometheus format)
-        this.app.get('/api/metrics', (req, res) => {
-            const activeChains = Object.values(this.bridgeStatus)
-                .filter(bridge => bridge.connected).length;
+        // Metrics endpoint (Prometheus)
+        this.app.get('/api/metrics', async (req, res) => {
+            try {
+                res.set('Content-Type', promClient.register.contentType);
+                res.end(await promClient.register.metrics());
+            } catch (e) {
+                res.status(500).send(String(e));
+            }
+        });
 
-            const metrics = [
-                `# ZION Multi-Chain Metrics`,
-                `zion_core_status 1`,
-                `zion_active_bridges ${activeChains}`,
-                `zion_total_bridges ${Object.keys(this.bridgeStatus).length}`,
-                `zion_rainbow_bridge_frequency 44.44`,
-                `zion_system_uptime_seconds ${Math.floor(process.uptime())}`,
-                `zion_memory_usage_mb ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}`,
-                `zion_total_transfers ${this.transfers.size}`,
-                `# Timestamp: ${Date.now()}`
-            ].join('\n');
+        // Daemon bridge endpoints (read-only minimal)
+        this.app.get('/api/bridge/daemon/get_info', async (req, res) => {
+            try {
+                if (!EXTERNAL_DAEMON_ENABLED && STRICT_BRIDGE_REQUIRED) throw new Error('daemon disabled in STRICT');
+                const out = await daemonFetch('/json_rpc', { jsonrpc: '2.0', id: 1, method: 'get_info' });
+                res.json(out);
+            } catch (e) {
+                res.status(502).json({ error: 'bridge_down', message: String(e) });
+            }
+        });
 
-            res.set('Content-Type', 'text/plain');
-            res.send(metrics);
+        this.app.post('/api/bridge/daemon/submit_block', async (req, res) => {
+            try {
+                const { blob } = req.body || {};
+                if (!blob) return res.status(400).json({ error: 'missing blob' });
+                if (!EXTERNAL_DAEMON_ENABLED && STRICT_BRIDGE_REQUIRED) throw new Error('daemon disabled in STRICT');
+                const out = await daemonFetch('/json_rpc', { jsonrpc: '2.0', id: 1, method: 'submit_block', params: [blob] });
+                res.json(out);
+            } catch (e) {
+                res.status(502).json({ error: 'submit_failed', message: String(e) });
+            }
+        });
+
+        // Stellar read-only endpoints (public Horizon)
+        this.app.get('/api/bridge/stellar/ledger', async (req, res) => {
+            try {
+                const horizon = process.env.STELLAR_HORIZON_URL || 'https://horizon.stellar.org';
+                const url = `${horizon}/ledgers?order=desc&limit=1`;
+                const r = await fetch(url);
+                if (!r.ok) throw new Error(`horizon http ${r.status}`);
+                res.json(await r.json());
+            } catch (e) {
+                res.status(502).json({ error: 'horizon_down', message: String(e) });
+            }
+        });
+
+        this.app.get('/api/bridge/stellar/account/:id', async (req, res) => {
+            try {
+                const horizon = process.env.STELLAR_HORIZON_URL || 'https://horizon.stellar.org';
+                const r = await fetch(`${horizon}/accounts/${encodeURIComponent(req.params.id)}`);
+                if (!r.ok) throw new Error(`horizon http ${r.status}`);
+                res.json(await r.json());
+            } catch (e) {
+                res.status(502).json({ error: 'horizon_down', message: String(e) });
+            }
         });
 
         // Transfer history

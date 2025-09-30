@@ -26,21 +26,21 @@ RUN echo 'Acquire::CompressionTypes::Order { "gz"; };' > /etc/apt/apt.conf.d/99u
 
 WORKDIR /src
 
-# Allow building even if local submodule 'zion-cryptonote/' is empty by cloning from upstream.
+# Allow building even if local submodule 'zion-cryptonote/' is missing by cloning from upstream.
 # You can override the repo/ref via build args.
 ARG ZION_CORE_REPO="https://github.com/Yose144/zion-cryptonote.git"
 ARG ZION_CORE_REF="zion-mainnet"
 
-COPY zion-cryptonote/ /src/zion-cryptonote/
+# Prepare source directory (no COPY to allow missing local sources)
+RUN mkdir -p /src/zion-cryptonote
 
-# If the copied directory is empty, fetch sources from the upstream repo.
+# If the directory is empty, fetch sources from the upstream repo.
 RUN if [ -z "$(ls -A /src/zion-cryptonote 2>/dev/null)" ]; then \
-            echo "[build] Local zion-cryptonote/ is empty; cloning ${ZION_CORE_REPO} (${ZION_CORE_REF})" && \
-            rm -rf /src/zion-cryptonote && \
+            echo "[build] No local zion-cryptonote/ found; cloning ${ZION_CORE_REPO} (${ZION_CORE_REF})" && \
             git clone --depth 1 --branch "${ZION_CORE_REF}" "${ZION_CORE_REPO}" /src/zion-cryptonote && \
             (cd /src/zion-cryptonote && git submodule update --init --recursive || true); \
         else \
-            echo "[build] Using local zion-cryptonote/ sources"; \
+            echo "[build] Using provided zion-cryptonote/ sources"; \
         fi
 
 WORKDIR /src/zion-cryptonote
@@ -82,7 +82,7 @@ COPY --from=build /src/zion-cryptonote/build/src/zion* /usr/local/bin/
 COPY --from=build /src/zion-cryptonote/build/src/*d /usr/local/bin/
 
 # Copy configuration (use mainnet.conf by default; override via bind mount if needed)
-COPY config/mainnet.conf /config/zion.conf
+COPY ../config/mainnet.conf /config/zion.conf
 
 USER zion
 WORKDIR /data

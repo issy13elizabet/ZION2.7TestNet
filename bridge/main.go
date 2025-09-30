@@ -1,19 +1,26 @@
+//go:build lnd
+
 package main
 
 import (
 	"context"
 	"crypto/tls"
 	"encoding/hex"
+    "encoding/json"
+    "bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+    "strings"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lightningnetwork/lnd/lnrpc"
+    "github.com/prometheus/client_golang/prometheus"
+    "github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"gopkg.in/macaroon.v2"
@@ -32,8 +39,11 @@ type Config struct {
 	LNDHost        string
 	LNDTLSCert     string
 	LNDMacaroon    string
+	LNDEnabled     bool
 	BridgePort     string
 	LogLevel       string
+	DaemonRPCURL   string
+	StellarHorizon string
 }
 
 // LightningPayment represents a Lightning Network payment
@@ -116,8 +126,11 @@ func LoadConfig() *Config {
 		LNDHost:     getEnv("LND_HOST", "localhost:10009"),
 		LNDTLSCert:  getEnv("LND_TLS_CERT_PATH", "/lnd-certs/tls.cert"),
 		LNDMacaroon: getEnv("LND_ADMIN_MACAROON_PATH", "/lnd-certs/admin.macaroon"),
+		LNDEnabled:  getEnvBool("LND_ENABLED", false),
 		BridgePort:  getEnv("BRIDGE_PORT", "8090"),
 		LogLevel:    getEnv("LOG_LEVEL", "info"),
+		DaemonRPCURL:getEnv("DAEMON_RPC_URL", "http://legacy-daemon:18081"),
+		StellarHorizon: getEnv("STELLAR_HORIZON_URL", "https://horizon.stellar.org"),
 	}
 }
 
@@ -128,50 +141,68 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+func getEnvBool(key string, defaultVal bool) bool {
+	v := os.Getenv(key)
+	if v == "" { return defaultVal }
+	switch strings.ToLower(v) {
+	case "1", "true", "yes", "y", "on":
+		return true
+	case "0", "false", "no", "n", "off":
+		return false
+	default:
+		return defaultVal
+	}
+}
+
 // NewZionLightningBridge creates a new bridge instance
 func NewZionLightningBridge(config *Config) (*ZionLightningBridge, error) {
-	// Load TLS certificate
-	tlsCreds, err := credentials.NewClientTLSFromFile(config.LNDTLSCert, "")
-	if err != nil {
-		// Try insecure connection for development
-		log.Printf("Warning: Could not load TLS cert, trying insecure connection: %v", err)
-		tlsCreds = credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
-	}
-
-	// Load macaroon
-	var creds credentials.PerRPCCredentials
-	if _, err := os.Stat(config.LNDMacaroon); err == nil {
-		macaroonBytes, err := ioutil.ReadFile(config.LNDMacaroon)
+	var lndClient lnrpc.LightningClient
+	if config.LNDEnabled {
+		// Load TLS certificate
+		tlsCreds, err := credentials.NewClientTLSFromFile(config.LNDTLSCert, "")
 		if err != nil {
-			return nil, fmt.Errorf("cannot read macaroon file: %v", err)
+			// Try insecure connection for development
+			log.Printf("Warning: Could not load TLS cert, trying insecure connection: %v", err)
+			tlsCreds = credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
 		}
-		
-		mac := &macaroon.Macaroon{}
-		if err = mac.UnmarshalBinary(macaroonBytes); err != nil {
-			return nil, fmt.Errorf("cannot unmarshal macaroon: %v", err)
+
+		// Load macaroon
+		var creds credentials.PerRPCCredentials
+		if _, err := os.Stat(config.LNDMacaroon); err == nil {
+			macaroonBytes, err := ioutil.ReadFile(config.LNDMacaroon)
+			if err != nil {
+				return nil, fmt.Errorf("cannot read macaroon file: %v", err)
+			}
+            
+			mac := &macaroon.Macaroon{}
+			if err = mac.UnmarshalBinary(macaroonBytes); err != nil {
+				return nil, fmt.Errorf("cannot unmarshal macaroon: %v", err)
+			}
+            
+			creds = NewMacaroonCredential(mac)
+		} else {
+			log.Printf("Warning: Macaroon file not found, proceeding without auth: %v", err)
 		}
-		
-		creds = NewMacaroonCredential(mac)
+
+		// Setup gRPC connection options
+		opts := []grpc.DialOption{
+			grpc.WithTransportCredentials(tlsCreds),
+		}
+        
+		if creds != nil {
+			opts = append(opts, grpc.WithPerRPCCredentials(creds))
+		}
+
+		// Connect to LND
+		conn, err := grpc.Dial(config.LNDHost, opts...)
+		if err != nil {
+			return nil, fmt.Errorf("cannot dial to lnd: %v", err)
+		}
+
+		lndClient = lnrpc.NewLightningClient(conn)
 	} else {
-		log.Printf("Warning: Macaroon file not found, proceeding without auth: %v", err)
+		log.Printf("LND integration disabled (LND_ENABLED=false). Starting without LND client.")
 	}
-
-	// Setup gRPC connection options
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(tlsCreds),
-	}
-	
-	if creds != nil {
-		opts = append(opts, grpc.WithPerRPCCredentials(creds))
-	}
-
-	// Connect to LND
-	conn, err := grpc.Dial(config.LNDHost, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("cannot dial to lnd: %v", err)
-	}
-
-	lndClient := lnrpc.NewLightningClient(conn)
 
 	// Create ZION RPC client
 	zionRPC := NewZionRPCClient(config.ZionRPCURL)
@@ -185,6 +216,7 @@ func NewZionLightningBridge(config *Config) (*ZionLightningBridge, error) {
 
 // GetNodeInfo retrieves Lightning Network node information
 func (zlb *ZionLightningBridge) GetNodeInfo(ctx context.Context) (*NodeInfo, error) {
+	if zlb.lndClient == nil { return nil, fmt.Errorf("lnd_disabled") }
 	info, err := zlb.lndClient.GetInfo(ctx, &lnrpc.GetInfoRequest{})
 	if err != nil {
 		return nil, err
@@ -214,6 +246,7 @@ func (zlb *ZionLightningBridge) GetNodeInfo(ctx context.Context) (*NodeInfo, err
 
 // GetChannels retrieves all Lightning Network channels
 func (zlb *ZionLightningBridge) GetChannels(ctx context.Context) ([]Channel, error) {
+	if zlb.lndClient == nil { return nil, fmt.Errorf("lnd_disabled") }
 	channelsReq := &lnrpc.ListChannelsRequest{}
 	channelsResp, err := zlb.lndClient.ListChannels(ctx, channelsReq)
 	if err != nil {
@@ -238,6 +271,7 @@ func (zlb *ZionLightningBridge) GetChannels(ctx context.Context) ([]Channel, err
 
 // CreateInvoice creates a Lightning Network invoice
 func (zlb *ZionLightningBridge) CreateInvoice(ctx context.Context, amount uint64, memo string) (*LightningPayment, error) {
+	if zlb.lndClient == nil { return nil, fmt.Errorf("lnd_disabled") }
 	invoiceReq := &lnrpc.Invoice{
 		Value: int64(amount),
 		Memo:  memo,
@@ -261,6 +295,7 @@ func (zlb *ZionLightningBridge) CreateInvoice(ctx context.Context, amount uint64
 
 // PayInvoice pays a Lightning Network invoice
 func (zlb *ZionLightningBridge) PayInvoice(ctx context.Context, invoice, zionAddress string) error {
+	if zlb.lndClient == nil { return fmt.Errorf("lnd_disabled") }
 	// Decode invoice to get amount
 	decodeReq := &lnrpc.PayReqString{PayReq: invoice}
 	payReq, err := zlb.lndClient.DecodePayReq(ctx, decodeReq)
@@ -317,6 +352,7 @@ func (zlb *ZionLightningBridge) handleGetNodeInfo(c *gin.Context) {
 	ctx := context.Background()
 	nodeInfo, err := zlb.GetNodeInfo(ctx)
 	if err != nil {
+		if err.Error() == "lnd_disabled" { c.JSON(http.StatusServiceUnavailable, gin.H{"error":"lnd_disabled"}); return }
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -327,6 +363,7 @@ func (zlb *ZionLightningBridge) handleGetChannels(c *gin.Context) {
 	ctx := context.Background()
 	channels, err := zlb.GetChannels(ctx)
 	if err != nil {
+		if err.Error() == "lnd_disabled" { c.JSON(http.StatusServiceUnavailable, gin.H{"error":"lnd_disabled"}); return }
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -343,6 +380,7 @@ func (zlb *ZionLightningBridge) handleCreateInvoice(c *gin.Context) {
 	ctx := context.Background()
 	payment, err := zlb.CreateInvoice(ctx, req.Amount, req.Memo)
 	if err != nil {
+		if err.Error() == "lnd_disabled" { c.JSON(http.StatusServiceUnavailable, gin.H{"error":"lnd_disabled"}); return }
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -360,6 +398,7 @@ func (zlb *ZionLightningBridge) handlePayInvoice(c *gin.Context) {
 	ctx := context.Background()
 	err := zlb.PayInvoice(ctx, req.Invoice, req.ZionAddress)
 	if err != nil {
+		if err.Error() == "lnd_disabled" { c.JSON(http.StatusServiceUnavailable, gin.H{"error":"lnd_disabled"}); return }
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -407,6 +446,18 @@ func main() {
 		log.Fatalf("Failed to create bridge: %v", err)
 	}
 
+	// Setup Prometheus metrics
+	reg := prometheus.NewRegistry()
+	promDefault := prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{})
+	promGo := prometheus.NewGoCollector()
+	reg.MustRegister(promDefault, promGo)
+
+	daemonUp := prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "zion_daemon_up",
+		Help: "Legacy daemon reachable (1/0)",
+	})
+	reg.MustRegister(daemonUp)
+
 	// Setup Gin router
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
@@ -425,6 +476,9 @@ func main() {
 		c.Next()
 	})
 
+	// Metrics route
+	r.GET("/metrics", gin.WrapH(promhttp.HandlerFor(reg, promhttp.HandlerOpts{})))
+
 	// Routes
 	api := r.Group("/api/v1")
 	{
@@ -433,6 +487,61 @@ func main() {
 		api.GET("/channels", bridge.handleGetChannels)
 		api.POST("/invoice", bridge.handleCreateInvoice)
 		api.POST("/pay", bridge.handlePayInvoice)
+
+		// Daemon JSON-RPC proxy (generic)
+		api.POST("/daemon/json_rpc", func(c *gin.Context) {
+			body, err := ioutil.ReadAll(c.Request.Body)
+			if err != nil { c.JSON(http.StatusBadRequest, gin.H{"error":"invalid_body"}); return }
+			url := fmt.Sprintf("%s/json_rpc", config.DaemonRPCURL)
+			req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+			if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error":err.Error()}); return }
+			req.Header.Set("Content-Type","application/json")
+			client := &http.Client{ Timeout: 5 * time.Second }
+			resp, err := client.Do(req)
+			if err != nil { daemonUp.Set(0); c.JSON(http.StatusBadGateway, gin.H{"error":"daemon_unreachable", "message": err.Error()}); return }
+			defer resp.Body.Close()
+			respBody, _ := ioutil.ReadAll(resp.Body)
+			if resp.StatusCode != 200 { daemonUp.Set(0); c.Data(resp.StatusCode, "application/json", respBody); return }
+			daemonUp.Set(1)
+			c.Data(200, "application/json", respBody)
+		})
+
+		// Daemon get_info sugar
+		api.GET("/daemon/get_info", func(c *gin.Context) {
+			payload := map[string]interface{}{
+				"jsonrpc":"2.0", "id":1, "method":"get_info",
+			}
+			buf, _ := json.Marshal(payload)
+			url := fmt.Sprintf("%s/json_rpc", config.DaemonRPCURL)
+			req, _ := http.NewRequest("POST", url, bytes.NewReader(buf))
+			req.Header.Set("Content-Type","application/json")
+			client := &http.Client{ Timeout: 5 * time.Second }
+			resp, err := client.Do(req)
+			if err != nil { daemonUp.Set(0); c.JSON(http.StatusBadGateway, gin.H{"error":"daemon_unreachable", "message": err.Error()}); return }
+			defer resp.Body.Close()
+			daemonUp.Set(1)
+			data, _ := ioutil.ReadAll(resp.Body)
+			c.Data(resp.StatusCode, "application/json", data)
+		})
+
+		// Stellar read-only endpoints
+		api.GET("/stellar/ledger", func(c *gin.Context) {
+			url := fmt.Sprintf("%s/ledgers?order=desc&limit=1", config.StellarHorizon)
+			resp, err := http.Get(url)
+			if err != nil { c.JSON(http.StatusBadGateway, gin.H{"error":"horizon_unreachable"}); return }
+			defer resp.Body.Close()
+			body, _ := ioutil.ReadAll(resp.Body)
+			c.Data(resp.StatusCode, "application/json", body)
+		})
+		api.GET("/stellar/account/:id", func(c *gin.Context) {
+			id := c.Param("id")
+			url := fmt.Sprintf("%s/accounts/%s", config.StellarHorizon, id)
+			resp, err := http.Get(url)
+			if err != nil { c.JSON(http.StatusBadGateway, gin.H{"error":"horizon_unreachable"}); return }
+			defer resp.Body.Close()
+			body, _ := ioutil.ReadAll(resp.Body)
+			c.Data(resp.StatusCode, "application/json", body)
+		})
 	}
 
 	// Legacy routes for compatibility
