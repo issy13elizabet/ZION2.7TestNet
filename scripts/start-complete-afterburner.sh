@@ -1,8 +1,6 @@
 #!/bin/bash
-"""
-ZION Complete System Afterburner Launcher
-Launches unified CPU+GPU monitoring and control system
-"""
+# ZION Complete System Afterburner Launcher
+# Launches unified CPU+GPU monitoring and control system
 
 # Colors for output
 RED='\033[0;31m'
@@ -31,14 +29,20 @@ echo -e "${BLUE}📋 Checking system requirements...${NC}"
 python3 -c "import flask, psutil, requests" 2>/dev/null
 if [ $? -ne 0 ]; then
     echo -e "${YELLOW}📦 Installing Python dependencies...${NC}"
-    pip3 install flask psutil requests --user
+    # Try different installation methods
+    pip3 install flask psutil requests --user --break-system-packages 2>/dev/null || \
+    pip install flask psutil requests --user 2>/dev/null || \
+    python3 -m pip install flask psutil requests --user --break-system-packages 2>/dev/null || \
+    echo -e "${RED}⚠️ Python packages might be missing, continuing anyway...${NC}"
 fi
 
-# Check AMD GPU drivers
-lsmod | grep amdgpu >/dev/null
+# Check AMD GPU drivers (with fallback)
+lsmod | grep -E "amdgpu|radeon" >/dev/null
 if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ AMDGPU drivers not loaded! Install AMD drivers first.${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠️ AMD GPU drivers not detected, continuing with basic monitoring...${NC}"
+    # Don't exit - allow basic CPU monitoring to work
+else
+    echo -e "${GREEN}✅ AMD GPU drivers detected${NC}"
 fi
 
 # Check CPU frequency scaling
