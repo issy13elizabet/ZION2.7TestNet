@@ -75,7 +75,7 @@ class Tx:
 class Consensus:
     # Core timing and rewards (CryptoNote-compatible)
     BLOCK_TIME = 120  # 2 minutes (vs Monero 2min)
-    INITIAL_REWARD = 333_000000  # atomic units (333 ZION)
+    INITIAL_REWARD = 342_857_142_857  # atomic units (342,857 ZION) - FOR 144 BILLION TOTAL
     MIN_DIFF = 1
     WINDOW = 12  # adjustment window
     MAX_ADJUST_FACTOR = 4.0  # clamp sudden jumps
@@ -167,7 +167,7 @@ class Blockchain:
         # UTXO set: key (txid, vout_index) -> { 'address': str, 'amount': int }
         self.utxos: Dict[tuple, Dict[str, Any]] = {}
         self.current_difficulty = Consensus.MIN_DIFF
-        self.genesis_address = "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1"
+        self.genesis_address = "Z359Sdk6srUZvpAz653xcwsPMFUeew3f6Johmw5apsvMH4uaGY3864q24n9EfiWMUjaGihT7wzkXAr75HiPCbnaQq6"  # MAIN_GENESIS from 2.6.75
         
         # Data persistence setup
         if data_dir is None:
