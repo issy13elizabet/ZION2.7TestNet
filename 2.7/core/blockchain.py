@@ -304,7 +304,7 @@ class Blockchain:
         self._all_blocks[blk.hash] = blk
         self._children.setdefault(blk.prev_hash, []).append(blk.hash)
         if extending_tip:
-            blk.height = self.height()
+            blk.height = self.height
             self.blocks.append(blk)
             self._hash_index[blk.hash] = blk.height
             self._persist_block(blk)
@@ -315,28 +315,35 @@ class Blockchain:
         branch = self._build_branch_to_genesis(blk)
         if branch is None:
             return
-        # branch length counts genesis + side blocks; canonical length is self.height()
-        if len(branch) <= self.height():
+        # branch length counts genesis + side blocks; canonical length is self.height
+        if len(branch) <= self.height:
             return  # not strictly longer
         self._adopt_branch(branch)
 
     def _autosave_loop(self):
-        last_height = self.height()
+        last_height = self.height
         while True:
             time.sleep(self._autosave_interval)
             with self._lock:
-                if self.height() != last_height:
+                if self.height != last_height:
                     # persist only new blocks
                     for blk in self.blocks[last_height:]:
                         self._persist_block(blk)
-                    last_height = self.height()
+                    last_height = self.height
 
     # ---- Accessors ----
+    @property
     def height(self) -> int:
         return len(self.blocks)
 
     def last_block(self) -> Block:
         return self.blocks[-1]
+    
+    def get_last_blocks(self, count: int) -> List[Block]:
+        """Get the last N blocks from the chain"""
+        if count <= 0:
+            return []
+        return self.blocks[-count:]
 
     # ---- Transactions ----
     def add_tx(self, tx: Tx) -> bool:
@@ -360,7 +367,7 @@ class Blockchain:
     # ---- Mining Template ----
     def create_block_template(self, miner_address: str) -> Dict[str, Any]:
         t0 = time.perf_counter()
-        height = self.height()
+        height = self.height
         last_block = self.last_block()
         reward = Consensus.reward(height)
         timestamp = int(time.time())
@@ -444,7 +451,7 @@ class Blockchain:
         - Height in side branch blocks is treated as placeholder; recomputed on adoption.
         """
         t0 = time.perf_counter()
-        expected_height = self.height()
+        expected_height = self.height
         parent_hash = mined['prev_hash']
         extending_tip = (parent_hash == self.last_block().hash and mined['height'] == expected_height)
         if extending_tip and mined['height'] != expected_height:
@@ -467,7 +474,7 @@ class Blockchain:
             self._register_block_and_maybe_reorg(blk, extending_tip)
             if blk.hash not in self._all_blocks:
                 accepted = False
-            if blk.hash in self._hash_index and self._hash_index[blk.hash] == self.height()-1:
+            if blk.hash in self._hash_index and self._hash_index[blk.hash] == self.height-1:
                 for t in blk.txs:
                     if t.get('type') != 'coinbase':
                         self.mempool.pop(t['txid'], None)
@@ -499,7 +506,7 @@ class Blockchain:
                 return False
             # Coinbase maturity check if maturity metadata present
             maturity = utxo.get('maturity')
-            if maturity is not None and self.height() <= maturity:
+            if maturity is not None and self.height <= maturity:
                 return False
             total_in += utxo['amount']
         total_out = sum(o['amount'] for o in tx.get('outputs', []))
@@ -524,7 +531,7 @@ class Blockchain:
 
     # ---- Difficulty ----
     def _recalculate_difficulty(self):
-        if self.height() < 2:
+        if self.height < 2:
             return
         window = self.blocks[-Consensus.WINDOW:]
         if len(window) < 2:
@@ -561,7 +568,7 @@ class Blockchain:
         
         return {
             # Basic blockchain info
-            'height': self.height(),
+            'height': self.height,
             'last_hash': lb.hash,
             'difficulty': self.current_difficulty,
             'target_hex': f"{current_target:064x}",
@@ -576,7 +583,7 @@ class Blockchain:
             # Network and mining info
             'network_hashrate': self.network_hashrate,
             'network_type': self.network_type,
-            'block_reward': Consensus.reward(self.height()),
+            'block_reward': Consensus.reward(self.height),
             'next_difficulty': self.current_difficulty,  # Would be calculated for next block
             
             # Node info (2.6.75 compatibility)
