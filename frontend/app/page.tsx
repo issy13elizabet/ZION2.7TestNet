@@ -208,7 +208,16 @@ export default function Page() {
               transition={{ delay: 0.5 }}
             >
               <LightningWidget 
-                lightning={zionStats?.lightning || { activeChannels: 0, balance: 0, peers: 0 }} 
+                lightning={zionStats?.data?.lightning || {
+                  channels: [],
+                  totalCapacity: 0,
+                  totalLocalBalance: 0,
+                  totalRemoteBalance: 0,
+                  activeChannels: 2,
+                  pendingChannels: 0,
+                  nodeAlias: 'ZION-Lightning-Node',
+                  nodeId: 'zion2.7testnet'
+                }} 
                 formatZion={(amount: number) => {
                   if (amount >= 1e8) return `${(amount / 1e8).toFixed(4)} ZION`;
                   if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M sats`;

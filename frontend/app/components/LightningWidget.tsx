@@ -23,11 +23,22 @@ interface LightningStats {
 }
 
 interface Props {
-  lightning: LightningStats;
+  lightning?: LightningStats;
   formatZion: (amount: number) => string;
 }
 
 export default function LightningWidget({ lightning, formatZion }: Props) {
+  // Safe access with fallback data
+  const lightningData = lightning || {
+    channels: [],
+    totalCapacity: 0,
+    totalLocalBalance: 0,
+    totalRemoteBalance: 0,
+    activeChannels: 0,
+    pendingChannels: 0,
+    nodeAlias: 'ZION-Lightning-Node',
+    nodeId: 'zion2.7testnet'
+  };
   const getChannelHealthColor = (localBalance: number, capacity: number): string => {
     const ratio = localBalance / capacity;
     if (ratio > 0.7) return 'text-green-400';
@@ -57,11 +68,11 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
         <div className="bg-blue-900/20 rounded-lg p-3">
           <div className="text-gray-300 text-sm mb-1">Node Alias</div>
           <div className="text-blue-400 font-semibold mb-2">
-            {lightning.nodeAlias || 'ZION-NODE'}
+            {lightningData.nodeAlias || 'ZION-NODE'}
           </div>
           <div className="text-gray-300 text-sm mb-1">Node ID</div>
           <div className="text-gray-400 font-mono text-xs break-all">
-            {lightning.nodeId || '02...'}
+            {lightningData.nodeId || '02...'}
           </div>
         </div>
 
@@ -72,21 +83,21 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
               <div className="text-gray-300 text-sm">Total Capacity</div>
               <motion.div 
                 className="text-blue-400 font-mono text-lg"
-                key={lightning.totalCapacity}
+                key={lightningData.totalCapacity}
                 initial={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                {formatCapacity(lightning.totalCapacity)}
+                {formatCapacity(lightningData.totalCapacity)}
               </motion.div>
             </div>
             <div>
               <div className="text-gray-300 text-sm">Active Channels</div>
               <div className="text-green-400 font-mono text-lg">
-                {lightning.activeChannels}
-                {lightning.pendingChannels > 0 && (
+                {lightningData.activeChannels}
+                {lightningData.pendingChannels > 0 && (
                   <span className="text-yellow-400 text-sm ml-2">
-                    (+{lightning.pendingChannels} pending)
+                    (+{lightningData.pendingChannels} pending)
                   </span>
                 )}
               </div>
@@ -99,8 +110,8 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
           <div className="flex justify-between items-center mb-2">
             <span className="text-gray-300 text-sm">Channel Balances</span>
             <span className="text-blue-400 text-sm">
-              {lightning.totalLocalBalance > 0 ? 
-                `${((lightning.totalLocalBalance / lightning.totalCapacity) * 100).toFixed(1)}% local` : 
+              {lightningData.totalLocalBalance > 0 ? 
+                `${((lightningData.totalLocalBalance / lightningData.totalCapacity) * 100).toFixed(1)}% local` : 
                 'No balance'
               }
             </span>
@@ -110,31 +121,31 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
               className="bg-gradient-to-r from-green-500 to-green-400 h-3 rounded-full"
               initial={{ width: 0 }}
               animate={{ 
-                width: `${lightning.totalCapacity > 0 ? 
-                  (lightning.totalLocalBalance / lightning.totalCapacity) * 100 : 0}%` 
+                width: `${lightningData.totalCapacity > 0 ? 
+                  (lightningData.totalLocalBalance / lightningData.totalCapacity) * 100 : 0}%` 
               }}
               transition={{ duration: 1 }}
             />
             <motion.div
               className="bg-gradient-to-r from-blue-500 to-blue-400 h-3 rounded-full absolute top-0"
               style={{ 
-                left: `${lightning.totalCapacity > 0 ? 
-                  (lightning.totalLocalBalance / lightning.totalCapacity) * 100 : 0}%` 
+                left: `${lightningData.totalCapacity > 0 ? 
+                  (lightningData.totalLocalBalance / lightningData.totalCapacity) * 100 : 0}%` 
               }}
               initial={{ width: 0 }}
               animate={{ 
-                width: `${lightning.totalCapacity > 0 ? 
-                  (lightning.totalRemoteBalance / lightning.totalCapacity) * 100 : 0}%` 
+                width: `${lightningData.totalCapacity > 0 ? 
+                  (lightningData.totalRemoteBalance / lightningData.totalCapacity) * 100 : 0}%` 
               }}
               transition={{ duration: 1, delay: 0.2 }}
             />
           </div>
           <div className="flex justify-between text-xs mt-1">
             <span className="text-green-400">
-              Local: {formatCapacity(lightning.totalLocalBalance)}
+              Local: {formatCapacity(lightningData.totalLocalBalance)}
             </span>
             <span className="text-blue-400">
-              Remote: {formatCapacity(lightning.totalRemoteBalance)}
+              Remote: {formatCapacity(lightningData.totalRemoteBalance)}
             </span>
           </div>
         </div>
@@ -142,9 +153,9 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
         {/* Channels List */}
         <div className="space-y-2">
           <div className="text-gray-300 text-sm font-medium">Channels</div>
-          {lightning.channels.length > 0 ? (
+          {lightningData.channels.length > 0 ? (
             <div className="max-h-48 overflow-y-auto space-y-2">
-              {lightning.channels.slice(0, 5).map((channel, index) => (
+              {lightningData.channels.slice(0, 5).map((channel, index) => (
                 <motion.div
                   key={channel.id}
                   className="bg-blue-900/20 rounded-lg p-3"
@@ -187,9 +198,9 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
                 </motion.div>
               ))}
               
-              {lightning.channels.length > 5 && (
+              {lightningData.channels.length > 5 && (
                 <div className="text-center text-gray-400 text-sm py-2">
-                  +{lightning.channels.length - 5} more channels
+                  +{lightningData.channels.length - 5} more channels
                 </div>
               )}
             </div>
@@ -208,7 +219,7 @@ export default function LightningWidget({ lightning, formatZion }: Props) {
           <div className="flex justify-between items-center">
             <span className="text-gray-300">Lightning Status</span>
             <div className="flex items-center gap-2">
-              {lightning.activeChannels > 0 ? (
+              {lightningData.activeChannels > 0 ? (
                 <>
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-green-400 text-sm">Online</span>
