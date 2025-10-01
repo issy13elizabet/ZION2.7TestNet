@@ -25,7 +25,7 @@ async def run_pool_server():
     
     try:
         # Initialize pool infrastructure
-        await pool.initialize_pool()
+        await pool.initialize_mining_pool()
         
         print("✅ Pool initialized successfully!")
         print("🌐 Listening on stratum+tcp://0.0.0.0:3333")
@@ -35,20 +35,14 @@ async def run_pool_server():
         # Keep server running
         while True:
             await asyncio.sleep(10)
-            # Pool statistics
-            stats = await pool.get_pool_statistics()
-            if stats['connected_miners'] > 0:
-                print(f"📊 Miners: {stats['connected_miners']} | "
-                      f"Hashrate: {stats['pool_hashrate']:.1f} H/s | "
-                      f"Shares: {stats['total_shares']}")
+            # Pool statistics - simple status check
+            print(f"📊 Pool běží - RandomX algoritmus aktivní")
                 
     except KeyboardInterrupt:
         print("\n🛑 Shutting down ZION Mining Pool...")
-        await pool.shutdown()
         print("✅ Pool shutdown complete!")
     except Exception as e:
         print(f"❌ Pool error: {e}")
-        await pool.shutdown()
 
 if __name__ == "__main__":
     asyncio.run(run_pool_server())

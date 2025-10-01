@@ -1,0 +1,26 @@
+{
+  "timestamp": 1727810000,
+  "cpu": {
+    "temperature": 45,
+    "usage": 37.1,
+    "frequency": 4137
+  },
+  "memory": {
+    "percent": 36.0,
+    "used_gb": 10.9,
+    "total_gb": 30.2
+  },
+  "system": {
+    "estimated_power": 165,
+    "load": [11.19, 11.19, 11.19],
+    "status": "Active"
+  },
+  "mining": {
+    "hashrate_display": "45.39 MH/s",
+    "current_hashrate": 45390000,
+    "status": "Cosmic Harmony Active", 
+    "dharma_bonus": "1.618",
+    "consciousness_multiplier": "∞",
+    "algorithm": "ZION Cosmic Harmony"
+  }
+}
