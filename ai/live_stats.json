@@ -1,0 +1,38 @@
+{
+  "timestamp": "2025-10-01T02:38:01.417992",
+  "cpu": {
+    "model": "AMD Ryzen 5 3600 6-Core Processor",
+    "temperature": 45,
+    "usage": 25.0,
+    "frequency": 4000,
+    "governor": "performance",
+    "cores": 6,
+    "threads": 12
+  },
+  "memory": {
+    "percent": 35.0,
+    "used_gb": 10.0,
+    "total_gb": 30.2
+  },
+  "system": {
+    "load": [
+      1.2,
+      2.1,
+      2.8
+    ],
+    "estimated_power": 125,
+    "status": "\u2744\ufe0f COOL - Can push harder"
+  },
+  "mining": {
+    "algorithm": "cosmic_harmony",
+    "hashrate_hs": 45390000,
+    "hashrate_display": "45.39 MH/s",
+    "shares_found": 3,
+    "dharma_bonus": 8.0,
+    "consciousness_multiplier": 13.0,
+    "cosmic_efficiency": 100.0,
+    "sacred_frequency": 432.0,
+    "status": "ACTIVE",
+    "miner": "ZION AI Miner 1.4"
+  }
+}
