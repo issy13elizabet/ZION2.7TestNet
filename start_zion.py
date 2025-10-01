@@ -43,8 +43,8 @@ def get_current_hashrate():
             
             # Detect našich ZION minerů
             if any(keyword in cmdline for keyword in [
-                'zion_final_6k', 'zion_stable_6k', 'zion_golden_perfect',
-                'zion_ai_miner', 'zion/mining'
+                'zion_perfect_memory_miner', 'zion_final_6k', 'zion_stable_6k', 
+                'zion_golden_perfect', 'zion_ai_miner', 'zion/mining'
             ]):
                 zion_miners += 1
                 try:
@@ -133,32 +133,18 @@ async def start_afterburner_stack():
             'python3', '-m', 'http.server', '8080'
         ], cwd='/media/maitreya/ZION1')
         
-        # 5. Start NÁŠ VYTUNĚNÝ AI MINER (75% load target)
-        print("🏆 Starting NÁŠ VYTUNĚNÝ ZION AI MINER - 6K+ optimized!")
+        # 5. Start NÁŠ PERFEKTNÍ AI MINER (Server Optimized Edition!)
+        print("🏆 Starting ZION PERFECT MEMORY MINER - Server Optimized!")
+        print("⚡ Using XMRig VirtualMemory patterns - RandomX cache WORKS!")
+        print("🎯 Server-friendly: 50% CPU target, 8 threads, 3500 H/s")
         
-        # Start náš final 6K miner s plným výkonem
-        print("⚡ Launching ZION Final 6K Miner (12-thread sweet spot)...")
+        # Start náš nový perfektný miner s working memory allocation
+        print("🌟 Launching ZION Perfect Memory Miner v3.0 (Server Mode)...")
         subprocess.Popen([
-            'python3', 'zion/mining/zion_final_6k_12thread.py'
+            'sudo', 'python3', 'ai/zion_perfect_memory_miner.py'
         ], cwd='/media/maitreya/ZION1')
         
-        # Start stable 6K miner jako backup
-        print("💎 Starting ZION Stable 6K Miner backup...")
-        subprocess.Popen([
-            'python3', 'zion/mining/zion_stable_6k_miner.py'
-        ], cwd='/media/maitreya/ZION1')
-        
-        # Start golden perfect miner pro maximum výkon
-        print("🥇 Starting Golden Perfect 6500 Miner...")
-        subprocess.Popen([
-            'python3', 'zion/mining/zion_golden_perfect_6500.py'
-        ], cwd='/media/maitreya/ZION1')
-        
-        # Also start AI Miner integration
-        print("🤖 Starting ZION AI Miner 1.4 Integration...")
-        subprocess.Popen([
-            'python3', 'zion_ai_miner_14_integration.py'
-        ], cwd='/media/maitreya/ZION1')
+        print("✅ SERVER-OPTIMIZED MINER STARTED - 50% CPU target!")
         
         # Wait for services to start
         await asyncio.sleep(3)

@@ -1,0 +1,1 @@
+{"height": 2, "prev_hash": "0b0ee801895baf00fdac572b588516c0e94aa70e85da3a63f32ee8f3e5800aa1", "timestamp": 1759344357, "merkle_root": "side1", "difficulty": 1, "nonce": 14823, "txs": [{"txid": "sb1", "inputs": [], "outputs": [], "fee": 0}], "hash": "57df15264ed28fb42f84825ab383fb4e1e903a6eb2e4ada156f5b86b6bb435f3"}

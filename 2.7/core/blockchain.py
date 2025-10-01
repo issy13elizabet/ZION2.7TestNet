@@ -18,6 +18,12 @@ class Block:
     nonce: int
     txs: List[Dict[str, Any]] = field(default_factory=list)
     hash: Optional[str] = None
+    # Enhanced CryptoNote-compatible features from 2.6.75
+    major_version: int = 7  # ZION protocol version
+    minor_version: int = 0
+    base_reward: Optional[int] = None  # Calculated coinbase reward
+    block_size: int = 0  # Block size in bytes
+    cumulative_difficulty: int = 0  # Total chain work
 
     def calc_hash(self) -> str:
         # Height intentionally excluded from hash so reorg height reassignment
@@ -45,6 +51,13 @@ class Tx:
     outputs: List[Dict[str, Any]]
     fee: int
     timestamp: int
+    # Enhanced features from 2.6.75
+    version: int = 1  # Transaction version
+    unlock_time: int = 0  # CryptoNote unlock time
+    extra: bytes = b''  # Extra data field
+    signatures: List[str] = field(default_factory=list)  # Ring signatures
+    tx_size: int = 0  # Transaction size in bytes
+    ring_size: int = 1  # Ring signature participants
 
     @staticmethod
     def create(inputs, outputs, fee: int) -> 'Tx':
@@ -60,14 +73,32 @@ class Tx:
 
 # ---- Consensus ----
 class Consensus:
-    BLOCK_TIME = 120
-    INITIAL_REWARD = 333_000000  # atomic units
+    # Core timing and rewards (CryptoNote-compatible)
+    BLOCK_TIME = 120  # 2 minutes (vs Monero 2min)
+    INITIAL_REWARD = 333_000000  # atomic units (333 ZION)
     MIN_DIFF = 1
     WINDOW = 12  # adjustment window
     MAX_ADJUST_FACTOR = 4.0  # clamp sudden jumps
-    # Simplified max target (roughly 12 leading zero bits) for early testnet experimentation
     MAX_TARGET = int('000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16)
     COINBASE_MATURITY = 10  # blocks before coinbase spendable
+    
+    # Enhanced CryptoNote-compatible parameters from 2.6.75
+    MAX_SUPPLY = 144_000_000_000000000000  # 144 billion ZION in atomic units
+    HALVING_INTERVAL = 210_000  # Blocks between halvings (like Bitcoin)
+    DIFFICULTY_BLOCKS_COUNT = 17  # CryptoNote standard
+    DIFFICULTY_CUT = 6  # Remove outliers
+    DIFFICULTY_LAG = 15  # Blocks to look back
+    
+    # Transaction limits
+    MAX_BLOCK_SIZE = 500000  # 500KB max block size
+    MAX_TX_SIZE = 300000  # 300KB max transaction size
+    MIN_FEE = 1000  # Minimum transaction fee (atomic units)
+    FEE_QUANTIZATION_MASK = 10000  # Fee quantization
+    
+    # Ring signature parameters
+    DEFAULT_RING_SIZE = 11  # Default mixin count + 1
+    MIN_RING_SIZE = 1  # Minimum ring size
+    MAX_RING_SIZE = 16  # Maximum ring size
 
     @staticmethod
     def difficulty_to_target(difficulty: int) -> int:
@@ -77,8 +108,53 @@ class Consensus:
 
     @staticmethod
     def reward(height: int) -> int:
-        # later halving logic
-        return Consensus.INITIAL_REWARD
+        """Calculate block reward with halving (from 2.6.75)"""
+        if height == 0:
+            return Consensus.INITIAL_REWARD
+        
+        # Calculate halvings
+        halvings = height // Consensus.HALVING_INTERVAL
+        reward = Consensus.INITIAL_REWARD
+        
+        # Apply halvings (Bitcoin-style)
+        for _ in range(halvings):
+            reward //= 2
+            if reward < 1000:  # Minimum 0.001 ZION
+                reward = 1000
+                break
+                
+        return reward
+    
+    @staticmethod
+    def next_difficulty(timestamps: List[int], cumulative_difficulties: List[int]) -> int:
+        """CryptoNote difficulty algorithm (enhanced from 2.6.75)"""
+        if len(timestamps) <= 1:
+            return Consensus.MIN_DIFF
+            
+        # Use simple algorithm for now, can upgrade to full CryptoNote later
+        length = min(len(timestamps), Consensus.WINDOW)
+        if length < 2:
+            return Consensus.MIN_DIFF
+            
+        time_span = timestamps[-1] - timestamps[-length]
+        blocks_solved = length - 1
+        
+        if blocks_solved <= 0 or time_span <= 0:
+            return cumulative_difficulties[-1] if cumulative_difficulties else Consensus.MIN_DIFF
+            
+        actual_per_block = time_span / blocks_solved
+        ratio = actual_per_block / Consensus.BLOCK_TIME
+        
+        # Clamp adjustment
+        ratio = max(1.0/Consensus.MAX_ADJUST_FACTOR, min(Consensus.MAX_ADJUST_FACTOR, ratio))
+        
+        current_diff = cumulative_difficulties[-1] if cumulative_difficulties else Consensus.MIN_DIFF
+        if ratio > 1.0:
+            new_diff = max(Consensus.MIN_DIFF, int(current_diff / ratio))
+        else:
+            new_diff = max(Consensus.MIN_DIFF, int(current_diff * (1/ratio)))
+            
+        return new_diff
 
 # ---- Core Blockchain ----
 class Blockchain:
@@ -101,6 +177,21 @@ class Blockchain:
         # Reorg support structures
         self._all_blocks: Dict[str, Block] = {}
         self._children: Dict[str, List[str]] = {}
+        
+        # Enhanced features from 2.6.75
+        self.cumulative_difficulty = 0  # Total chain work
+        self.total_txs = 0  # Total transaction count
+        self.network_hashrate = 0  # Estimated network hashrate
+        self._difficulty_timestamps: List[int] = []  # For CryptoNote difficulty calc
+        self._difficulty_cumulative: List[int] = []  # Cumulative difficulties
+        
+        # Performance and monitoring (from 2.6.75)
+        self.version = "2.7-real"  # Version identifier
+        self.network_type = "testnet"  # Network type
+        self.start_time = int(time.time())  # Node start time
+        self._perf_block_validation_ms = 0.0  # Block validation time
+        self._perf_tx_validation_ms = 0.0  # Transaction validation time
+        
         # Genesis creation
         self._create_genesis()
         # Autosave
@@ -110,23 +201,47 @@ class Blockchain:
 
     # ---- Reorg / Branch Handling ----
     def _create_genesis(self):
+        genesis_timestamp = int(time.time())
+        genesis_reward = Consensus.reward(0)
+        
         genesis = Block(
             height=0,
             prev_hash='0'*64,
-            timestamp=int(time.time()),
+            timestamp=genesis_timestamp,
             merkle_root='genesis',
             difficulty=Consensus.MIN_DIFF,
             nonce=0,
+            # Enhanced genesis transaction with 2.6.75 features
             txs=[{
                 'txid': 'genesis',
                 'type': 'coinbase',
-                'outputs': [{'address': self.genesis_address, 'amount': Consensus.reward(0)}]
-            }]
+                'version': 1,
+                'unlock_time': 0,
+                'inputs': [],  # Coinbase has no inputs
+                'outputs': [{'address': self.genesis_address, 'amount': genesis_reward}],
+                'extra': 'ZION 2.7 Genesis - Real Blockchain without simulations',
+                'signatures': [],
+                'ring_size': 1
+            }],
+            # Enhanced block features from 2.6.75
+            major_version=7,
+            minor_version=0,
+            base_reward=genesis_reward,
+            cumulative_difficulty=Consensus.MIN_DIFF
         )
         genesis.seal()
+        
+        # Initialize chain state
         self.blocks.append(genesis)
         self._hash_index[genesis.hash] = 0
         self._all_blocks[genesis.hash] = genesis
+        self.cumulative_difficulty = Consensus.MIN_DIFF
+        self.total_txs = 1  # Genesis coinbase transaction
+        
+        # Initialize difficulty calculation arrays
+        self._difficulty_timestamps = [genesis_timestamp]
+        self._difficulty_cumulative = [Consensus.MIN_DIFF]
+        
         self._persist_block(genesis)
         self._apply_block_utxos(genesis)
 
@@ -246,32 +361,77 @@ class Blockchain:
     def create_block_template(self, miner_address: str) -> Dict[str, Any]:
         t0 = time.perf_counter()
         height = self.height()
+        last_block = self.last_block()
         reward = Consensus.reward(height)
+        timestamp = int(time.time())
+        
+        # Calculate total fees from selected transactions
+        ordered = sorted(self.mempool.values(), key=lambda t: t.fee, reverse=True)[:100]  # Max 100 txs per block
+        total_fees = sum(tx.fee for tx in ordered)
+        
+        # Enhanced coinbase transaction with 2.6.75 features
         coinbase = {
-            'txid': f'cb_{height}_{int(time.time())}',
+            'txid': f'cb_{height}_{timestamp}',
             'type': 'coinbase',
-            'outputs': [{'address': miner_address, 'amount': reward}],
+            'version': 1,
+            'unlock_time': 0,  # Coinbase unlocks after maturity blocks
+            'inputs': [],  # Coinbase has no inputs
+            'outputs': [{'address': miner_address, 'amount': reward + total_fees}],
+            'extra': f'ZION 2.7 Block {height} - Real mining',
+            'signatures': [],
+            'ring_size': 1,
+            'fee': 0  # Coinbase has no fee
         }
-        ordered = sorted(self.mempool.values(), key=lambda t: t.fee, reverse=True)
+        
+        # Add mempool transactions with enhanced structure
         txs = [coinbase] + [
             {
                 'txid': tx.txid,
+                'version': tx.version,
+                'unlock_time': tx.unlock_time,
                 'inputs': tx.inputs,
                 'outputs': tx.outputs,
+                'extra': tx.extra,
+                'signatures': tx.signatures,
+                'ring_size': tx.ring_size,
                 'fee': tx.fee
             } for tx in ordered
         ]
-        merkle_root = hashlib.sha256(json.dumps([t['txid'] for t in txs]).encode()).hexdigest()
+        
+        # Calculate merkle root and block size
+        merkle_root = hashlib.sha256(json.dumps([t['txid'] for t in txs], sort_keys=True).encode()).hexdigest()
+        estimated_block_size = len(json.dumps(txs).encode())
+        
+        # Enhanced difficulty and target calculation
         target_int = Consensus.difficulty_to_target(self.current_difficulty)
+        cumulative_difficulty = self.cumulative_difficulty + self.current_difficulty
+        
         self._perf_last_template_ms = (time.perf_counter() - t0) * 1000.0
+        
         return {
+            # Basic block template
             'height': height,
-            'prev_hash': self.last_block().hash,
+            'prev_hash': last_block.hash,
+            'timestamp': timestamp,
             'difficulty': self.current_difficulty,
             'merkle_root': merkle_root,
             'txs': txs,
             'target': target_int,
-            'target_hex': f"{target_int:064x}"
+            'target_hex': f"{target_int:064x}",
+            
+            # Enhanced features from 2.6.75
+            'major_version': 7,
+            'minor_version': 0,
+            'base_reward': reward,
+            'total_fees': total_fees,
+            'tx_count': len(txs),
+            'block_size_limit': Consensus.MAX_BLOCK_SIZE,
+            'estimated_block_size': estimated_block_size,
+            'cumulative_difficulty': cumulative_difficulty,
+            
+            # Mining information
+            'seed_hash': last_block.hash[:32],  # For RandomX seed
+            'next_seed_hash': hashlib.sha256((last_block.hash + str(height)).encode()).hexdigest()[:32]
         }
 
     # ---- Submit Mined Block ----
@@ -386,19 +546,67 @@ class Blockchain:
 
 
     def info(self) -> Dict[str, Any]:
+        """Get comprehensive blockchain info (CryptoNote-compatible from 2.6.75)"""
         lb = self.last_block()
         current_target = Consensus.difficulty_to_target(self.current_difficulty)
+        uptime = int(time.time()) - self.start_time
+        
+        # Estimate network hashrate (blocks per target time * difficulty)
+        blocks_in_window = min(len(self.blocks), 10)
+        if blocks_in_window >= 2:
+            time_window = lb.timestamp - self.blocks[-blocks_in_window].timestamp
+            if time_window > 0:
+                blocks_per_second = (blocks_in_window - 1) / time_window
+                self.network_hashrate = int(blocks_per_second * self.current_difficulty)
+        
         return {
+            # Basic blockchain info
             'height': self.height(),
             'last_hash': lb.hash,
             'difficulty': self.current_difficulty,
             'target_hex': f"{current_target:064x}",
+            'cumulative_difficulty': self.cumulative_difficulty,
+            
+            # Transaction and memory info
             'tx_pool': len(self.mempool),
+            'tx_pool_size': len(self.mempool),  # CryptoNote compatibility
+            'total_txs': self.total_txs,
             'utxos': len(self.utxos),
+            
+            # Network and mining info
+            'network_hashrate': self.network_hashrate,
+            'network_type': self.network_type,
+            'block_reward': Consensus.reward(self.height()),
+            'next_difficulty': self.current_difficulty,  # Would be calculated for next block
+            
+            # Node info (2.6.75 compatibility)
+            'version': self.version,
+            'status': 'OK',
+            'uptime': uptime,
+            'start_time': self.start_time,
+            
+            # Performance metrics
             'perf_last_template_ms': round(self._perf_last_template_ms, 3),
             'perf_last_block_apply_ms': round(self._perf_last_block_apply_ms, 3),
-            'version': '2.7-testnet',
-            'p2p': False,  # placeholder until node integration sets
+            'perf_block_validation_ms': round(self._perf_block_validation_ms, 3),
+            'perf_tx_validation_ms': round(self._perf_tx_validation_ms, 3),
+            
+            # Protocol info
+            'major_version': 7,
+            'minor_version': 0,
+            'max_block_size': Consensus.MAX_BLOCK_SIZE,
+            'max_tx_size': Consensus.MAX_TX_SIZE,
+            'min_fee': Consensus.MIN_FEE,
+            
+            # Integration status
+            'p2p': False,  # Will be True when P2P integration complete
+            'rpc': False,  # Will be True when RPC server integration complete
+            'wallet': False,  # Will be True when wallet integration complete
+            
+            # Chain timing
+            'block_time_target': Consensus.BLOCK_TIME,
+            'last_block_timestamp': lb.timestamp,
+            'genesis_timestamp': self.blocks[0].timestamp if self.blocks else None
         }
 
 if __name__ == '__main__':
