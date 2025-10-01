@@ -48,6 +48,9 @@ backups/
 *.key
 *.pem
 *.env
+
+# Old local data - keep local only
+ZION VOL 30.9/
 .env.local
 
 # Node modules (for frontend)

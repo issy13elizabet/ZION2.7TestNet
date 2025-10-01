@@ -1,0 +1,232 @@
+{
+  "test_suite": "ZION 2.7 AI Ecosystem Integration Test",
+  "timestamp": "2025-10-01T22:51:57.226914",
+  "duration_seconds": 88.096173,
+  "summary": {
+    "total_tests": 15,
+    "passed_tests": 12,
+    "failed_tests": 3,
+    "success_rate_percent": 80.0
+  },
+  "test_results": {
+    "ai_gpu_bridge_init": {
+      "status": "success",
+      "message": "AI-GPU Bridge initialized successfully",
+      "timestamp": "2025-10-01T22:50:29.387542"
+    },
+    "gpu_afterburner_init": {
+      "status": "success",
+      "message": "GPU Afterburner initialized successfully",
+      "timestamp": "2025-10-01T22:50:29.552806"
+    },
+    "bio_ai_init": {
+      "status": "success",
+      "message": "Bio-AI initialized successfully",
+      "timestamp": "2025-10-01T22:50:31.017904"
+    },
+    "perfect_memory_miner_init": {
+      "status": "success",
+      "message": "Perfect Memory Miner initialized successfully",
+      "timestamp": "2025-10-01T22:50:54.571107"
+    },
+    "dashboard_api_init": {
+      "status": "failed",
+      "message": "Dashboard API initialization failed: No module named 'flask_cors'",
+      "timestamp": "2025-10-01T22:50:54.684693"
+    },
+    "ai_bio_communication": {
+      "status": "success",
+      "message": "AI-Bio communication test passed",
+      "ai_stats_available": false,
+      "bio_stats_available": true,
+      "timestamp": "2025-10-01T22:50:54.684901"
+    },
+    "miner_ai_communication": {
+      "status": "success",
+      "message": "Miner-AI communication test passed",
+      "mining_stats_available": true,
+      "memory_info_available": true,
+      "timestamp": "2025-10-01T22:50:54.686192"
+    },
+    "dashboard_data_collection": {
+      "status": "failed",
+      "message": "Dashboard data collection test failed: Dashboard API not initialized",
+      "timestamp": "2025-10-01T22:50:54.686250"
+    },
+    "ai_mining_optimization": {
+      "status": "success",
+      "message": "AI-guided mining optimization scenario completed",
+      "scenario_results": {
+        "components_involved": [
+          "bio_ai",
+          "perfect_memory_miner",
+          "ai_gpu_bridge"
+        ],
+        "optimizations_applied": [
+          "genetic_algorithm_optimization",
+          "memory_optimization",
+          "gpu_acceleration"
+        ],
+        "performance_changes": {
+          "bio_ai_fitness": 0.19409472853398202,
+          "memory_utilization": 0.0009765625
+        }
+      },
+      "timestamp": "2025-10-01T22:51:42.195612"
+    },
+    "system_health_monitoring": {
+      "status": "success",
+      "message": "System health monitoring scenario completed",
+      "health_data": {
+        "monitoring_components": [
+          "bio_ai",
+          "perfect_memory_miner"
+        ],
+        "health_metrics": {
+          "bio_ai": {
+            "overall_health": 0.8,
+            "cpu_health": 0.8,
+            "gpu_health": 0.8,
+            "mining_efficiency": 0.8,
+            "neural_activity": 0.8,
+            "timestamp": "2025-10-01T22:51:31.531818"
+          },
+          "mining": {
+            "hashrate": 0.0,
+            "efficiency": 0.0
+          }
+        },
+        "alerts_generated": []
+      },
+      "timestamp": "2025-10-01T22:51:42.195833"
+    },
+    "adaptive_performance": {
+      "status": "success",
+      "message": "Adaptive performance scenario completed",
+      "performance_data": {
+        "baseline_performance": {
+          "cpu_percent": 3.3,
+          "memory_percent": 48.2
+        },
+        "adaptive_changes": [
+          "bio_ai_evolution"
+        ],
+        "performance_improvements": {
+          "cpu_change": -2.5,
+          "memory_change": 0.19999999999999574
+        }
+      },
+      "timestamp": "2025-10-01T22:51:47.075600"
+    },
+    "dashboard_files": {
+      "status": "success",
+      "message": "Dashboard files test completed",
+      "file_results": {
+        "dashboard.html": {
+          "exists": true,
+          "size_bytes": 29543,
+          "size_kb": 28.8505859375
+        },
+        "dashboard_api.py": {
+          "exists": true,
+          "size_bytes": 20031,
+          "size_kb": 19.5615234375
+        }
+      },
+      "timestamp": "2025-10-01T22:51:47.075873"
+    },
+    "dashboard_endpoints": {
+      "status": "failed",
+      "message": "Dashboard API endpoints test failed: Dashboard API not initialized",
+      "timestamp": "2025-10-01T22:51:47.075926"
+    },
+    "component_error_recovery": {
+      "status": "success",
+      "message": "Component error recovery test completed",
+      "recovery_results": {
+        "components_tested": [
+          "bio_ai",
+          "perfect_memory_miner"
+        ],
+        "recovery_mechanisms": [
+          "bio_ai_shutdown",
+          "perfect_memory_miner_cleanup"
+        ],
+        "cleanup_success": [
+          "bio_ai"
+        ]
+      },
+      "timestamp": "2025-10-01T22:51:57.179471"
+    },
+    "resource_cleanup": {
+      "status": "success",
+      "message": "Resource cleanup test completed",
+      "cleanup_results": {
+        "memory_before_cleanup": 47.9,
+        "cleanup_operations": [
+          "memory_info_available",
+          "garbage_collection"
+        ],
+        "memory_after_cleanup": 47.9
+      },
+      "timestamp": "2025-10-01T22:51:57.226730"
+    }
+  },
+  "performance_metrics": {
+    "initialization_times": {
+      "ai_gpu_bridge": 0.10922980308532715,
+      "gpu_afterburner": 0.003102540969848633,
+      "bio_ai": 0.9912142753601074,
+      "perfect_memory_miner": 20.44982624053955
+    },
+    "memory_usage": {
+      "initial_memory_mb": 412.28125,
+      "component_memory": {
+        "ai_gpu_bridge": "initialized",
+        "gpu_afterburner": "initialized",
+        "bio_ai": "initialized",
+        "perfect_memory_miner": 2048
+      },
+      "current_memory_mb": 412.28125,
+      "memory_increase_mb": 0.0
+    },
+    "cpu_usage": {
+      "average_cpu_percent": 2.45,
+      "max_cpu_percent": 11.8,
+      "min_cpu_percent": 0.9,
+      "samples": [
+        3.1,
+        11.8,
+        1.8,
+        1.1,
+        1.2,
+        1.0,
+        1.3,
+        0.9,
+        1.3,
+        1.0
+      ]
+    },
+    "ai_processing": {
+      "bio_ai_evolution_cycle": {
+        "duration_seconds": 0.6406726837158203,
+        "success": true
+      },
+      "pattern_stats_retrieval": {
+        "duration_seconds": 5.245208740234375e-06,
+        "patterns_count": 0
+      }
+    }
+  },
+  "error_logs": [
+    "Dashboard API initialization failed: No module named 'flask_cors'",
+    "Dashboard data collection test failed: Dashboard API not initialized",
+    "Dashboard API endpoints test failed: Dashboard API not initialized"
+  ],
+  "system_info": {
+    "cpu_count": 12,
+    "total_memory_gb": 30.227622985839844,
+    "python_version": "3.13.3 (main, Aug 14 2025, 11:53:40) [GCC 14.2.0]",
+    "platform": "linux"
+  }
+}
