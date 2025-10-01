@@ -168,15 +168,41 @@ class Blockchain:
         self.utxos: Dict[tuple, Dict[str, Any]] = {}
         self.current_difficulty = Consensus.MIN_DIFF
         self.genesis_address = "Z3BDEEC2A0AE0F5D81B034308F99ECD8990D9B8B01BD9C7E7429392CA31861C6220DA3B30D74E809FA0A1FE069F1"
-        self.data_dir = data_dir or os.path.join(os.path.dirname(__file__), '..', 'data', 'blocks')
-        self.data_dir = os.path.abspath(self.data_dir)
+        
+        # Data persistence setup
+        if data_dir is None:
+            data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+        self.data_dir = data_dir
         os.makedirs(self.data_dir, exist_ok=True)
-        self._lock = threading.RLock()
-        # O(1) hash -> height index for fast lookups & upcoming P2P sync
-        self._hash_index: Dict[str, int] = {}
-        # Reorg support structures
-        self._all_blocks: Dict[str, Block] = {}
-        self._children: Dict[str, List[str]] = {}
+        
+        # 🚀 AUTOMATIC OPTIMIZED STORAGE DETECTION
+        self.storage = None
+        self._use_optimized_storage = False
+        optimized_db_path = os.path.join(self.data_dir, 'optimized', 'blockchain.db')
+        
+        # Check if optimized storage exists or if we should create it
+        if os.path.exists(optimized_db_path) or len(self._get_legacy_blocks()) > 50:
+            try:
+                # Try to initialize optimized storage
+                import sys
+                sys.path.append(os.path.dirname(self.data_dir))
+                from optimize_storage import BlockchainStorageOptimizer
+                self.storage = BlockchainStorageOptimizer(self.data_dir)
+                self._use_optimized_storage = True
+                print(f"✅ Using optimized storage: {optimized_db_path}")
+                
+                # Auto-migrate if we have legacy blocks but no optimized storage yet
+                if not os.path.exists(optimized_db_path):
+                    legacy_count = len(self._get_legacy_blocks())
+                    if legacy_count > 0:
+                        print(f"🔄 Auto-migrating {legacy_count} legacy blocks to optimized storage...")
+                        self._auto_migrate_legacy_blocks()
+                        
+            except ImportError:
+                print("⚠️ Optimized storage not available, using legacy JSON files")
+                self._use_optimized_storage = False
+        else:
+            print("📁 Using legacy JSON storage (will auto-upgrade at 50+ blocks)")
         
         # Enhanced features from 2.6.75
         self.cumulative_difficulty = 0  # Total chain work
@@ -191,6 +217,11 @@ class Blockchain:
         self.start_time = int(time.time())  # Node start time
         self._perf_block_validation_ms = 0.0  # Block validation time
         self._perf_tx_validation_ms = 0.0  # Transaction validation time
+        
+        # Legacy compatibility indices (kept for backward compatibility)
+        self._hash_index = {}  # hash -> height
+        self._height_index = {}  # height -> Block
+        self._all_blocks = {}  # hash -> Block (full block storage)
         
         # Genesis creation
         self._create_genesis()
@@ -245,21 +276,82 @@ class Blockchain:
         self._persist_block(genesis)
         self._apply_block_utxos(genesis)
 
+    # ---------------- Storage Helper Methods ----------------
+    def _get_legacy_blocks(self) -> List[str]:
+        """Get list of legacy JSON block files"""
+        blocks_dir = os.path.join(self.data_dir, "blocks")
+        if not os.path.exists(blocks_dir):
+            return []
+        return [f for f in os.listdir(blocks_dir) if f.endswith('.json')]
+    
+    def _auto_migrate_legacy_blocks(self):
+        """Auto-migrate legacy blocks to optimized storage"""
+        if not self.storage:
+            return
+            
+        blocks_dir = os.path.join(self.data_dir, "blocks")
+        if not os.path.exists(blocks_dir):
+            return
+            
+        legacy_files = sorted(self._get_legacy_blocks())
+        migrated_count = 0
+        
+        for filename in legacy_files:
+            try:
+                filepath = os.path.join(blocks_dir, filename)
+                with open(filepath, 'r') as f:
+                    block_data = json.load(f)
+                
+                # Add to optimized storage
+                self.storage.add_block_to_batch(block_data)
+                migrated_count += 1
+                
+                if migrated_count % 10 == 0:
+                    print(f"   Migrated {migrated_count}/{len(legacy_files)} blocks...")
+                    
+            except Exception as e:
+                print(f"   ⚠️ Failed to migrate {filename}: {e}")
+        
+        if migrated_count > 0:
+            print(f"✅ Successfully migrated {migrated_count} blocks to optimized storage")
+            print(f"💾 Storage reduction: {migrated_count} files → 1 batch file + SQLite")
+
     # ---------------- Internal Helpers (Persistence / UTXO) ----------------
     def _persist_block(self, blk: Block):
-        path = os.path.join(self.data_dir, f"{blk.height:08d}_{blk.hash}.json")
-        if not os.path.exists(path):
+        block_data = {
+            'height': blk.height,
+            'prev_hash': blk.prev_hash,
+            'timestamp': blk.timestamp,
+            'merkle_root': blk.merkle_root,
+            'difficulty': blk.difficulty,
+            'nonce': blk.nonce,
+            'txs': blk.txs,
+            'hash': blk.hash
+        }
+        
+        if self._use_optimized_storage and self.storage:
+            # Use optimized storage - batched files + SQLite indexing
+            self.storage.add_block_to_batch(block_data)
+            print(f"✅ Block {blk.height} added to batch {blk.height // 100}")
+            
+            # Auto-upgrade trigger: if we hit 50+ blocks in legacy mode
+            if not self._use_optimized_storage and len(self._get_legacy_blocks()) >= 50:
+                print("🔄 Auto-upgrading to optimized storage at 50+ blocks...")
+                try:
+                    import sys
+                    sys.path.append(os.path.dirname(self.data_dir))
+                    from optimize_storage import BlockchainStorageOptimizer
+                    self.storage = BlockchainStorageOptimizer(self.data_dir)
+                    self._use_optimized_storage = True
+                    self._auto_migrate_legacy_blocks()
+                except ImportError as e:
+                    print(f"⚠️ Could not upgrade to optimized storage: {e}")
+        else:
+            # Legacy storage - individual JSON files
+            path = os.path.join(self.data_dir, "blocks", f"{blk.height:08d}_{blk.hash}.json")
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, 'w') as f:
-                json.dump({
-                    'height': blk.height,
-                    'prev_hash': blk.prev_hash,
-                    'timestamp': blk.timestamp,
-                    'merkle_root': blk.merkle_root,
-                    'difficulty': blk.difficulty,
-                    'nonce': blk.nonce,
-                    'txs': blk.txs,
-                    'hash': blk.hash
-                }, f)
+                json.dump(block_data, f)
 
     def _apply_block_utxos(self, blk: Block):
         for tx in blk.txs:
