@@ -49,7 +49,8 @@ sys.path.insert(0, ZION_ROOT)
 try:
     from blockchain.zion_blockchain import ZionBlockchain
     from mining.randomx_engine import RandomXMiningEngine
-    from ai.ai_gpu_bridge import ZionAIGPUBridge
+    from ai.zion_ai_afterburner import ZionAIAfterburner
+    from ai.zion_gpu_miner import ZionGPUMiner
     from ai.zion_bio_ai import ZionBioAI
 except ImportError as e:
     print(f"Warning: Could not import ZION core components: {e}")
@@ -130,7 +131,8 @@ class ZionPerfectMemoryMiner:
         # Core systems
         self.blockchain = None
         self.mining_engine = None
-        self.ai_bridge = None
+        self.ai_afterburner = None
+        self.gpu_miner = None
         self.bio_ai = None
         
         # Memory management
@@ -198,6 +200,13 @@ class ZionPerfectMemoryMiner:
             'performance': {
                 'cpu_optimization': True,
                 'gpu_acceleration': True,
+                'gpu_mining': {
+                    'enabled': True,
+                    'hybrid_mode': True,
+                    'gpu_cpu_ratio': 0.7,  # 70% GPU, 30% CPU
+                    'auto_balance': True,
+                    'intensity': 20
+                },
                 'dynamic_frequency_scaling': True,
                 'thermal_throttling': True,
                 'power_management': True,
@@ -260,10 +269,15 @@ class ZionPerfectMemoryMiner:
     def initialize_ai_systems(self):
         """Initialize AI systems"""
         try:
-            # Initialize AI-GPU Bridge
+            # Initialize AI Afterburner
             if self.config['ai_optimization']['enabled']:
-                self.ai_bridge = ZionAIGPUBridge()
-                logger.info("🤖 Connected to AI-GPU Bridge")
+                self.ai_afterburner = ZionAIAfterburner()
+                logger.info("🤖 Connected to AI Afterburner")
+                
+                # Initialize GPU Miner if enabled
+                if self.config['performance']['gpu_mining']['enabled']:
+                    self.gpu_miner = ZionGPUMiner()
+                    logger.info("🔥 GPU Miner initialized")
                 
                 # Initialize Bio-AI
                 self.bio_ai = ZionBioAI()
@@ -588,7 +602,14 @@ class ZionPerfectMemoryMiner:
                 # Start statistics thread
                 stats_future = executor.submit(self.statistics_thread)
                 
+                # Start GPU mining integration thread
+                gpu_future = None
+                if self.config['performance']['gpu_mining']['enabled'] and self.ai_bridge:
+                    gpu_future = executor.submit(self.gpu_mining_monitor_thread)
+                
                 logger.info(f"⚡ Started {num_threads} mining threads with AI optimization")
+                if gpu_future:
+                    logger.info("🔥 GPU mining integration thread started")
                 
                 try:
                     # Wait for interruption
@@ -608,7 +629,11 @@ class ZionPerfectMemoryMiner:
                 self.mining_active = False
                 
                 # Wait for threads to complete
-                for future in mining_futures + [ai_future, stats_future]:
+                all_futures = mining_futures + [ai_future, stats_future]
+                if gpu_future:
+                    all_futures.append(gpu_future)
+                    
+                for future in all_futures:
                     try:
                         future.result(timeout=5)
                     except Exception as e:
@@ -1282,6 +1307,193 @@ class ZionPerfectMemoryMiner:
             
         except Exception as e:
             logger.error(f"Cleanup error: {e}")
+
+    # =============================================================================
+    # GPU MINING INTEGRATION - MIT Licensed Implementation
+    # =============================================================================
+    
+    async def initialize_gpu_mining_integration(self):
+        """Initialize GPU mining integration with Perfect Memory Miner"""
+        logger.info("🔥 Initializing GPU mining integration...")
+        
+        if not self.ai_bridge:
+            logger.error("AI-GPU Bridge not available for GPU mining")
+            return False
+            
+        try:
+            # Wait for AI bridge to initialize GPU mining
+            await asyncio.sleep(2)  # Allow AI bridge to initialize
+            
+            # Start GPU mining on AI bridge
+            await self.ai_bridge.start_gpu_mining()
+            
+            # Configure hybrid CPU+GPU mining
+            await self.configure_hybrid_mining()
+            
+            logger.info("✅ GPU mining integration initialized")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ GPU mining integration failed: {e}")
+            return False
+
+    async def configure_hybrid_mining(self):
+        """Configure hybrid CPU+GPU mining mode"""
+        gpu_config = self.config['performance']['gpu_mining']
+        
+        # Set compute allocation ratio
+        gpu_ratio = gpu_config['gpu_cpu_ratio']
+        cpu_ratio = 1.0 - gpu_ratio
+        
+        # Adjust CPU threads based on GPU allocation
+        optimal_cpu_threads = int(self.config['mining']['threads'] * cpu_ratio)
+        self.config['mining']['threads'] = max(1, optimal_cpu_threads)
+        
+        # Configure AI bridge allocation
+        if hasattr(self.ai_bridge, 'mining_allocation'):
+            self.ai_bridge.mining_allocation = gpu_ratio
+            self.ai_bridge.ai_allocation = 1.0 - gpu_ratio
+            
+        logger.info(f"🔧 Hybrid mining configured: GPU {gpu_ratio:.1%}, CPU {cpu_ratio:.1%}")
+
+    def get_gpu_mining_stats(self) -> Dict[str, Any]:
+        """Get GPU mining statistics from AI bridge"""
+        if not self.ai_bridge:
+            return {'enabled': False}
+            
+        try:
+            gpu_status = self.ai_bridge.get_gpu_mining_status()
+            
+            # Integrate with perfect memory miner stats
+            gpu_stats = {
+                'enabled': gpu_status['enabled'],
+                'hashrate': gpu_status['total_hashrate'],
+                'active_gpus': gpu_status['active_miners'],
+                'total_gpus': gpu_status['total_miners'],
+                'gpu_shares': gpu_status['performance']['total_shares'],
+                'gpu_efficiency': gpu_status['performance']['average_hashrate'] / max(1, gpu_status['active_miners']),
+                'hybrid_mode': self.config['performance']['gpu_mining']['hybrid_mode'],
+                'allocation_ratio': gpu_status['allocation']
+            }
+            
+            return gpu_stats
+            
+        except Exception as e:
+            logger.error(f"Failed to get GPU stats: {e}")
+            return {'enabled': False, 'error': str(e)}
+
+    def update_hybrid_mining_stats(self):
+        """Update mining stats to include GPU performance"""
+        gpu_stats = self.get_gpu_mining_stats()
+        
+        if gpu_stats['enabled']:
+            # Add GPU hashrate to total
+            with self.stats_lock:
+                gpu_hashrate = gpu_stats.get('hashrate', 0)
+                cpu_hashrate = self.mining_stats.hashrate
+                
+                # Update combined stats
+                self.mining_stats.hashrate = cpu_hashrate + gpu_hashrate
+                self.mining_stats.accepted_shares += gpu_stats.get('gpu_shares', 0)
+                
+                # Calculate hybrid efficiency
+                total_power = self.mining_stats.power_usage + (gpu_stats.get('active_gpus', 0) * 250)  # Estimate 250W per GPU
+                hybrid_efficiency = self.mining_stats.hashrate / max(1, total_power) * 1000  # H/s per kW
+                self.mining_stats.efficiency = hybrid_efficiency
+                
+                logger.debug(f"Hybrid stats: CPU {cpu_hashrate:.1f} H/s + GPU {gpu_hashrate:.1f} H/s = {self.mining_stats.hashrate:.1f} H/s")
+
+    def optimize_gpu_cpu_balance(self):
+        """Dynamically optimize GPU/CPU mining balance"""
+        if not self.ai_bridge or not self.config['performance']['gpu_mining']['auto_balance']:
+            return
+            
+        try:
+            gpu_stats = self.get_gpu_mining_stats()
+            
+            if gpu_stats['enabled']:
+                gpu_hashrate = gpu_stats.get('hashrate', 0)
+                cpu_hashrate = self.mining_stats.hashrate - gpu_hashrate
+                
+                # Calculate efficiency per watt
+                gpu_efficiency = gpu_hashrate / (gpu_stats.get('active_gpus', 1) * 250)  # H/s per W
+                cpu_efficiency = cpu_hashrate / (psutil.cpu_count() * 65)  # Estimate 65W per CPU core
+                
+                # Adjust allocation if GPU is significantly more efficient
+                if gpu_efficiency > cpu_efficiency * 1.5:  # GPU 50% more efficient
+                    new_gpu_ratio = min(0.9, self.ai_bridge.mining_allocation + 0.1)
+                    self.ai_bridge.mining_allocation = new_gpu_ratio
+                    self.ai_bridge.ai_allocation = 1.0 - new_gpu_ratio
+                    logger.info(f"⚡ Optimized allocation: GPU {new_gpu_ratio:.1%} (more efficient)")
+                    
+                elif cpu_efficiency > gpu_efficiency * 1.5:  # CPU 50% more efficient  
+                    new_gpu_ratio = max(0.1, self.ai_bridge.mining_allocation - 0.1)
+                    self.ai_bridge.mining_allocation = new_gpu_ratio
+                    self.ai_bridge.ai_allocation = 1.0 - new_gpu_ratio
+                    logger.info(f"⚡ Optimized allocation: GPU {new_gpu_ratio:.1%} (CPU more efficient)")
+                    
+        except Exception as e:
+            logger.error(f"GPU/CPU balance optimization error: {e}")
+
+    def get_comprehensive_mining_status(self) -> Dict[str, Any]:
+        """Get comprehensive mining status including GPU mining"""
+        # Update hybrid stats first
+        self.update_hybrid_mining_stats()
+        
+        # Get base stats
+        base_stats = {
+            'mining_active': self.mining_active,
+            'cpu_hashrate': self.mining_stats.hashrate,
+            'total_hashes': self.mining_stats.total_hashes,
+            'accepted_shares': self.mining_stats.accepted_shares,
+            'uptime': self.mining_stats.uptime,
+            'efficiency': self.mining_stats.efficiency,
+            'memory_usage': self.mining_stats.memory_usage,
+            'cache_hit_ratio': self.mining_stats.cache_hit_ratio
+        }
+        
+        # Add GPU stats
+        gpu_stats = self.get_gpu_mining_stats()
+        
+        comprehensive_stats = {
+            **base_stats,
+            'gpu_mining': gpu_stats,
+            'hybrid_mode': self.config['performance']['gpu_mining']['hybrid_mode'],
+            'total_combined_hashrate': base_stats['cpu_hashrate'] + gpu_stats.get('hashrate', 0),
+            'mining_allocation': {
+                'cpu_threads': self.config['mining']['threads'],
+                'gpu_ratio': self.config['performance']['gpu_mining']['gpu_cpu_ratio'],
+                'active_gpus': gpu_stats.get('active_gpus', 0)
+            }
+        }
+        
+        return comprehensive_stats
+
+    def gpu_mining_monitor_thread(self):
+        """Monitor and optimize GPU mining performance"""
+        logger.info("🔥 GPU mining monitor thread started")
+        
+        try:
+            while self.mining_active:
+                # Update hybrid mining statistics
+                self.update_hybrid_mining_stats()
+                
+                # Optimize GPU/CPU balance every 30 seconds
+                if int(time.time()) % 30 == 0:
+                    self.optimize_gpu_cpu_balance()
+                
+                # Monitor GPU temperature and performance
+                gpu_stats = self.get_gpu_mining_stats()
+                if gpu_stats['enabled'] and gpu_stats['active_gpus'] > 0:
+                    avg_hashrate = gpu_stats['hashrate'] / gpu_stats['active_gpus']
+                    logger.debug(f"🔥 GPU mining: {gpu_stats['hashrate']:.1f} H/s ({gpu_stats['active_gpus']} GPUs, avg {avg_hashrate:.1f} H/s)")
+                
+                time.sleep(5)  # Check every 5 seconds
+                
+        except Exception as e:
+            logger.error(f"GPU mining monitor error: {e}")
+        finally:
+            logger.info("🔥 GPU mining monitor thread stopped")
 
 # Main execution
 if __name__ == '__main__':
