@@ -1,3 +1,91 @@
+# ⚡ ZION 2.7 TestNet – Phase 2+ Minimal Real Core (October 2025)
+
+This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate from legacy 2.6.x) with a strict **NO SIMULATION** policy. The legacy 2.6.75 marketing / expansive platform README follows below (kept for historical context). Phase 2+ focuses on correctness, transparency, and verifiable minimal consensus before any higher‑level “sacred” layers return.
+
+## ✅ Current Implemented (Phase 1 + Phase 2 + Phase 2+ additions)
+- Deterministic genesis, persistent JSON block storage (autosave thread)
+- Adaptive difficulty (sliding window W=12, clamp factor 4×) with real 256‑bit target (target = MAX_TARGET // difficulty)
+- Full share validation (integer hash < target) replacing legacy prefix simulation
+- Stratum pool (now with per‑client difficulty & basic varDiff + `mining.set_difficulty` + explicit `mining.set_target` 256‑bit)
+- UTXO transaction model + fee field + mempool fee ordering & low‑fee eviction (cap=1000)
+- Coinbase maturity (COINBASE_MATURITY = 10) enforced in spend validation
+- Incremental wallet scanner with persisted state file (full + incremental scan modes)
+- P2P line‑delimited JSON: hello / announce / inv_request / inv / getblocks / block / tx
+- Block sync via inventory + targeted getblocks
+- Transaction relay (duplicate suppression `_seen_txs` set)
+- Reorg skeleton (stores all blocks + children map, longest chain adoption + UTXO rebuild path)
+- Performance hooks (template + block apply timing ms exposed internally)
+- External miner alignment (per‑client difficulty, target broadcast, share vs block separation)
+- Security validations (message size cap, rate limiting for tx / block announce, structural sanity checks, inventory list bounds)
+- Tests: difficulty retarget dynamics, hash index & target integrity, coinbase maturity & tx relay behavior, basic mining harness
+
+## 🧪 Consensus Parameters (Current)
+- BLOCK_TIME: 120 s
+- WINDOW (retarget): 12
+- MAX_ADJUST_FACTOR: 4.0
+- MAX_TARGET: 0x000fffffffff… (low initial difficulty for early mining)
+- COINBASE_MATURITY: 10 blocks
+- INITIAL_REWARD: 333 ZION atomic units (placeholder; halving TBD)
+
+## 🔧 Stratum (2.7) Enhancements
+- Sends `mining.subscribe` → immediate job + `mining.set_difficulty` + `mining.set_target`
+- Per‑client difficulty (varDiff heuristic: adjusts every 60s toward 15s/share target; doubles / halves within capped jump)
+- Distinguishes share acceptance (meets client target) vs block acceptance (meets network target)
+- Broadcasts new job to all clients when a block is found
+
+## 🔐 Security (Initial Hardening – Still Minimal)
+- Per‑message size cap: 64 KB (oversized dropped)
+- Aggregate connection buffer cap (disconnect if runaway)
+- Rate limiting (per node): max 120 tx / min & 120 block announce / min
+- Structural validation: hash lengths, block dict keys, txid format
+- Inventory list length bounded (<=500 incoming, <=50 requested blocks)
+
+## 🔄 Reorg Skeleton Notes
+Maintains `_all_blocks` and `_children` maps. On block accept:
+1. If extends tip → append, apply UTXO diff, recalc difficulty.
+2. If side chain → walk back to genesis, compute candidate length, compare to current canonical length.
+3. If longer → rebuild UTXO set from genesis along new path (current implementation: linear replay; future: UTXO diff snapshots / incremental undo stack).
+Edge Cases Pending: competing chains equal length (tie‑break), finalization, orphan pruning.
+
+## 👛 Wallet Scanner
+- Full scan reconstructs ownership from genesis.
+- Scanner state persisted (JSON) with last scanned height → incremental mode only processes new blocks.
+- Tracks coinbase maturity (ignores immature outputs until confirmed height ≥ spend height + maturity).
+
+## 🧩 Testing Overview
+- `test_target_and_index.py`: ensures hash index consistency & correctness of target hex formatting.
+- `test_difficulty_retarget.py`: simulates accelerated & slowed block sequences verifying clamp + gradient.
+- `test_maturity_and_relay.py`: enforces immature coinbase rejection and validates tx propagation over two P2P nodes.
+- `test_mine_block.py`: basic mining path validation.
+Future Suggested: explicit reorg scenario test (fork two branches then extend side chain), fee eviction boundary test, varDiff convergence test.
+
+## 🚀 Quick Start (Minimal Dev Flow)
+```bash
+python3 2.7/core/run_node.py            # (if present) or custom launcher to start chain
+python3 2.7/pool/stratum_pool.py        # start Stratum pool on :3333
+python3 2.7/network/p2p.py              # start P2P node on :29876 (optional multi-node)
+```
+
+Connect a custom miner (pseudo‑JSON line protocol):
+1. Send: `{ "id":1, "method":"mining.subscribe", "params":[] }`
+2. Receive job + difficulty + target
+3. Send shares: `{ "id":2, "method":"mining.submit", "params":["worker", "job_X", "extra", "time", "nonce"] }`
+4. On block accept, all clients receive a fresh `mining.notify`.
+
+## 📌 Roadmap (Near-Term)
+- Reorg test + stabilization (edge case: competing arrival ordering)
+- Formal job JSON schema + version bump for templates
+- Enhanced fee policy: fee-per-byte weighting & ancestor package acceptance
+- Mempool persistence + restart recovery
+- P2P auth / handshake signature & peer scoring (ban list)
+- Difficulty algorithm review (median time offset handling)
+- Structured metrics endpoint (JSON status snapshot)
+
+## ⚠️ Disclaimer
+This 2.7 TestNet code is intentionally minimal & unsafe for production value. Legacy 2.6.75 content below is NOT reflective of the current cleaned consensus core.
+
+---
+
 # 🤖 ZION 2.6.75 WITH AI MINER 1.4 - Complete Sacred Technology Platform
 
 **Revolutionary Sacred Technology + Production Infrastructure + AI-Powered Cosmic Harmony Mining**
