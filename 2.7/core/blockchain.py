@@ -416,12 +416,22 @@ class Blockchain:
         last_height = self.height
         while True:
             time.sleep(self._autosave_interval)
-            with self._lock:
-                if self.height != last_height:
-                    # persist only new blocks
-                    for blk in self.blocks[last_height:]:
-                        self._persist_block(blk)
-                    last_height = self.height
+            try:
+                if hasattr(self, '_lock') and self._lock:
+                    with self._lock:
+                        if self.height != last_height:
+                            # persist only new blocks
+                            for blk in self.blocks[last_height:]:
+                                self._persist_block(blk)
+                            last_height = self.height
+                else:
+                    if self.height != last_height:
+                        # persist only new blocks  
+                        for blk in self.blocks[last_height:]:
+                            self._persist_block(blk)
+                        last_height = self.height
+            except Exception as e:
+                print(f"Autosave error: {e}")
 
     # ---- Accessors ----
     @property
