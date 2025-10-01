@@ -41,12 +41,25 @@ sys.path.insert(0, ZION_ROOT)
 try:
     from core.blockchain import Blockchain
     from mining.randomx_engine import RandomXEngine
+    from core.zion_logging import get_logger, ComponentType, log_mining, log_performance
 except ImportError as e:
     print(f"Warning: Could not import ZION core components: {e}")
+    # Fallback logging
+    import logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
+    
+    def get_logger(component):
+        return logger
+    
+    def log_mining(msg, **kwargs):
+        logger.info(f"⛏️ {msg}")
+    
+    def log_performance(component, metrics):
+        logger.info(f"📊 Performance: {metrics}")
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Initialize ZION logging
+logger = get_logger(ComponentType.GPU_MINING)
 
 @dataclass
 class GPUDevice:

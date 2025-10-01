@@ -21,8 +21,24 @@ import numpy as np
 # Import ZION 2.7 components
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from core.blockchain import Blockchain
-from mining.randomx_engine import RandomXEngine
+try:
+    from core.blockchain import Blockchain
+    from mining.randomx_engine import RandomXEngine
+    from core.zion_logging import get_logger, ComponentType, log_ai, log_performance
+    # Initialize ZION logging
+    logger = get_logger(ComponentType.AI_AFTERBURNER)
+except ImportError as e:
+    print(f"Warning: Could not import ZION logging: {e}")
+    # Fallback logging
+    import logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
+    
+    def log_ai(msg, **kwargs):
+        logger.info(f"🧠 {msg}")
+    
+    def log_performance(component, metrics):
+        logger.info(f"📊 Performance: {metrics}")
 
 # AI-GPU Constants optimized for ZION 2.7
 GPU_TOTAL_COMPUTE = 15.13       # Total GPU power (MH/s equivalent)

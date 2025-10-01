@@ -47,13 +47,34 @@ sys.path.insert(0, ZION_ROOT)
 
 # Import ZION components (with fallbacks)
 try:
-    from blockchain.zion_blockchain import ZionBlockchain
-    from mining.randomx_engine import RandomXMiningEngine
+    from core.blockchain import Blockchain as ZionBlockchain
+    from mining.randomx_engine import RandomXEngine as RandomXMiningEngine
     from ai.zion_ai_afterburner import ZionAIAfterburner
     from ai.zion_gpu_miner import ZionGPUMiner
     from ai.zion_bio_ai import ZionBioAI
 except ImportError as e:
     print(f"Warning: Could not import ZION core components: {e}")
+    # Fallback implementations
+    class ZionBlockchain:
+        def __init__(self):
+            self.height = 1
+            self.blocks = []
+    
+    class RandomXMiningEngine:
+        def __init__(self):
+            self.initialized = True
+    
+    class ZionAIAfterburner:
+        def __init__(self):
+            self.active = False
+    
+    class ZionGPUMiner:
+        def __init__(self):
+            self.active = False
+    
+    class ZionBioAI:
+        def __init__(self):
+            self.active = False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
