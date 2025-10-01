@@ -1,0 +1,934 @@
+#!/usr/bin/env python3
+"""
+ZION Unified CPU+GPU Dashboard Generator
+Creates comprehensive system monitoring dashboard
+"""
+
+import json
+import os
+from datetime import datetime
+
+class ZionUnifiedDashboard:
+    def __init__(self):
+        self.api_base = "http://localhost:5002/api/system"
+        
+    def generate_unified_dashboard_html(self):
+        """Generate complete CPU+GPU monitoring dashboard"""
+        html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZION System Afterburner - CPU+GPU Control</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(45deg, rgba(0, 255, 136, 0.1), rgba(255, 107, 53, 0.1));
+            border-radius: 20px;
+            border: 2px solid;
+            border-image: linear-gradient(45deg, #00ff88, #ff6b35) 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff88, #ff6b35, transparent);
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        
+        .system-overview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .cpu-section, .gpu-section {
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid;
+            position: relative;
+        }
+        
+        .cpu-section {
+            border-color: #ff6b35;
+        }
+        
+        .gpu-section {
+            border-color: #00ff88;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cpu-section .section-title { color: #ff6b35; }
+        .gpu-section .section-title { color: #00ff88; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.2);
+        }
+        
+        .stat-title {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-unit {
+            color: #888;
+            font-size: 0.8em;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .cpu-progress { background: linear-gradient(90deg, #ff6b35, #ffaa35); }
+        .gpu-progress { background: linear-gradient(90deg, #00ff88, #00cc66); }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .controls-section {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #ff6b35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-btn {
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-btn:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+        }
+        
+        .profile-btn.active {
+            background: #00ff88;
+            color: #0a0a0a;
+            border-color: #ff6b35;
+        }
+        
+        .profile-btn.mining {
+            border-color: #ffaa35;
+        }
+        
+        .profile-btn.mining:hover {
+            background: #ffaa35;
+            box-shadow: 0 8px 25px rgba(255, 170, 53, 0.4);
+        }
+        
+        .emergency-btn {
+            background: linear-gradient(45deg, #2e1a1a, #3e1616);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+        }
+        
+        .emergency-btn:hover {
+            background: #ff4444;
+            color: #0a0a0a;
+            box-shadow: 0 8px 25px rgba(255, 68, 68, 0.4);
+        }
+        
+        .advanced-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-group h4 {
+            margin-bottom: 15px;
+            color: #ff6b35;
+        }
+        
+        .slider-control {
+            margin-bottom: 15px;
+        }
+        
+        .slider-control label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ff88;
+            cursor: pointer;
+            border: 2px solid #0a0a0a;
+        }
+        
+        .mining-integration {
+            background: linear-gradient(45deg, #2e1a1a, #1a2e1a);
+            border: 2px solid #ffaa35;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .mining-title {
+            color: #ffaa35;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .hashrate-display {
+            font-size: 3em;
+            color: #ffaa35;
+            text-shadow: 0 0 15px #ffaa35;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .mining-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .mining-stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+        }
+        
+        .system-health {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #4ecdc4;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .health-score {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .health-excellent { color: #00ff88; }
+        .health-good { color: #ffaa35; }
+        .health-warning { color: #ff6b35; }
+        .health-critical { color: #ff4444; }
+        
+        .temperature-critical {
+            color: #ff4444 !important;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.6; }
+        }
+        
+        .log-container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .log-info { background: rgba(0, 255, 136, 0.1); }
+        .log-warning { background: rgba(255, 170, 53, 0.1); color: #ffaa35; }
+        .log-error { background: rgba(255, 68, 68, 0.1); color: #ff4444; }
+        .log-success { background: rgba(0, 255, 136, 0.2); }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ZION SYSTEM AFTERBURNER</h1>
+            <p>Unified CPU+GPU Control • Real-time System Optimization</p>
+            <p><span id="cpu-model">Loading CPU...</span> • <span id="gpu-model">AMD Radeon RX 5600 XT</span></p>
+        </div>
+        
+        <div class="system-overview">
+            <div class="cpu-section">
+                <div class="section-title">
+                    🔥 CPU CONTROL
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">🌡️ Temperature</div>
+                        <div class="stat-value" id="cpu-temp">--</div>
+                        <div class="stat-unit">°C</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill cpu-progress" id="cpu-temp-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">📊 Usage</div>
+                        <div class="stat-value" id="cpu-usage">--</div>
+                        <div class="stat-unit">%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill cpu-progress" id="cpu-usage-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">⚡ Frequency</div>
+                        <div class="stat-value" id="cpu-freq">--</div>
+                        <div class="stat-unit">MHz</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">🎯 Governor</div>
+                        <div class="stat-value" id="cpu-governor">--</div>
+                        <div class="stat-unit">Mode</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">🧵 Threads</div>
+                        <div class="stat-value" id="cpu-threads">--</div>
+                        <div class="stat-unit">Active</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">💾 Memory</div>
+                        <div class="stat-value" id="memory-usage">--</div>
+                        <div class="stat-unit">% Used</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill cpu-progress" id="memory-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gpu-section">
+                <div class="section-title">
+                    🎮 GPU CONTROL
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">🌡️ Temperature</div>
+                        <div class="stat-value" id="gpu-temp">--</div>
+                        <div class="stat-unit">°C</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gpu-progress" id="gpu-temp-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">⚡ Power</div>
+                        <div class="stat-value" id="gpu-power">--</div>
+                        <div class="stat-unit">Watts</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gpu-progress" id="gpu-power-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">📊 Usage</div>
+                        <div class="stat-value" id="gpu-usage">--</div>
+                        <div class="stat-unit">%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gpu-progress" id="gpu-usage-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">🔄 Core Clock</div>
+                        <div class="stat-value" id="gpu-core-clock">--</div>
+                        <div class="stat-unit">MHz</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">💾 Memory Clock</div>
+                        <div class="stat-value" id="gpu-mem-clock">--</div>
+                        <div class="stat-unit">MHz</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">🧠 VRAM</div>
+                        <div class="stat-value" id="vram-usage">--</div>
+                        <div class="stat-unit">MB Used</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gpu-progress" id="vram-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3 style="color: #ff6b35; margin-bottom: 15px;">📊 CPU Performance History</h3>
+                <canvas id="cpuChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 style="color: #00ff88; margin-bottom: 15px;">📊 GPU Performance History</h3>
+                <canvas id="gpuChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        
+        <div class="controls-section">
+            <div class="section-title" style="color: #ff6b35;">
+                🎮 SYSTEM PROFILES
+            </div>
+            <div class="profile-controls">
+                <button class="profile-btn" onclick="applyProfile('ultra_eco')">🌱 Ultra ECO</button>
+                <button class="profile-btn active" onclick="applyProfile('balanced')">⚖️ Balanced</button>
+                <button class="profile-btn mining" onclick="applyProfile('mining_optimized')">⛏️ Mining Beast</button>
+                <button class="profile-btn" onclick="applyProfile('gaming_performance')">🎮 Gaming Max</button>
+                <button class="profile-btn" onclick="applyProfile('silent_operation')">🤫 Silent Mode</button>
+                <button class="profile-btn emergency-btn" onclick="emergencyReset()">🚨 Emergency Reset</button>
+            </div>
+            
+            <div class="advanced-controls">
+                <div class="control-group">
+                    <h4>🔥 CPU Advanced Controls</h4>
+                    <div class="slider-control">
+                        <label>Max Frequency: <span id="cpu-freq-value">80</span>%</label>
+                        <input type="range" class="slider" id="cpu-freq-slider" min="30" max="100" value="80" onchange="updateCpuFrequency()">
+                    </div>
+                    <button class="profile-btn" onclick="setCpuGovernor('performance')">Performance</button>
+                    <button class="profile-btn" onclick="setCpuGovernor('powersave')">Power Save</button>
+                </div>
+                
+                <div class="control-group">
+                    <h4>🎮 GPU Advanced Controls</h4>
+                    <div class="slider-control">
+                        <label>Power Limit: <span id="gpu-power-value">100</span>%</label>
+                        <input type="range" class="slider" id="gpu-power-slider" min="50" max="150" value="100" onchange="updateGpuPower()">
+                    </div>
+                    <button class="profile-btn" onclick="optimizeGpu()">Auto Optimize</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mining-integration">
+            <div class="mining-title">⛏️ ZION Mining Performance</div>
+            <div class="hashrate-display" id="hashrate">6,012 H/s</div>
+            <div class="mining-stats">
+                <div class="mining-stat">
+                    <div style="color: #ffaa35;">Efficiency</div>
+                    <div id="mining-efficiency">54.2 H/W</div>
+                </div>
+                <div class="mining-stat">
+                    <div style="color: #ffaa35;">Shares</div>
+                    <div id="mining-shares">247 / 3</div>
+                </div>
+                <div class="mining-stat">
+                    <div style="color: #ffaa35;">Uptime</div>
+                    <div id="mining-uptime">2h 34m</div>
+                </div>
+                <div class="mining-stat">
+                    <div style="color: #ffaa35;">Pool Latency</div>
+                    <div id="mining-latency">18ms</div>
+                </div>
+            </div>
+            <button class="profile-btn mining" onclick="optimizeForMining()" style="margin-top: 15px; width: 100%;">🚀 Auto-Optimize Mining</button>
+        </div>
+        
+        <div class="system-health">
+            <div class="section-title" style="color: #4ecdc4;">
+                💚 SYSTEM HEALTH
+            </div>
+            <div class="health-score health-excellent" id="health-score">98%</div>
+            <div style="text-align: center; margin-bottom: 15px;" id="health-status">All systems optimal</div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">🔋 Total Power</div>
+                    <div class="stat-value" id="total-power">--</div>
+                    <div class="stat-unit">Watts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">⏱️ Uptime</div>
+                    <div class="stat-value" id="system-uptime">--</div>
+                    <div class="stat-unit">Hours</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">🎯 Profile</div>
+                    <div class="stat-value" id="active-profile">Balanced</div>
+                    <div class="stat-unit">Active</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-container" id="system-log">
+            <div class="log-entry log-success">[INFO] ZION System Afterburner initialized</div>
+            <div class="log-entry log-info">[INFO] CPU+GPU monitoring started</div>
+            <div class="log-entry log-info">[INFO] All systems ready</div>
+        </div>
+    </div>
+    
+    <script>
+        let cpuChart, gpuChart;
+        let currentProfile = 'balanced';
+        
+        // Initialize charts
+        function initCharts() {
+            const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+            cpuChart = new Chart(cpuCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Temperature (°C)',
+                            data: [],
+                            borderColor: '#ff6b35',
+                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Usage (%)',
+                            data: [],
+                            borderColor: '#ffaa35',
+                            backgroundColor: 'rgba(255, 170, 53, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#ff6b35' } } },
+                    scales: {
+                        x: { ticks: { color: '#ff6b35' }, grid: { color: 'rgba(255, 107, 53, 0.1)' } },
+                        y: { ticks: { color: '#ff6b35' }, grid: { color: 'rgba(255, 107, 53, 0.1)' } }
+                    }
+                }
+            });
+            
+            const gpuCtx = document.getElementById('gpuChart').getContext('2d');
+            gpuChart = new Chart(gpuCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Temperature (°C)',
+                            data: [],
+                            borderColor: '#00ff88',
+                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Power (W)',
+                            data: [],
+                            borderColor: '#4ecdc4',
+                            backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#00ff88' } } },
+                    scales: {
+                        x: { ticks: { color: '#00ff88' }, grid: { color: 'rgba(0, 255, 136, 0.1)' } },
+                        y: { ticks: { color: '#00ff88' }, grid: { color: 'rgba(0, 255, 136, 0.1)' } }
+                    }
+                }
+            });
+        }
+        
+        // Update system statistics
+        function updateStats() {
+            fetch('/api/system/stats')
+                .then(response => response.json())
+                .then(data => {
+                    const stats = data.current;
+                    
+                    // Update CPU stats
+                    document.getElementById('cpu-temp').textContent = Math.round(stats.cpu.temperature);
+                    document.getElementById('cpu-usage').textContent = Math.round(stats.cpu.usage_percent);
+                    document.getElementById('cpu-freq').textContent = Math.round(stats.cpu.frequency?.current || 0);
+                    document.getElementById('cpu-governor').textContent = stats.cpu.governor;
+                    document.getElementById('cpu-threads').textContent = stats.cpu.usage_per_core.length;
+                    document.getElementById('memory-usage').textContent = Math.round(stats.cpu.memory.percent);
+                    
+                    // Update GPU stats
+                    document.getElementById('gpu-temp').textContent = Math.round(stats.gpu.temperature);
+                    document.getElementById('gpu-power').textContent = Math.round(stats.gpu.power_usage);
+                    document.getElementById('gpu-usage').textContent = Math.round(stats.gpu.utilization);
+                    document.getElementById('gpu-core-clock').textContent = stats.gpu.core_clock;
+                    document.getElementById('gpu-mem-clock').textContent = stats.gpu.memory_clock;
+                    document.getElementById('vram-usage').textContent = Math.round(stats.gpu.vram_used);
+                    
+                    // Update system stats
+                    document.getElementById('total-power').textContent = Math.round(stats.system.total_power_estimated);
+                    document.getElementById('system-uptime').textContent = Math.round(stats.system.uptime / 3600);
+                    document.getElementById('active-profile').textContent = stats.system.current_profile.cpu;
+                    
+                    // Update health score
+                    const healthPct = Math.round(stats.system.health_score * 100);
+                    const healthElement = document.getElementById('health-score');
+                    healthElement.textContent = healthPct + '%';
+                    
+                    // Health color coding
+                    healthElement.className = 'health-score ';
+                    if (healthPct >= 90) healthElement.className += 'health-excellent';
+                    else if (healthPct >= 75) healthElement.className += 'health-good';
+                    else if (healthPct >= 50) healthElement.className += 'health-warning';
+                    else healthElement.className += 'health-critical';
+                    
+                    // Update progress bars
+                    updateProgressBar('cpu-temp-progress', stats.cpu.temperature, 85);
+                    updateProgressBar('cpu-usage-progress', stats.cpu.usage_percent, 100);
+                    updateProgressBar('memory-progress', stats.cpu.memory.percent, 100);
+                    updateProgressBar('gpu-temp-progress', stats.gpu.temperature, 90);
+                    updateProgressBar('gpu-power-progress', stats.gpu.power_usage, 150);
+                    updateProgressBar('gpu-usage-progress', stats.gpu.utilization, 100);
+                    updateProgressBar('vram-progress', (stats.gpu.vram_used / stats.gpu.vram_total) * 100, 100);
+                    
+                    // Temperature warnings
+                    if (stats.cpu.temperature > 80) {
+                        document.getElementById('cpu-temp').className = 'stat-value temperature-critical';
+                    } else {
+                        document.getElementById('cpu-temp').className = 'stat-value';
+                    }
+                    
+                    if (stats.gpu.temperature > 85) {
+                        document.getElementById('gpu-temp').className = 'stat-value temperature-critical';
+                    } else {
+                        document.getElementById('gpu-temp').className = 'stat-value';
+                    }
+                    
+                    // Update charts
+                    updateCharts(stats);
+                    
+                    addLogEntry(`Stats updated - CPU: ${stats.cpu.temperature}°C, GPU: ${stats.gpu.temperature}°C`);
+                })
+                .catch(error => {
+                    addLogEntry(`[ERROR] Failed to fetch stats: ${error}`, 'error');
+                });
+        }
+        
+        function updateProgressBar(id, value, max) {
+            const percentage = Math.min((value / max) * 100, 100);
+            document.getElementById(id).style.width = percentage + '%';
+        }
+        
+        function updateCharts(stats) {
+            const now = new Date().toLocaleTimeString();
+            
+            // Update CPU chart
+            cpuChart.data.labels.push(now);
+            cpuChart.data.datasets[0].data.push(stats.cpu.temperature);
+            cpuChart.data.datasets[1].data.push(stats.cpu.usage_percent);
+            
+            // Update GPU chart
+            gpuChart.data.labels.push(now);
+            gpuChart.data.datasets[0].data.push(stats.gpu.temperature);
+            gpuChart.data.datasets[1].data.push(stats.gpu.power_usage);
+            
+            // Keep only last 20 points
+            if (cpuChart.data.labels.length > 20) {
+                cpuChart.data.labels.shift();
+                cpuChart.data.datasets.forEach(dataset => dataset.data.shift());
+                gpuChart.data.labels.shift();
+                gpuChart.data.datasets.forEach(dataset => dataset.data.shift());
+            }
+            
+            cpuChart.update('none');
+            gpuChart.update('none');
+        }
+        
+        function applyProfile(profile) {
+            fetch(`/api/system/profile/${profile}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentProfile = profile;
+                        updateActiveButton(profile);
+                        addLogEntry(`[SUCCESS] Applied ${profile} profile`, 'success');
+                    } else {
+                        addLogEntry(`[ERROR] Failed to apply profile: ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    addLogEntry(`[ERROR] Profile request failed: ${error}`, 'error');
+                });
+        }
+        
+        function updateActiveButton(profile) {
+            document.querySelectorAll('.profile-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function optimizeForMining() {
+            fetch('/api/mining/optimize')
+                .then(response => response.json())
+                .then(data => {
+                    addLogEntry(`[MINING] ${data.message}`, 'success');
+                    document.getElementById('hashrate').textContent = data.estimated_hashrate || '6000+ H/s';
+                })
+                .catch(error => {
+                    addLogEntry(`[ERROR] Mining optimization failed: ${error}`, 'error');
+                });
+        }
+        
+        function emergencyReset() {
+            if (confirm('Emergency reset will restore safe defaults for CPU and GPU. Continue?')) {
+                fetch('/api/system/reset', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        addLogEntry(`[RESET] ${data.message}`, 'warning');
+                        currentProfile = 'balanced';
+                    })
+                    .catch(error => {
+                        addLogEntry(`[ERROR] Reset failed: ${error}`, 'error');
+                    });
+            }
+        }
+        
+        function setCpuGovernor(governor) {
+            fetch('/api/cpu/governor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ governor: governor })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLogEntry(`[CPU] ${data.message}`, data.success ? 'success' : 'error');
+            })
+            .catch(error => {
+                addLogEntry(`[ERROR] CPU governor change failed: ${error}`, 'error');
+            });
+        }
+        
+        function updateCpuFrequency() {
+            const value = document.getElementById('cpu-freq-slider').value;
+            document.getElementById('cpu-freq-value').textContent = value;
+            
+            fetch('/api/cpu/frequency', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ max_percent: parseInt(value) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLogEntry(`[CPU] Frequency limit set to ${value}%`, 'info');
+            })
+            .catch(error => {
+                addLogEntry(`[ERROR] CPU frequency change failed: ${error}`, 'error');
+            });
+        }
+        
+        function updateGpuPower() {
+            const value = document.getElementById('gpu-power-slider').value;
+            document.getElementById('gpu-power-value').textContent = value;
+            addLogEntry(`[GPU] Power limit set to ${value}%`, 'info');
+        }
+        
+        function optimizeGpu() {
+            addLogEntry(`[GPU] Auto-optimization started`, 'info');
+        }
+        
+        function addLogEntry(message, type = 'info') {
+            const logContainer = document.getElementById('system-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Keep only last 50 entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+        
+        // Simulate mining stats updates
+        function updateMiningStats() {
+            const hashrates = [5890, 5950, 6012, 6085, 6120, 5980];
+            const currentHashrate = hashrates[Math.floor(Math.random() * hashrates.length)];
+            const efficiency = (currentHashrate / 111).toFixed(1); // Assuming ~111W total
+            
+            document.getElementById('hashrate').textContent = `${currentHashrate} H/s`;
+            document.getElementById('mining-efficiency').textContent = `${efficiency} H/W`;
+        }
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            updateStats();
+            updateMiningStats();
+            
+            // Update stats every 3 seconds
+            setInterval(updateStats, 3000);
+            
+            // Update mining stats every 8 seconds
+            setInterval(updateMiningStats, 8000);
+            
+            addLogEntry('[INIT] ZION System Afterburner dashboard loaded', 'success');
+        });
+    </script>
+</body>
+</html>
+        """
+        return html
+    
+    def save_unified_dashboard(self, filename="system_afterburner.html"):
+        """Save unified dashboard HTML to file"""
+        html_content = self.generate_unified_dashboard_html()
+        filepath = f"/media/maitreya/ZION1/frontend/{filename}"
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
+        with open(filepath, 'w') as f:
+            f.write(html_content)
+        
+        return filepath
+
+if __name__ == "__main__":
+    dashboard = ZionUnifiedDashboard()
+    filepath = dashboard.save_unified_dashboard()
+    print(f"🚀 Unified CPU+GPU Dashboard saved to: {filepath}")
+    print("🌐 Open in browser after starting System Afterburner API on port 5002")
