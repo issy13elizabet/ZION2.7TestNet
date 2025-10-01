@@ -275,6 +275,58 @@ zion/
 
 ---
 
+## 🔥 Afterburner + AI Miner Optimization Stack (NEW)
+
+### 🚀 What Was Added
+- ✅ Unified cyberpunk dashboard (`ai/system_afterburner.html`)
+- ✅ Real-time system stats collector (`ai/system_stats.py`)
+- ✅ Lightweight API bridge (`ai/zion-afterburner-api.py` Port 5003)
+- ✅ GPU Afterburner API (`ai/zion-ai-gpu-afterburner.py` Port 5001)
+- ✅ Unified launcher script (`scripts/launch_afterburner_stack.sh`)
+- ✅ Live mining stats integration (Cosmic Harmony 45.39 MH/s)
+
+### 📊 Live Components
+| Component | Port | Purpose |
+|-----------|------|---------|
+| Dashboard (static) | 8080 | Visual control center |
+| GPU Afterburner API | 5001 | GPU telemetry + profiles |
+| System Stats API Bridge | 5003 | JSON system + mining stats |
+| AI Miner Integration | (background) | Algorithm simulation + metrics |
+
+### 🏁 Quick Start (Afterburner Stack)
+```bash
+# From repository root
+./scripts/launch_afterburner_stack.sh
+# Open dashboard
+xdg-open http://localhost:8080/system_afterburner.html || true
+```
+
+### 🧪 Validate It Works
+```bash
+# Check system stats JSON is updating
+cat /tmp/zion_system_stats.json
+
+# API bridge (if running)
+curl -s http://localhost:5003/api/system/stats | jq '.cpu.temperature, .mining.hashrate'
+```
+
+### 🛠️ Customization
+| File | Purpose | Tweak |
+|------|---------|-------|
+| `ai/system_stats.py` | Core metrics collector | Add GPU, disk, net |
+| `ai/zion-afterburner-api.py` | API JSON exporter | Extend endpoints |
+| `ai/system_afterburner.html` | Dashboard UI | Styling / charts |
+| `scripts/launch_afterburner_stack.sh` | Orchestration launcher | Add more services |
+
+### 🧵 Planned Next Improvements
+- GPU temp & VRAM stats ingest
+- Hashrate history chart persistence
+- WebSocket push updates
+- Unified logging aggregation
+- Optional Prometheus exporter
+
+---
+
 ## 🛠️ **Development**
 
 ### **Running Tests**
