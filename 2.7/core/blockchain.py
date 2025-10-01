@@ -116,11 +116,11 @@ class Consensus:
         halvings = height // Consensus.HALVING_INTERVAL
         reward = Consensus.INITIAL_REWARD
         
-        # Apply halvings (Bitcoin-style)
+        # Apply halvings (Bitcoin-style) then eternal dharma service reward
         for _ in range(halvings):
             reward //= 2
-            if reward < 1000:  # Minimum 0.001 ZION
-                reward = 1000
+            if reward < 1_000_000:  # Minimum 1 ZION (ON THE STAR eternal service)
+                reward = 1_000_000  # JAI RAM SITA HANUMAN - eternal dharma reward
                 break
                 
         return reward
