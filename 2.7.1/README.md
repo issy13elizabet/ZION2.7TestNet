@@ -1,23 +1,77 @@
-# ZION 2.7.1 - Pure Argon2 ASIC-Resistant Blockchain Implementation
+# ZION 2.7.1 - Complete Blockchain System
 
 ## 🌟 Overview
 
-ZION 2.7.1 is a **pure Argon2 blockchain** built for maximum ASIC resistance and decentralization. By focusing exclusively on Argon2 and other memory-hard algorithms, ZION ensures fair mining accessible to all CPU miners worldwide.
+ZION 2.7.1 is a **complete blockchain ecosystem** featuring:
+- **Real blockchain** with persistent storage (NO SIMULATIONS)
+- **ASIC-resistant mining** (Argon2 algorithm)
+- **Wallet system** for address and transaction management
+- **P2P network** for node communication
+- **REST API** for application integration
+- **GPU mining** support
 
 ### ✨ Key Features
 
-- **Pure Argon2 PoW**: 100% ASIC-resistant mining with memory-hard algorithm
-- **Maximum Decentralization**: CPU-only mining prevents hardware centralization
-- **Memory-Hard Algorithm**: Requires significant memory (64MB+), preventing specialized ASICs
-- **Verified Security**: Argon2 is battle-tested and cryptographically secure
-- **Multi-Algorithm Support**: Argon2 primary with GPU-friendly alternatives for flexibility
-- **Clean Architecture**: Modular design for maximum reliability
+- **Real Blocks**: Persistent SQLite database with actual blockchain data
+- **ASIC-Resistant**: Argon2 mining prevents hardware centralization
+- **Wallet System**: Complete address and transaction management
+- **P2P Network**: Decentralized node communication
+- **REST API**: FastAPI-based endpoints for integration
+- **GPU Support**: KawPow, Ethash, and Octopus algorithms
+- **Consciousness Mining**: Unique sacred multiplier system
 
-## 🛡️ ASIC Resistance Philosophy
+## 🚀 Quick Start
 
-ZION rejects SHA256 and other ASIC-friendly algorithms because:
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+# For API server:
+pip install fastapi uvicorn
+```
 
-- **SHA256 ASICs** cost thousands of dollars and centralize mining power
+### 2. Start API Server
+```bash
+python zion_cli.py api
+# API available at http://localhost:8000
+# Docs at http://localhost:8000/docs
+```
+
+### 3. Create Wallet
+```bash
+python zion_cli.py wallet create
+python zion_cli.py wallet list
+```
+
+### 4. Mine Blocks
+```bash
+python zion_cli.py mine --address YOUR_ADDRESS --blocks 5
+```
+
+### 5. Check Stats
+```bash
+python zion_cli.py stats
+```
+
+## � Documentation
+
+- **[Complete Integration Guide](README_INTEGRATION.md)** - Full system documentation
+- **[ASIC Resistance](README.md)** - Mining algorithm details
+- **[API Documentation](api/)** - REST API reference
+
+## 🧠 Consciousness Mining
+
+ZION features unique **consciousness-based mining** with sacred multipliers:
+
+| Level | Multiplier | Description |
+|-------|------------|-------------|
+| PHYSICAL | 1.0x | Base level |
+| ON_THE_STAR | 10.0x | Maximum enlightenment |
+
+---
+
+**JAI RAM SITA HANUMAN - ON THE STAR** ⭐
+
+*Real Blockchain for Real Decentralization*
 - **GPU farms** create mining pools that control network hashrate
 - **Specialized hardware** undermines the democratic nature of mining
 

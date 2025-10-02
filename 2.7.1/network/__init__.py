@@ -128,30 +128,47 @@ class P2PNetwork:
             except Exception as e:
                 logger.warning(f"Failed to connect to seed {host}:{port}: {e}")
 
-    async def broadcast_block(self, block_data: Dict):
-        """Broadcast a new block to all peers"""
+    async def broadcast_transaction(self, tx_data: Dict):
+        """Broadcast a new transaction to all peers"""
         message = {
-            'type': 'new_block',
-            'block': block_data,
+            'type': 'new_transaction',
+            'transaction': tx_data,
             'timestamp': datetime.now().isoformat()
         }
 
-        # In a real implementation, send to all connected peers
-        logger.info(f"Broadcasting block to {len(self.peers)} peers")
+        logger.info(f"Broadcasting transaction to {len(self.peers)} peers")
         for peer in self.peers:
             logger.debug(f"Would send to {peer.host}:{peer.port}")
 
-    async def request_blocks(self, start_height: int, end_height: int):
-        """Request block range from peers"""
+    async def sync_blockchain(self):
+        """Synchronize blockchain with peers"""
+        if not self.peers:
+            logger.warning("No peers available for sync")
+            return
+
+        # Get our current height
+        our_height = 0  # Would get from blockchain
         message = {
-            'type': 'get_blocks',
-            'start_height': start_height,
-            'end_height': end_height,
+            'type': 'get_blockchain_info',
             'timestamp': datetime.now().isoformat()
         }
 
-        # In a real implementation, send request to peers
-        logger.info(f"Requesting blocks {start_height}-{end_height} from peers")
+        logger.info("Requesting blockchain sync from peers")
+
+    def add_peer(self, host: str, port: int):
+        """Manually add a peer"""
+        peer = Peer(
+            host=host,
+            port=port,
+            last_seen=datetime.now()
+        )
+        self.peers.add(peer)
+        logger.info(f"Added peer: {host}:{port}")
+
+    def remove_peer(self, host: str, port: int):
+        """Remove a peer"""
+        self.peers = {p for p in self.peers if not (p.host == host and p.port == port)}
+        logger.info(f"Removed peer: {host}:{port}")
 
     def get_peer_count(self) -> int:
         """Get number of connected peers"""

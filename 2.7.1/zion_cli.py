@@ -279,15 +279,262 @@ class ZionCLI:
             print("   Note: No blocks found (normal for high difficulty)")
 
 
+class ZionRealBlockchainCLI:
+    """Real Blockchain CLI - No Simulations, Real Blocks"""
+
+    def __init__(self):
+        self.blockchain = None
+
+    def initialize_blockchain(self):
+        """Initialize real blockchain"""
+        if self.blockchain is None:
+            from core.real_blockchain import ZionRealBlockchain
+            import os
+            db_path = os.path.join(os.path.dirname(__file__), 'zion_real_blockchain.db')
+            self.blockchain = ZionRealBlockchain(db_file=db_path)
+            print("🌟 ZION Real Blockchain initialized!")
+            print(f"   Current blocks: {self.blockchain.get_block_count()}")
+
+    def cmd_real_mine(self, args):
+        """Mine real blocks in the blockchain"""
+        self.initialize_blockchain()
+
+        print("🚀 Starting REAL BLOCKCHAIN MINING")
+        print("🛡️ No simulations - creating actual blocks!")
+        print("=" * 60)
+
+        consciousness_levels = [
+            "PHYSICAL", "EMOTIONAL", "MENTAL", "INTUITIVE",
+            "SPIRITUAL", "COSMIC", "UNITY", "ENLIGHTENMENT",
+            "LIBERATION", "ON_THE_STAR"
+        ]
+
+        blocks_mined = 0
+        start_time = time.time()
+
+        try:
+            for i in range(args.blocks):
+                # Cycle through consciousness levels
+                consciousness = consciousness_levels[i % len(consciousness_levels)]
+
+                print(f"\n⛏️ Mining REAL block {i+1}/{args.blocks}...")
+                print(f"   🧠 Consciousness Level: {consciousness}")
+
+                # Mine real block
+                block = self.blockchain.mine_block(
+                    miner_address=args.address,
+                    consciousness_level=consciousness
+                )
+
+                if block:
+                    blocks_mined += 1
+                    print(f"   ✅ REAL BLOCK {block.height} CREATED!")
+                    print(f"   🔗 Hash: {block.hash[:32]}...")
+                    print(f"   💰 Reward: {block.reward:,} atomic units")
+                else:
+                    print("   ❌ Block mining failed (timeout)")
+
+                # Small delay between blocks
+                time.sleep(0.1)
+
+        except KeyboardInterrupt:
+            print("\n⏹️ Real mining interrupted by user")
+
+        duration = time.time() - start_time
+
+        print("\n📊 REAL BLOCKCHAIN MINING COMPLETE:")
+        print(f"   Blocks Attempted: {args.blocks}")
+        print(f"   Blocks Mined: {blocks_mined}")
+        print(f"   Success Rate: {blocks_mined/args.blocks*100:.1f}%")
+        print(f"   Total Time: {duration:.1f}s")
+        if blocks_mined > 0:
+            print(f"   Avg Block Time: {duration/blocks_mined:.1f}s")
+
+        # Show blockchain stats
+        stats = self.blockchain.get_blockchain_stats()
+        print("\n🌟 BLOCKCHAIN STATUS:")
+        print(f"   Total Blocks: {stats['block_count']}")
+        print(f"   Total Supply: {stats['total_supply']:,} atomic units")
+        print(f"   Mempool: {stats['mempool_size']} transactions")
+
+    def cmd_real_stats(self, args):
+        """Show real blockchain statistics"""
+        self.initialize_blockchain()
+
+        stats = self.blockchain.get_blockchain_stats()
+        latest_block = self.blockchain.get_latest_block()
+
+        print("🌟 ZION REAL BLOCKCHAIN STATISTICS")
+        print("=" * 50)
+        print(f"📦 Total Blocks: {stats['block_count']}")
+        print(f"💰 Total Supply: {stats['total_supply']:,} atomic units")
+        print(f"📝 Mempool Size: {stats['mempool_size']}")
+        print(f"🎯 Difficulty: {stats['difficulty']}")
+
+        if latest_block:
+            print("\n🏆 Latest Block:")
+            print(f"   Height: {latest_block.height}")
+            print(f"   Hash: {latest_block.hash[:32]}...")
+            print(f"   Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(latest_block.timestamp))}")
+            print(f"   Transactions: {len(latest_block.transactions)}")
+            print(f"   🧠 Consciousness: {latest_block.consciousness_level}")
+            print(f"   🌟 Sacred Multiplier: {latest_block.sacred_multiplier:.2f}x")
+
+        print("\n🧠 Consciousness Distribution:")
+        for level, count in stats['consciousness_distribution'].items():
+            print(f"   {level}: {count} blocks")
+
+    def cmd_real_verify(self, args):
+        """Verify blockchain integrity"""
+        self.initialize_blockchain()
+
+        print("🔍 Verifying REAL blockchain integrity...")
+        valid = self.blockchain.verify_blockchain()
+
+        if valid:
+            print("✅ Blockchain is VALID and INTEGRITY VERIFIED!")
+        else:
+            print("❌ Blockchain integrity check FAILED!")
+
+    def cmd_real_balance(self, args):
+        """Check address balance"""
+        self.initialize_blockchain()
+
+        balance = self.blockchain.get_balance(args.address)
+        print(f"💰 Balance for {args.address}:")
+        print(f"   {balance:,} atomic units")
+        print(f"   {balance/100000000:.8f} ZION")
+
+
 def main():
     """Main CLI entry point"""
-    print("🌟 ZION 2.7.1 ASIC-Resistant Blockchain CLI")
-    print("🛡️ Built for maximum decentralization with Argon2 mining")
+    print("🌟 ZION 2.7.1 REAL BLOCKCHAIN CLI")
+    print("🚀 No Simulations - Real Blocks Only!")
+    print("🛡️ JAI RAM SITA HANUMAN - ON THE STAR")
     print()
 
     try:
-        cli = ZionCLI()
-        cli.run()
+        # Parse arguments
+        parser = argparse.ArgumentParser(description="ZION 2.7.1 Real Blockchain CLI")
+        subparsers = parser.add_subparsers(dest='command', help='Available commands')
+
+        # Real mining command
+        mine_parser = subparsers.add_parser('mine', help='Mine real blocks')
+        mine_parser.add_argument('--address', '-a', required=True, help='Miner reward address')
+        mine_parser.add_argument('--blocks', '-b', type=int, default=5, help='Number of blocks to mine')
+
+        # Real stats command
+        stats_parser = subparsers.add_parser('stats', help='Show blockchain statistics')
+
+        # Real verify command
+        verify_parser = subparsers.add_parser('verify', help='Verify blockchain integrity')
+
+        # Real balance command
+        balance_parser = subparsers.add_parser('balance', help='Check address balance')
+        balance_parser.add_argument('--address', '-a', required=True, help='Address to check')
+
+        # Legacy ASIC mining (for compatibility)
+        asic_parser = subparsers.add_parser('asic-mine', help='ASIC-resistant mining (legacy)')
+        asic_parser.add_argument('--address', '-a', required=True, help='Mining address')
+        asic_parser.add_argument('--duration', '-d', type=int, default=60, help='Mining duration in seconds')
+        asic_parser.add_argument('--threads', '-t', type=int, default=1, help='Number of threads')
+
+        # API server command
+        api_parser = subparsers.add_parser('api', help='Start API server')
+        api_parser.add_argument('--host', '-H', default='0.0.0.0', help='API host')
+        api_parser.add_argument('--port', '-p', type=int, default=8000, help='API port')
+
+        # Wallet commands
+        wallet_parser = subparsers.add_parser('wallet', help='Wallet management')
+        wallet_subparsers = wallet_parser.add_subparsers(dest='wallet_command')
+
+        # Wallet create address
+        wallet_subparsers.add_parser('create', help='Create new address')
+
+        # Wallet list addresses
+        wallet_subparsers.add_parser('list', help='List wallet addresses')
+
+        # Wallet balance
+        balance_parser = wallet_subparsers.add_parser('balance', help='Check balance')
+        balance_parser.add_argument('--address', '-a', help='Specific address')
+
+        # Wallet send
+        send_parser = wallet_subparsers.add_parser('send', help='Send transaction')
+        send_parser.add_argument('--from', '-f', dest='from_addr', required=True, help='From address')
+        send_parser.add_argument('--to', '-t', required=True, help='To address')
+        send_parser.add_argument('--amount', '-a', type=int, required=True, help='Amount in atomic units')
+        send_parser.add_argument('--fee', type=int, default=1000, help='Transaction fee')
+
+        args = parser.parse_args()
+
+        if not args.command:
+            parser.print_help()
+            return
+
+        # Handle commands
+        if args.command == 'mine':
+            cli = ZionRealBlockchainCLI()
+            cli.cmd_real_mine(args)
+        elif args.command == 'stats':
+            cli = ZionRealBlockchainCLI()
+            cli.cmd_real_stats(args)
+        elif args.command == 'verify':
+            cli = ZionRealBlockchainCLI()
+            cli.cmd_real_verify(args)
+        elif args.command == 'balance':
+            cli = ZionRealBlockchainCLI()
+            cli.cmd_real_balance(args)
+        elif args.command == 'asic-mine':
+            # Legacy ASIC mining
+            cli = ZionCLI()
+            cli.cmd_mine(args)
+        elif args.command == 'api':
+            # Start API server
+            try:
+                from api import app
+                import uvicorn
+                print("🚀 Starting ZION API Server...")
+                print(f"🌐 API: http://{args.host}:{args.port}")
+                print(f"📖 Docs: http://{args.host}:{args.port}/docs")
+                uvicorn.run(app, host=args.host, port=args.port)
+            except ImportError as e:
+                print(f"❌ API dependencies not installed: {e}")
+                print("Run: pip install fastapi uvicorn")
+        elif args.command == 'wallet':
+            from wallet import get_wallet
+            wallet = get_wallet()
+
+            if args.wallet_command == 'create':
+                label = getattr(args, 'label', '')
+                address = wallet.create_address(label)
+                print(f"✅ Created address: {address}")
+            elif args.wallet_command == 'list':
+                addresses = wallet.get_addresses()
+                print("📋 Wallet Addresses:")
+                for addr in addresses:
+                    balance = wallet.get_balance(addr['address'])
+                    print(f"  {addr['address'][:20]}... | {balance:,} ZION | {addr['label']}")
+            elif args.wallet_command == 'balance':
+                if hasattr(args, 'address') and args.address:
+                    balance = wallet.get_balance(args.address)
+                    print(f"💰 Balance for {args.address}: {balance:,} atomic units")
+                else:
+                    total_balance = wallet.get_total_balance()
+                    print(f"💰 Total wallet balance: {total_balance:,} atomic units")
+            elif args.wallet_command == 'send':
+                tx = wallet.create_transaction(
+                    getattr(args, 'from_addr'),
+                    args.to,
+                    args.amount,
+                    args.fee
+                )
+                if tx:
+                    print(f"✅ Transaction sent: {tx.tx_id}")
+                else:
+                    print("❌ Transaction failed")
+            else:
+                wallet_parser.print_help()
+
     except KeyboardInterrupt:
         print("\n⏹️ Operation cancelled by user")
         sys.exit(0)
