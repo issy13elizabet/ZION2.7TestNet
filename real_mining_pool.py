@@ -806,5 +806,10 @@ async def demo_mining_pool():
     print("   👷 Miner management, 📊 statistics tracking, 🕉️ sacred mining bonuses")
     print("   🌟 Ready for real-world deployment with UZI pool integration! ⛏️")
 
+    # Shutdown pool (simulated)
+    print("\n🛑 Shutting down Mining Pool...")
+    await pool.shutdown()
+    print("✅ Mining Pool stopped.")
+
 if __name__ == "__main__":
     asyncio.run(demo_mining_pool())

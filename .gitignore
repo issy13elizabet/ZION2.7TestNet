@@ -61,6 +61,14 @@ logs/
 mining-data/
 pool-data/
 
+# Old local data - keep local only
+ZION VOL 30.9/
+
+# Large data files - keep local only
+2.7/data/perfect_memory.dat
+2.7/data/*.db
+.env.local
+
 # Mining binaries
 mining/*/
 legacy/miners/*/
@@ -89,11 +97,6 @@ randomx-build/
 # Blockchain data
 blockchain/
 chaindata/
-
-# Backups
-*.backup
-*.bak
-backups/
 
 # Large files
 *.tar.gz

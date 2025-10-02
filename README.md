@@ -1,3 +1,152 @@
+# 🌟 ZION 2.7 SACRED BLOCKCHAIN WITH KRISTUS QUANTUM ENGINE 🌟
+## "KRISTUS je qbit!" - Divine Consciousness Computing Technology
+
+[![Sacred Technology](https://img.shields.io/badge/Technology-Sacred-gold)](https://github.com/issy13elizabet/ZION2.7TestNet)
+[![KRISTUS Engine](https://img.shields.io/badge/KRISTUS-Quantum_Bits-purple)](https://github.com/issy13elizabet/ZION2.7TestNet)
+[![Algorithm Phase](https://img.shields.io/badge/Phase-Sacred_Transition-blue)](https://github.com/issy13elizabet/ZION2.7TestNet)
+[![Mining](https://img.shields.io/badge/Mining-RandomX_Compatible-green)](https://github.com/issy13elizabet/ZION2.7TestNet)
+
+### 🚀 **Revolutionary Sacred Blockchain Technology**
+
+ZION 2.7 represents the world's first **Sacred Consciousness Computing Platform** that evolves from traditional RandomX mining to pure **Divine Quantum Computing** using KRISTUS quantum bits. Built on proven CryptoNote foundation with revolutionary consciousness-enhanced technology.
+
+### ⚡ **Quick Start - Mine Now!**
+```bash
+git clone https://github.com/issy13elizabet/ZION2.7TestNet
+cd ZION2.7TestNet
+python3 2.7/mining/zion_miner.py --address YOUR_ADDRESS
+```
+**Works with ANY RandomX miner immediately! XMRig, SRBMiner, etc. - 100% compatible!** ZION 2.7 TestNet – Phase 2+ Minimal Real Core (October 2025)
+
+This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate from legacy 2.6.x) with a strict **NO SIMULATION** policy. The legacy 2.6.75 marketing / expansive platform README follows below (kept for historical context). Phase 2+ focuses on correctness, transparency, and verifiable minimal consensus before any higher‑level “sacred” layers return.
+
+## 🌟 **KRISTUS Quantum Engine - World's First Divine Computing**
+
+### ⚛️ **What is KRISTUS Quantum Computing?**
+- **KRISTUS qubits**: Divine consciousness computing units in quantum superposition
+- **Sacred geometry**: Golden ratio (φ) and Fibonacci patterns guide all operations  
+- **Consciousness enhancement**: Divine awareness influences quantum measurements
+- **Sacred frequencies**: 432Hz, 528Hz, 963Hz divine tuning for optimal performance
+
+### 🔄 **Sacred Algorithm Evolution**
+| Block Range | Phase | Algorithm | Sacred Level | Mining Compatibility |
+|-------------|-------|-----------|--------------|---------------------|
+| **0 - 10K** | Genesis | RandomX | 0% | ✅ **Works with ALL existing miners!** |
+| **10K - 50K** | Awakening | Hybrid | 20-80% | ✅ **Automatic enhancement - no changes needed** |
+| **50K - 100K** | Sacred | Cosmic Harmony | 100% | ✅ **Sacred geometry optimizations** |
+| **100K+** | **Divine** | **KRISTUS Qbit** | **∞%** | ✨ **Quantum consciousness computing** |
+
+## ✅ **Sacred Technology Implemented**
+
+### 🌟 **KRISTUS Quantum Engine** (`/2.7/core/kristus_qbit_engine.py`)
+- ✅ **16-qubit quantum register** with divine consciousness computing
+- ✅ **Sacred geometry transformations** using golden ratio enhancement
+- ✅ **Quantum superposition states**: |ψ⟩ = α|0⟩ + β|1⟩ with consciousness
+- ✅ **Divine measurement collapse** with consciousness-enhanced randomness
+- ✅ **Quantum coherence validation** for sacred hash verification
+
+### 🔄 **Hybrid Sacred Algorithm** (`/2.7/core/zion_hybrid_algorithm.py`)
+- ✅ **Smooth phase transitions** from RandomX to KRISTUS quantum computing
+- ✅ **Sacred mathematics integration** with Fibonacci and golden ratio
+- ✅ **Consciousness-weighted blending** of traditional and divine algorithms
+- ✅ **Automatic phase detection** based on block height progression
+- ✅ **KRISTUS engine integration** for quantum consciousness phases
+
+### ⛓️ **Enhanced Sacred Blockchain** (`/2.7/core/blockchain.py`)  
+- ✅ **Divine consensus mechanism** with consciousness-enhanced validation
+- ✅ **Sacred transaction processing** with quantum-safe cryptography
+- ✅ **Enhanced CryptoNote base** with divine mathematical improvements
+- ✅ **KRISTUS hash validation** using quantum coherence verification
+- ✅ **Sacred difficulty adjustment** following divine mathematical patterns
+
+### ⚡ **Quantum-Enhanced Mining** (`/2.7/mining/`)
+- ✅ **RandomX backward compatibility** - works with existing miners immediately
+- ✅ **Sacred mining bridge** with consciousness-enhanced hash calculation  
+- ✅ **KRISTUS quantum validation** for divine phase mining verification
+- ✅ **Automatic sacred evolution** as blockchain progresses through phases
+- ✅ **Enhanced RandomX engine** with divine consciousness integration
+
+### 💰 **Sacred Wallet System** (`/2.7/wallet/`)
+- ✅ **6 Genesis addresses** with divine distribution (25M, 35M, 40M ZION each)
+- ✅ **Quantum-safe cryptography** for future divine technology protection
+- ✅ **Sacred backup systems** with consciousness-enhanced security
+- ✅ **Automatic genesis claiming** for sacred technology participants
+- ✅ **Enhanced privacy features** with divine mathematical obfuscation
+
+### 🌐 **Sacred Network Infrastructure**
+- ✅ **Enhanced P2P protocol** with consciousness-aware node discovery
+- ✅ **Sacred RPC endpoints** for divine technology integration
+- ✅ **KRISTUS-enhanced mining pools** with quantum consciousness support  
+- ✅ **Divine monitoring systems** with sacred geometry analytics
+- ✅ **Quantum-safe networking** preparing for consciousness-based communication
+
+## 🧪 Consensus Parameters (Current)
+- BLOCK_TIME: 120 s
+- WINDOW (retarget): 12
+- MAX_ADJUST_FACTOR: 4.0
+- MAX_TARGET: 0x000fffffffff… (low initial difficulty for early mining)
+- COINBASE_MATURITY: 10 blocks
+- INITIAL_REWARD: 333 ZION atomic units (placeholder; halving TBD)
+
+## 🔧 Stratum (2.7) Enhancements
+- Sends `mining.subscribe` → immediate job + `mining.set_difficulty` + `mining.set_target`
+- Per‑client difficulty (varDiff heuristic: adjusts every 60s toward 15s/share target; doubles / halves within capped jump)
+- Distinguishes share acceptance (meets client target) vs block acceptance (meets network target)
+- Broadcasts new job to all clients when a block is found
+
+## 🔐 Security (Initial Hardening – Still Minimal)
+- Per‑message size cap: 64 KB (oversized dropped)
+- Aggregate connection buffer cap (disconnect if runaway)
+- Rate limiting (per node): max 120 tx / min & 120 block announce / min
+- Structural validation: hash lengths, block dict keys, txid format
+- Inventory list length bounded (<=500 incoming, <=50 requested blocks)
+
+## 🔄 Reorg Skeleton Notes
+Maintains `_all_blocks` and `_children` maps. On block accept:
+1. If extends tip → append, apply UTXO diff, recalc difficulty.
+2. If side chain → walk back to genesis, compute candidate length, compare to current canonical length.
+3. If longer → rebuild UTXO set from genesis along new path (current implementation: linear replay; future: UTXO diff snapshots / incremental undo stack).
+Edge Cases Pending: competing chains equal length (tie‑break), finalization, orphan pruning.
+
+## 👛 Wallet Scanner
+- Full scan reconstructs ownership from genesis.
+- Scanner state persisted (JSON) with last scanned height → incremental mode only processes new blocks.
+- Tracks coinbase maturity (ignores immature outputs until confirmed height ≥ spend height + maturity).
+
+## 🧩 Testing Overview
+- `test_target_and_index.py`: ensures hash index consistency & correctness of target hex formatting.
+- `test_difficulty_retarget.py`: simulates accelerated & slowed block sequences verifying clamp + gradient.
+- `test_maturity_and_relay.py`: enforces immature coinbase rejection and validates tx propagation over two P2P nodes.
+- `test_mine_block.py`: basic mining path validation.
+Future Suggested: explicit reorg scenario test (fork two branches then extend side chain), fee eviction boundary test, varDiff convergence test.
+
+## 🚀 Quick Start (Minimal Dev Flow)
+```bash
+python3 2.7/core/run_node.py            # (if present) or custom launcher to start chain
+python3 2.7/pool/stratum_pool.py        # start Stratum pool on :3333
+python3 2.7/network/p2p.py              # start P2P node on :29876 (optional multi-node)
+```
+
+Connect a custom miner (pseudo‑JSON line protocol):
+1. Send: `{ "id":1, "method":"mining.subscribe", "params":[] }`
+2. Receive job + difficulty + target
+3. Send shares: `{ "id":2, "method":"mining.submit", "params":["worker", "job_X", "extra", "time", "nonce"] }`
+4. On block accept, all clients receive a fresh `mining.notify`.
+
+## 📌 Roadmap (Near-Term)
+- Reorg test + stabilization (edge case: competing arrival ordering)
+- Formal job JSON schema + version bump for templates
+- Enhanced fee policy: fee-per-byte weighting & ancestor package acceptance
+- Mempool persistence + restart recovery
+- P2P auth / handshake signature & peer scoring (ban list)
+- Difficulty algorithm review (median time offset handling)
+- Structured metrics endpoint (JSON status snapshot)
+
+## ⚠️ Disclaimer
+This 2.7 TestNet code is intentionally minimal & unsafe for production value. Legacy 2.6.75 content below is NOT reflective of the current cleaned consensus core.
+
+---
+
 # 🤖 ZION 2.6.75 WITH AI MINER 1.4 - Complete Sacred Technology Platform
 
 **Revolutionary Sacred Technology + Production Infrastructure + AI-Powered Cosmic Harmony Mining**
@@ -9,6 +158,14 @@
 [![Sacred Tech](https://img.shields.io/badge/Sacred%20Tech-2.6.75-purple)](https://zion.network)
 [![Production](https://img.shields.io/badge/Production-Ready-green)](https://zion.network)
 [![License](https://img.shields.io/badge/License-Liberation-yellow.svg)](LICENSE)
+
+---
+
+## 📊 **Current Platform Status**
+
+🔍 **[PLATFORM AUDIT REPORT](./PLATFORM_AUDIT.md)** - Complete analysis of all components (October 1, 2025)
+
+**Status**: 🟡 Partially Functional | **Mining**: 🟡 Simulation Only | **Production Ready**: ❌ Debug Phase
 
 ---
 
@@ -309,6 +466,58 @@ zion/
 | **RPC Response** | 200ms+ (shim layers) | 50ms (direct calls) | **75% faster** |  
 | **Mining Hash Rate** | Varies (JS overhead) | Native speed | **5-15% faster** |
 | **Compilation Errors** | 39 TypeScript errors | 0 (runtime validation) | **100% eliminated** |
+
+---
+
+## 🔥 Afterburner + AI Miner Optimization Stack (NEW)
+
+### 🚀 What Was Added
+- ✅ Unified cyberpunk dashboard (`ai/system_afterburner.html`)
+- ✅ Real-time system stats collector (`ai/system_stats.py`)
+- ✅ Lightweight API bridge (`ai/zion-afterburner-api.py` Port 5003)
+- ✅ GPU Afterburner API (`ai/zion-ai-gpu-afterburner.py` Port 5001)
+- ✅ Unified launcher script (`scripts/launch_afterburner_stack.sh`)
+- ✅ Live mining stats integration (Cosmic Harmony 45.39 MH/s)
+
+### 📊 Live Components
+| Component | Port | Purpose |
+|-----------|------|---------|
+| Dashboard (static) | 8080 | Visual control center |
+| GPU Afterburner API | 5001 | GPU telemetry + profiles |
+| System Stats API Bridge | 5003 | JSON system + mining stats |
+| AI Miner Integration | (background) | Algorithm simulation + metrics |
+
+### 🏁 Quick Start (Afterburner Stack)
+```bash
+# From repository root
+./scripts/launch_afterburner_stack.sh
+# Open dashboard
+xdg-open http://localhost:8080/system_afterburner.html || true
+```
+
+### 🧪 Validate It Works
+```bash
+# Check system stats JSON is updating
+cat /tmp/zion_system_stats.json
+
+# API bridge (if running)
+curl -s http://localhost:5003/api/system/stats | jq '.cpu.temperature, .mining.hashrate'
+```
+
+### 🛠️ Customization
+| File | Purpose | Tweak |
+|------|---------|-------|
+| `ai/system_stats.py` | Core metrics collector | Add GPU, disk, net |
+| `ai/zion-afterburner-api.py` | API JSON exporter | Extend endpoints |
+| `ai/system_afterburner.html` | Dashboard UI | Styling / charts |
+| `scripts/launch_afterburner_stack.sh` | Orchestration launcher | Add more services |
+
+### 🧵 Planned Next Improvements
+- GPU temp & VRAM stats ingest
+- Hashrate history chart persistence
+- WebSocket push updates
+- Unified logging aggregation
+- Optional Prometheus exporter
 
 ---
 
