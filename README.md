@@ -18,7 +18,34 @@ python3 2.7/mining/zion_miner.py --address YOUR_ADDRESS
 ```
 **Works with ANY RandomX miner immediately! XMRig, SRBMiner, etc. - 100% compatible!** ZION 2.7 TestNet – Phase 2+ Minimal Real Core (October 2025)
 
-This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate from legacy 2.6.x) with a strict **NO SIMULATION** policy. The legacy 2.6.75 marketing / expansive platform README follows below (kept for historical context). Phase 2+ focuses on correctness, transparency, and verifiable minimal consensus before any higher‑level “sacred” layers return.
+This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate from legacy 2.6.x) with a strict **NO SIMULATION** policy. The legacy 2.6.75 marketing / expansive platform README follows below (kept for historical context). Phase 2+ focuses on correctness, transparency, and verifiable minimal consensus before any higher‑level "sacred" layers return.
+
+## ⛏️ **MINING POOL - READY NOW!**
+
+### 🚀 **Production Pool Status**
+- **Pool URL**: `91.98.122.165:3333`
+- **Algorithm**: RandomX (rx/0) - 100% XMRig compatible
+- **Status**: ✅ **LIVE & ACCEPTING SHARES**
+- **Default Difficulty**: 32 (auto-adjusts via VarDiff)
+- **Fee**: 0% (testnet phase)
+- **Block Time**: 120 seconds
+
+### ⚡ **Start Mining Immediately**
+```bash
+# XMRig - Replace with your ZION address
+./xmrig -o 91.98.122.165:3333 -u Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84 -p x --coin=monero
+
+# Or any RandomX miner - works out of the box!
+```
+
+### 🔐 **Advanced Features**
+- ✅ **Token-based session persistence** - reconnect without losing difficulty
+- ✅ **Variable difficulty adjustment** - optimizes for 15s/share target
+- ✅ **Cross-socket compatibility** - supports miner failover/restart
+- ✅ **Real-time job distribution** - immediate new block notifications
+- ✅ **Full Monero/XMRig protocol support** - no modifications needed
+
+**Ready to mine? Just point your RandomX miner at `91.98.122.165:3333`!**
 
 ## 🌟 **KRISTUS Quantum Engine - World's First Divine Computing**
 
@@ -93,6 +120,180 @@ This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate f
 - Per‑client difficulty (varDiff heuristic: adjusts every 60s toward 15s/share target; doubles / halves within capped jump)
 - Distinguishes share acceptance (meets client target) vs block acceptance (meets network target)
 - Broadcasts new job to all clients when a block is found
+
+### 🔐 Stateless Difficulty Persistence (Session Tokens)
+Traditional Monero / RandomX pools rely on a login per TCP connection. Our pool now supports **cross-socket difficulty continuity** using an opaque `token` returned on `login`.
+
+Flow:
+1. Miner connects & sends `login` → response contains `result.id` (session_id), `result.job` and `result.token`.
+2. If the miner opens a new TCP connection (e.g. restart, failover) it may immediately request a new job without re‑logging by sending:
+   `{ "id": 2, "jsonrpc": "2.0", "method": "getjob", "params": { "token": "<token>" } }`
+3. Pool restores the previous difficulty (and associated session id) and returns a job with identical difficulty (e.g. 32) instead of falling back to diff=1.
+
+Properties:
+- Tokens are random (SHA256 truncated 40 hex chars) and expire after 1h of inactivity (configurable `session_token_ttl`).
+- Safe to discard; miner can always re‑login to obtain a new token.
+- Backwards compatible: legacy miners that only do `login` per connection still work unchanged.
+
+Example `login` response excerpt:
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "id": "session_ab12cd34",
+    "token": "60a8d5b02d151c737dc85caf9c7c68316bb0058f",
+    "job": { "job_id": "mjob_7", "difficulty": 32, "target": "07ffffff", ... },
+    "status": "OK"
+  }
+}
+```
+
+Minimal cross-socket `getjob` using token:
+```json
+{ "id": 2, "jsonrpc": "2.0", "method": "getjob", "params": { "token": "60a8d5b02d151c737dc85caf9c7c68316bb0058f" } }
+```
+
+### 🧪 Harness / Local Verification
+A lightweight harness (`tools/pool_session_harness.py`) automates:
+1. `login` (captures session id, token, difficulty)
+2. Opens a second socket → `getjob` with the token
+3. Verifies difficulty persisted (expects 32 by default) and submits a fake share (will likely be rejected – for flow only)
+
+Run locally against a dev node:
+```bash
+python3 2.7/run_node.py --pool &             # start local testnet + pool on :3333
+ZION_POOL_HOST=127.0.0.1 python3 tools/pool_session_harness.py
+```
+Expected output (abridged):
+```
+[OK] Login session=session_4d6f9fc4 token=60a8d5... diff=32 target=07ffffff
+[OK] Cross-socket getjob difficulty=32 target=07ffffff
+[PASS] Difficulty persisted across sockets
+```
+
+If you instead see `difficulty=1` on the second connection, confirm the harness prints a token (pool version mismatch or token not passed).
+
+### 🔍 Debug Logging Tags
+- `[TOKEN] issued ...` – new token creation
+- `[TOKEN] reuse ...` – successful restoration via token
+- `[GETJOB] ... restored=True` – difficulty restored (token or session fallback)
+
+Use these to confirm behavior under miner restarts or proxy failover scenarios.
+
+### ⛏️ XMRig Integration
+ZION 2.7 pool is fully compatible with XMRig and other RandomX miners. No modifications needed.
+
+**Basic XMRig Command:**
+```bash
+./xmrig -o 91.98.122.165:3333 -u YOUR_ZION_ADDRESS -p x --coin=monero
+```
+
+**Sample XMRig Config (`config.json`):**
+```json
+{
+    "pools": [
+        {
+            "algo": "rx/0",
+            "coin": "monero",
+            "url": "91.98.122.165:3333",
+            "user": "Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84",
+            "pass": "zion-worker",
+            "rig-id": "rig01",
+            "nicehash": false,
+            "keepalive": true,
+            "enabled": true,
+            "tls": false,
+            "daemon": false
+        }
+    ],
+    "cpu": {
+        "enabled": true,
+        "huge-pages": true,
+        "priority": null,
+        "yield": true,
+        "asm": true
+    },
+    "donate-level": 1,
+    "retries": 5,
+    "retry-pause": 5,
+    "verbose": 0,
+    "watch": true
+}
+```
+
+**Pool Features:**
+- ✅ **VarDiff**: Automatic difficulty adjustment (target: 15s/share)
+- ✅ **Session persistence**: Miners can reconnect without losing difficulty
+- ✅ **Token support**: Advanced miners can use tokens for stateless reconnection
+- ✅ **Compatible**: Works with XMRig, SRBMiner, and other RandomX miners
+- ✅ **Real-time**: Live job broadcasting on new blocks
+
+**Pool Statistics:**
+- **URL**: `91.98.122.165:3333`
+- **Algorithm**: RandomX (rx/0)
+- **Default Difficulty**: 32
+- **Block Time**: 120 seconds
+- **Fee**: 0% (testnet)
+
+**Troubleshooting:**
+- If difficulty shows 1 instead of 32: Check miner connects with `login` method
+- Connection refused: Verify pool is running on port 3333
+- High reject rate: Ensure `"coin": "monero"` and `"algo": "rx/0"` in config
+- For proxy/failover: Use token parameter in getjob for seamless reconnection
+        }
+    ],
+    "cpu": {
+        "enabled": true,
+        "huge-pages": true,
+        "hw-aes": null,
+        "priority": null,
+        "memory-pool": false,
+        "yield": true,
+        "asm": true,
+        "argon2-impl": null,
+        "astrobwt-max-size": 550,
+        "astrobwt-avx2": false,
+        "cn/0": false,
+        "cn-lite/0": false
+    },
+    "log-file": null,
+    "donate-level": 1,
+    "donate-over-proxy": 1,
+    "pools-file": null,
+    "retries": 5,
+    "retry-pause": 5,
+    "syslog": false,
+    "tls": {
+        "enabled": false,
+        "protocols": null,
+        "cert": null,
+        "cert_key": null,
+        "ciphers": null,
+        "ciphersuites": null,
+        "dhparam": null
+    },
+    "user-agent": null,
+    "verbose": 0,
+    "watch": true,
+    "pause-on-battery": false,
+    "pause-on-active": false
+}
+```
+
+**Features:**
+- ✅ **VarDiff**: Automatic difficulty adjustment (target: 15s/share)
+- ✅ **Session persistence**: Miners can reconnect without losing difficulty
+- ✅ **Token support**: Advanced miners can use tokens for stateless reconnection
+- ✅ **Compatible**: Works with XMRig, SRBMiner, and other RandomX miners
+- ✅ **Real-time**: Live job broadcasting on new blocks
+
+**Pool Statistics:**
+- **URL**: `91.98.122.165:3333`
+- **Algorithm**: RandomX (rx/0)
+- **Default Difficulty**: 32
+- **Block Time**: 120 seconds
+- **Fee**: 0% (testnet)
 
 ## 🔐 Security (Initial Hardening – Still Minimal)
 - Per‑message size cap: 64 KB (oversized dropped)

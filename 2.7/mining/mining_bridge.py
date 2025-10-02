@@ -16,7 +16,12 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.blockchain import Blockchain, Block, Tx, Consensus
-from core.zion_hybrid_algorithm import ZionHybridAlgorithm
+try:
+    from core.zion_hybrid_algorithm import ZionHybridAlgorithm
+    HYBRID_AVAILABLE = True
+except ImportError:
+    HYBRID_AVAILABLE = False
+    ZionHybridAlgorithm = None
 from mining.randomx_engine import RandomXEngine, MiningThreadManager
 from mining.stratum_server import StratumPoolServer, MiningJob, ShareStatus
 from mining.mining_stats import MiningStatsCollector, RealTimeMonitor
