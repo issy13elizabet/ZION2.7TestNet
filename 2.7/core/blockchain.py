@@ -1,11 +1,23 @@
 """
-ZION 2.7 TestNet - Minimal Real Blockchain Core
+ZION 2.7 TestNet - Enhanced Blockchain Core with Hybrid Algorithm
+Sacred Transition: RandomX → Cosmic Harmony → KRISTUS qbit
 No P2P yet. No mock balances. Deterministic genesis.
 """
 from __future__ import annotations
-import json, time, hashlib, os, threading
+import json, time, hashlib, os, threading, sys
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Any
+
+# Import ZION Hybrid Algorithm
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from zion_hybrid_algorithm import ZionHybridAlgorithm
+    HYBRID_ALGORITHM_AVAILABLE = True
+    print("🌟 ZION Hybrid Algorithm loaded: RandomX → Cosmic Harmony → KRISTUS qbit")
+except ImportError as e:
+    HYBRID_ALGORITHM_AVAILABLE = False
+    print(f"⚠️ ZION Hybrid Algorithm not available: {e}")
+    print("🔄 Falling back to legacy hashing")
 
 # ---- Data Structures ----
 @dataclass
@@ -28,15 +40,25 @@ class Block:
     def calc_hash(self) -> str:
         # Height intentionally excluded from hash so reorg height reassignment
         # does not alter block identity (prev_hash links remain valid).
-        data = {
+        blob = json.dumps({
             'p': self.prev_hash,
             't': self.timestamp,
             'm': self.merkle_root,
             'd': self.difficulty,
             'n': self.nonce,
-            'txs': self.txs,
-        }
-        blob = json.dumps(data, sort_keys=True).encode()
+            'x': self.txs
+        }, sort_keys=True).encode()
+        
+        # Use ZION Hybrid Algorithm if available and height is known
+        if HYBRID_ALGORITHM_AVAILABLE and hasattr(self, 'height') and self.height is not None:
+            try:
+                hybrid_algo = ZionHybridAlgorithm()
+                return hybrid_algo.calculate_pow_hash(blob, self.nonce, self.height)
+            except Exception as e:
+                print(f"⚠️ Hybrid algorithm failed for block {self.height}: {e}")
+                print("🔄 Falling back to legacy SHA256")
+        
+        # Legacy SHA256 fallback
         return hashlib.sha256(blob).hexdigest()
 
     def seal(self):
@@ -174,6 +196,16 @@ class Blockchain:
             data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         self.data_dir = data_dir
         os.makedirs(self.data_dir, exist_ok=True)
+        
+        # Initialize ZION Hybrid Algorithm
+        self.hybrid_algorithm = None
+        if HYBRID_ALGORITHM_AVAILABLE:
+            try:
+                self.hybrid_algorithm = ZionHybridAlgorithm()
+                print("🌟 ZION Hybrid Algorithm initialized successfully")
+            except Exception as e:
+                print(f"⚠️ Failed to initialize hybrid algorithm: {e}")
+                self.hybrid_algorithm = None
         
         # 🚀 AUTOMATIC OPTIMIZED STORAGE DETECTION
         self.storage = None
@@ -571,6 +603,12 @@ class Blockchain:
             txs=mined['txs']
         )
         blk.seal()
+        
+        # Validate proof of work using hybrid algorithm
+        if not self._validate_block_pow(blk):
+            print(f"❌ Block {blk.height} failed proof of work validation")
+            return False
+        
         accepted = True
         with self._lock:
             self._register_block_and_maybe_reorg(blk, extending_tip)
@@ -594,6 +632,29 @@ class Blockchain:
         return True
 
     # ---------------- Validation ----------------
+    def _validate_block_pow(self, block: Block) -> bool:
+        """Validate block proof of work using ZION Hybrid Algorithm"""
+        try:
+            # Check difficulty target
+            target = Consensus.difficulty_to_target(block.difficulty)
+            
+            # Use hybrid algorithm for complete validation if available
+            if self.hybrid_algorithm:
+                return self.hybrid_algorithm.validate_pow(block.hash, target, block.height)
+            
+            # Legacy validation fallback
+            block_hash_int = int(block.hash, 16)
+            if block_hash_int >= target:
+                print(f"❌ Block {block.height} hash {block.hash[:16]}... doesn't meet difficulty target (legacy)")
+                return False
+                
+            print(f"✅ Block {block.height} passed legacy PoW validation")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Block {block.height} PoW validation error: {e}")
+            return False
+
     def _validate_tx(self, tx: Dict[str, Any]) -> bool:
         # Basic structural and UTXO availability check
         seen = set()

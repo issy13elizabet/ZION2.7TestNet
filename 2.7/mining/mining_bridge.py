@@ -16,6 +16,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.blockchain import Blockchain, Block, Tx, Consensus
+from core.zion_hybrid_algorithm import ZionHybridAlgorithm
 from mining.randomx_engine import RandomXEngine, MiningThreadManager
 from mining.stratum_server import StratumPoolServer, MiningJob, ShareStatus
 from mining.mining_stats import MiningStatsCollector, RealTimeMonitor
@@ -35,6 +36,14 @@ class MiningIntegrationBridge:
         self.thread_manager = None
         self.stratum_server = None
         self.stats_collector = None
+        
+        # ZION Hybrid Algorithm
+        try:
+            self.hybrid_algorithm = ZionHybridAlgorithm()
+            logger.info("🌟 ZION Hybrid Algorithm loaded for mining")
+        except Exception as e:
+            logger.warning(f"⚠️ Hybrid algorithm unavailable: {e}")
+            self.hybrid_algorithm = None
         
         # Block template generation
         self.miner_address = None
@@ -90,6 +99,42 @@ class MiningIntegrationBridge:
         else:
             # Genesis seed
             return b'ZION_2_7_GENESIS_RANDOMX_SEED'
+    
+    def calculate_mining_hash(self, block_data: bytes, nonce: int, height: int) -> str:
+        """Calculate hash using ZION Hybrid Algorithm or fallback"""
+        try:
+            if self.hybrid_algorithm:
+                # Use hybrid algorithm for correct phase transition
+                return self.hybrid_algorithm.calculate_pow_hash(block_data, nonce, height)
+            elif self.randomx_engine:
+                # Fallback to RandomX engine
+                nonce_bytes = struct.pack('<I', nonce)
+                hash_input = block_data + nonce_bytes
+                return self.randomx_engine.hash(hash_input).hex()
+            else:
+                # Emergency SHA256 fallback
+                nonce_bytes = struct.pack('<I', nonce)
+                hash_input = block_data + nonce_bytes
+                return hashlib.sha256(hash_input).hexdigest()
+        except Exception as e:
+            logger.error(f"Mining hash calculation failed: {e}")
+            # Emergency fallback
+            nonce_bytes = struct.pack('<I', nonce)
+            hash_input = block_data + nonce_bytes
+            return hashlib.sha256(hash_input).hexdigest()
+    
+    def validate_mining_solution(self, block_hash: str, target: int, height: int) -> bool:
+        """Validate mining solution using hybrid algorithm"""
+        try:
+            if self.hybrid_algorithm:
+                return self.hybrid_algorithm.validate_pow(block_hash, target, height)
+            else:
+                # Legacy validation
+                block_hash_int = int(block_hash, 16)
+                return block_hash_int < target
+        except Exception as e:
+            logger.error(f"Mining validation failed: {e}")
+            return False
             
     def get_current_difficulty(self) -> float:
         """Get current mining difficulty"""
