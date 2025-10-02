@@ -17,6 +17,9 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 from core.blockchain import Blockchain, Consensus
 
+# Import ZION Sacred Algorithm
+from zion_sacred_algorithm import ZionAlgorithmDefinition, ZionMinerType, SacredLevel
+
 @dataclass
 class ClientState:
     sock: socket.socket
@@ -40,6 +43,11 @@ class ClientState:
     # Added fields for validation accounting
     valid_shares: int = 0
     invalid_shares: int = 0
+    # ZION Sacred Algorithm fields
+    zion_miner_type: str = "unknown"
+    sacred_level: str = "initiate"
+    consciousness_points: float = 0.0
+    sacred_multiplier: float = 1.0
 
 class MinimalStratumPool:
     def __init__(self, host='0.0.0.0', port=3333, miner_address: str = None, chain: Blockchain = None):
@@ -100,6 +108,11 @@ class MinimalStratumPool:
         self.wallet_difficulty = {}  # wallet_login -> last difficulty
         self.session_tokens = {}  # token -> {session_id, difficulty, wallet, last_seen}
         self.session_token_ttl = 3600  # 1 hour token lifetime
+        
+        # 🌟 ZION Sacred Algorithm Integration
+        git_repo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+        self.zion_algorithm = ZionAlgorithmDefinition(git_repo_path=git_repo_path)
+        self.logger.info("🌟 ZION Sacred Algorithm initialized - Sacred Mining Protocol ACTIVE")
 
     def _now(self):
         return datetime.utcnow().strftime('%H:%M:%S')
@@ -127,7 +140,7 @@ class MinimalStratumPool:
         return job
 
     # ---- Advanced Monero/XMRig job generation with real block template ----
-    def generate_monero_style_job(self, client_difficulty=None):
+    def generate_monero_style_job(self, client_difficulty=None, enhanced_for_zion=False):
         self.job_id += 1
         # Get real block template with caching
         current_time = time.time()
@@ -137,7 +150,12 @@ class MinimalStratumPool:
             self.last_template_time = current_time
             self.last_template_height = self.chain.height
         template = self.cached_template
-        job_id = f'mjob_{self.job_id}'
+        
+        # Enhanced job ID for ZION miners
+        if enhanced_for_zion:
+            job_id = f'zion_{self.job_id}'
+        else:
+            job_id = f'mjob_{self.job_id}'
         # Generate real RandomX-compatible blob
         blob = self._create_real_blob(template)
         # Use client difficulty or default
@@ -363,8 +381,39 @@ class MinimalStratumPool:
             if isinstance(params, dict):
                 worker_login = params.get('login') or params.get('user') or 'unknown'
                 state.worker = worker_login
-            # Identify client as XMRig for later varDiff / specialized handling
-            state.client_type = "xmrig"
+            # 🌟 ZION Sacred Algorithm - Advanced Miner Detection
+            agent = params.get('agent', '') if isinstance(params, dict) else ''
+            rigid = params.get('rigid', '') if isinstance(params, dict) else ''
+            
+            # Register miner with ZION Sacred Algorithm
+            miner_id = f"{addr[0]}:{addr[1]}_{worker_login[:10]}"
+            hardware_info = {
+                "user_agent": agent,
+                "rig_id": rigid,
+                "ip_address": addr[0]
+            }
+            
+            zion_profile = self.zion_algorithm.register_miner(
+                miner_id=miner_id,
+                user_agent=agent,
+                rig_id=rigid,
+                wallet=worker_login,
+                hardware_info=hardware_info
+            )
+            
+            # Update ClientState with ZION sacred data
+            state.client_type = zion_profile.miner_type.value
+            state.zion_miner_type = zion_profile.miner_type.value
+            state.sacred_level = zion_profile.sacred_level.value
+            state.consciousness_points = zion_profile.consciousness_points
+            state.sacred_multiplier = zion_profile.get_sacred_multiplier()
+            
+            self.logger.info(
+                f"🌟 [ZION] Sacred Miner Registered: {zion_profile.miner_type.value} "
+                f"Level: {zion_profile.sacred_level.value} "
+                f"Wallet: {worker_login[:10]}... "
+                f"Sacred Multiplier: {zion_profile.get_sacred_multiplier():.3f}"
+            )
             if not state.session_id:
                 state.session_id = f"session_{secrets.token_hex(4)}"
             wallet_login_key = state.worker.lower()
@@ -377,15 +426,34 @@ class MinimalStratumPool:
             if reuse_diff:
                 state.difficulty = reuse_diff
             else:
-                state.difficulty = self.default_monero_difficulty
+                # 🌟 ZION Sacred Algorithm - Adaptive Difficulty Calculation
+                state.difficulty = self.zion_algorithm.calculate_adaptive_difficulty(zion_profile)
+                self.logger.info(
+                    f"🌟 [ZION] Sacred Difficulty Applied: {state.difficulty} "
+                    f"(Base: {self.zion_algorithm.BASE_DIFFICULTY[zion_profile.miner_type]} × "
+                    f"Sacred: {zion_profile.get_sacred_multiplier():.3f})"
+                )
                 self.sessions[state.session_id] = {'difficulty': state.difficulty, 'last_seen': time.time(), 'wallet': wallet_login_key}
             self.wallet_difficulty[wallet_login_key] = state.difficulty
             # Persist touch
             self.sessions[state.session_id]['last_seen'] = time.time()
             self._cleanup_sessions()
-            job = self.generate_monero_style_job(state.difficulty)
-            # Job already has correct difficulty and target
-            self.log(f"XMRig login - worker: {state.worker}, diff: {state.difficulty}, target: {job['target']}")
+            # 🌟 Generate Enhanced ZION Job with Sacred Algorithm
+            base_job = self.generate_monero_style_job(state.difficulty)
+            job = self.zion_algorithm.create_enhanced_job(base_job, zion_profile)
+            
+            # Enhanced logging for ZION miners
+            if zion_profile.miner_type.value in ["zion-native", "zion-sacred"]:
+                self.logger.info(
+                    f"🌟 [ZION] Sacred Job Created: "
+                    f"Worker: {state.worker} | "
+                    f"Difficulty: {state.difficulty} | "
+                    f"Consciousness: {zion_profile.consciousness_points:.1f} | "
+                    f"Enhanced: {job.get('zion_enhanced', False)} | "
+                    f"Sacred Geometry: {job.get('sacred_geometry', False)}"
+                )
+            else:
+                self.logger.info(f"[POOL] Standard Job - Worker: {state.worker}, Difficulty: {state.difficulty}")
             token_seed = f"{state.session_id}:{state.difficulty}:{secrets.token_hex(8)}".encode()
             session_token = hashlib.sha256(token_seed).hexdigest()[:40]
             self.session_tokens[session_token] = {
@@ -485,6 +553,49 @@ class MinimalStratumPool:
                 state.shares_since_adjust += 1
                 state.valid_shares += 1
                 self.accepted_shares += 1
+                current_time = time.time()
+                
+                # 🌟 ZION Hashrate Tracking
+                share_difficulty = job.get('difficulty', 1)
+                time_since_last = current_time - (state.last_share_time if state.last_share_time else current_time)
+                if time_since_last > 0 and time_since_last < 300:  # Max 5 minutes between shares
+                    # Hashrate = difficulty / time_between_shares  
+                    current_hashrate = share_difficulty / max(time_since_last, 1)
+                    state.hashrate_samples.append(current_hashrate)
+                    
+                    # Update ZION algorithm profile
+                    miner_id = f"{state.address[0]}:{state.address[1]}_{state.worker[:10]}"
+                    if miner_id in self.zion_algorithm.miners:
+                        zion_profile = self.zion_algorithm.miners[miner_id]
+                        zion_profile.hashrate_samples.append(current_hashrate)
+                        
+                        # 🌟 ZION Sacred Rewards Processing
+                        accepted_bool, reason_str, consciousness_reward = self.zion_algorithm.process_share_submission(
+                            miner_id, {'difficulty': share_difficulty, 'timestamp': current_time}
+                        )
+                        
+                        # Calculate sacred rewards
+                        base_reward = share_difficulty * 0.000001  # Base reward per share
+                        sacred_bonus = base_reward * (zion_profile.get_sacred_multiplier() - 1.0)
+                        total_reward = base_reward + sacred_bonus + (consciousness_reward * 0.0001)
+                        
+                        # Update consciousness points in ClientState
+                        state.consciousness_points = zion_profile.consciousness_points
+                        state.sacred_multiplier = zion_profile.get_sacred_multiplier()
+                        
+                        # Enhanced ZION logging
+                        recent_samples = list(state.hashrate_samples)[-5:] if len(state.hashrate_samples) > 0 else [0]
+                        avg_hashrate = sum(recent_samples) / len(recent_samples)
+                        self.logger.info(
+                            f"🌟 [ZION] Share Accepted: {state.worker} | "
+                            f"Hashrate: {avg_hashrate:.1f} H/s | "
+                            f"Difficulty: {share_difficulty} | "
+                            f"Reward: {total_reward:.8f} ZION | "
+                            f"Sacred Bonus: {sacred_bonus:.8f} | "
+                            f"Consciousness: +{consciousness_reward:.2f} pts"
+                        )
+                
+                state.last_share_time = current_time
                 
                 # VarDiff attempt after accepted share
                 self._maybe_adjust_vardiff(state)
@@ -648,7 +759,7 @@ class MinimalStratumPool:
         for state in self.client_states.values():
             if hasattr(state, 'hashrate_samples') and state.hashrate_samples:
                 # Use recent samples for hashrate calculation
-                recent_samples = state.hashrate_samples[-5:]  # Last 5 samples
+                recent_samples = list(state.hashrate_samples)[-5:] if len(state.hashrate_samples) > 0 else []
                 if recent_samples:
                     avg_hashrate = sum(recent_samples) / len(recent_samples)
                     total_hashrate += avg_hashrate
@@ -668,6 +779,29 @@ class MinimalStratumPool:
         
         return stats
 
+    def _report_pool_statistics(self):
+        """Periodically report pool statistics"""
+        try:
+            stats = self.get_pool_statistics()
+            zion_stats = self.zion_algorithm.get_session_statistics()
+            
+            self.logger.info(
+                f"📊 [POOL] Workers: {stats['active_workers']} | "
+                f"Hashrate: {stats['total_hashrate_mhs']:.1f} H/s | "
+                f"Shares: {stats['accepted_shares']}/{stats['rejected_shares']} | "
+                f"Efficiency: {(stats['accepted_shares']/(stats['accepted_shares']+stats['rejected_shares']+0.001)*100):.1f}% | "
+                f"Consciousness: {zion_stats.get('total_consciousness', 0):.1f} | "
+                f"Sacred Masters: {zion_stats.get('sacred_masters', 0)}"
+            )
+            
+            # Log detailed statistics every 10 minutes
+            if int(time.time()) % 600 < 60:  # Every 10 minutes
+                report = self.zion_algorithm.generate_mining_report()
+                self.logger.info(f"🌟 [SACRED] Detailed Report Generated")
+                
+        except Exception as e:
+            self.logger.error(f"Statistics reporting error: {e}")
+
     def _cleanup_sessions(self):
         now = time.time()
         to_delete = []
@@ -686,6 +820,17 @@ class MinimalStratumPool:
         s.bind((self.host, self.port))
         s.listen(50)
         self.log(f"Stratum listening on {self.host}:{self.port}")
+        
+        # Start statistics reporting thread
+        def stats_reporter():
+            while self.running:
+                time.sleep(60)  # Report every minute
+                if self.running:
+                    self._report_pool_statistics()
+        
+        stats_thread = threading.Thread(target=stats_reporter, daemon=True)
+        stats_thread.start()
+        
         try:
             while self.running:
                 client, addr = s.accept()
@@ -764,3 +909,50 @@ class MinimalStratumPool:
                 self.logger.debug(f"[TOKEN] cleaned {len(to_del)} expired tokens (ttl={self.session_token_ttl}s)")
         except Exception as e:
             self.logger.debug(f"[TOKEN] cleanup error: {e}")
+
+# ═══════════════════════════════════════════════════════════════════════════════════════════
+# 🌟 ZION SACRED MINING POOL - MAIN EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════════════════════
+
+if __name__ == '__main__':
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='🌟 ZION Sacred Mining Pool 🌟')
+    parser.add_argument('--host', default='0.0.0.0', help='Pool host address')
+    parser.add_argument('--port', type=int, default=3333, help='Pool port')
+    parser.add_argument('--miner-address', help='Miner reward address')
+    
+    args = parser.parse_args()
+    
+    print("═══════════════════════════════════════════════════════════════════════════════════════════")
+    print("🌟 ZION SACRED MINING POOL STARTING 🌟")
+    print("═══════════════════════════════════════════════════════════════════════════════════════════")
+    print(f"📡 Host: {args.host}")
+    print(f"🔌 Port: {args.port}")
+    print(f"🌟 Sacred Algorithm: ENABLED")
+    print(f"🔮 Git Integration: ENABLED")
+    print(f"💎 Multi-Miner Support: CPU + GPU")
+    print("═══════════════════════════════════════════════════════════════════════════════════════════")
+    
+    try:
+        # Initialize blockchain
+        chain = Blockchain()
+        
+        # Create and start ZION Sacred Pool
+        pool = MinimalStratumPool(
+            host=args.host, 
+            port=args.port, 
+            miner_address=args.miner_address,
+            chain=chain
+        )
+        
+        print("🚀 Starting ZION Sacred Mining Pool...")
+        pool.start()
+        
+    except KeyboardInterrupt:
+        print("\n🛑 Pool shutdown requested...")
+        pool.running = False
+        print("🌟 ZION Sacred Mining Pool stopped gracefully")
+    except Exception as e:
+        print(f"❌ Pool startup error: {e}")
+        raise
