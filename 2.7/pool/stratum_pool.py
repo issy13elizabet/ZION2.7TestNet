@@ -96,6 +96,7 @@ class MinimalStratumPool:
         self.logger.setLevel(logging.DEBUG)
         # Výchozí diff pro Monero/XMRig klienty (nahradí původní debug diff=1)
         self.default_monero_difficulty = 32
+        self.sessions = {}  # session_id -> {'difficulty': int, 'last_seen': float}
 
     def _now(self):
         return datetime.utcnow().strftime('%H:%M:%S')
@@ -363,6 +364,12 @@ class MinimalStratumPool:
             state.client_type = "xmrig"
             if not state.session_id:
                 state.session_id = f"session_{secrets.token_hex(4)}"
+            # Reuse previous difficulty if session reconnects
+            if state.session_id in self.sessions:
+                prev = self.sessions[state.session_id]
+                state.difficulty = prev.get('difficulty', state.difficulty)
+            else:
+                self.sessions[state.session_id] = {'difficulty': self.default_monero_difficulty, 'last_seen': time.time()}
             state.difficulty = self.default_monero_difficulty
             job = self.generate_monero_style_job(state.difficulty)
             # Job already has correct difficulty and target
@@ -399,6 +406,11 @@ class MinimalStratumPool:
 
         # ---- XMRig getjob ----
         if method == 'getjob':
+            session_param = data.get('params', {}).get('id') if isinstance(data.get('params'), dict) else None
+            if session_param and session_param in self.sessions:
+                stored = self.sessions[session_param]
+                state.difficulty = stored.get('difficulty', state.difficulty)
+                stored['last_seen'] = time.time()
             if state.difficulty < 1:
                 state.difficulty = 1
             job = self.generate_monero_style_job(state.difficulty)
