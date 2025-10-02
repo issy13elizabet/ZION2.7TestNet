@@ -96,7 +96,10 @@ class MinimalStratumPool:
         self.logger.setLevel(logging.DEBUG)
         # Výchozí diff pro Monero/XMRig klienty (nahradí původní debug diff=1)
         self.default_monero_difficulty = 32
-        self.sessions = {}  # session_id -> {'difficulty': int, 'last_seen': float}
+        self.sessions = {}
+        self.wallet_difficulty = {}  # wallet_login -> last difficulty
+        self.session_tokens = {}  # token -> {session_id, difficulty, wallet, last_seen}
+        self.session_token_ttl = 3600  # 1 hour token lifetime
 
     def _now(self):
         return datetime.utcnow().strftime('%H:%M:%S')
@@ -364,26 +367,42 @@ class MinimalStratumPool:
             state.client_type = "xmrig"
             if not state.session_id:
                 state.session_id = f"session_{secrets.token_hex(4)}"
-            # Reuse previous difficulty if session reconnects
+            wallet_login_key = state.worker.lower()
+            # Reuse previous difficulty if session reconnects OR wallet seen
             reuse_diff = None
             if state.session_id in self.sessions:
                 reuse_diff = self.sessions[state.session_id].get('difficulty')
+            if not reuse_diff and wallet_login_key in self.wallet_difficulty:
+                reuse_diff = self.wallet_difficulty[wallet_login_key]
             if reuse_diff:
                 state.difficulty = reuse_diff
             else:
                 state.difficulty = self.default_monero_difficulty
-                self.sessions[state.session_id] = {'difficulty': state.difficulty, 'last_seen': time.time()}
+                self.sessions[state.session_id] = {'difficulty': state.difficulty, 'last_seen': time.time(), 'wallet': wallet_login_key}
+            self.wallet_difficulty[wallet_login_key] = state.difficulty
             # Persist touch
             self.sessions[state.session_id]['last_seen'] = time.time()
             self._cleanup_sessions()
             job = self.generate_monero_style_job(state.difficulty)
             # Job already has correct difficulty and target
             self.log(f"XMRig login - worker: {state.worker}, diff: {state.difficulty}, target: {job['target']}")
+            token_seed = f"{state.session_id}:{state.difficulty}:{secrets.token_hex(8)}".encode()
+            session_token = hashlib.sha256(token_seed).hexdigest()[:40]
+            self.session_tokens[session_token] = {
+                'session_id': state.session_id,
+                'difficulty': state.difficulty,
+                'wallet': state.worker.lower(),
+                'last_seen': time.time()
+            }
+            # Cleanup old tokens occasionally (cheap O(n))
+            self._cleanup_session_tokens()
+            self.logger.debug(f"[TOKEN] issued token={session_token} session={state.session_id} diff={state.difficulty} wallet={state.worker.lower()}")
             resp = {
                 'id': mid,
                 'jsonrpc': '2.0',
                 'result': {
                     'id': state.session_id,
+                    'token': session_token,
                     'job': {
                         'job_id': job['job_id'],
                         'blob': job['blob'],
@@ -411,27 +430,9 @@ class MinimalStratumPool:
 
         # ---- XMRig getjob ----
         if method == 'getjob':
-            session_param = data.get('params', {}).get('id') if isinstance(data.get('params'), dict) else None
-            if session_param and session_param in self.sessions:
-                stored = self.sessions[session_param]
-                state.difficulty = stored.get('difficulty', state.difficulty)
-                stored['last_seen'] = time.time()
-            self._cleanup_sessions()
-            job = self.generate_monero_style_job(state.difficulty)
-            # Job already has correct difficulty and target
-            resp = { 'id': mid, 'jsonrpc': '2.0', 'result': {
-                'job_id': job['job_id'],
-                'blob': job['blob'],
-                'target': job['target'],
-                'seed_hash': job['seed_hash'],
-                'next_seed_hash': job['next_seed_hash'],
-                'algo': job['algo'],
-                'height': job['height'],
-                'difficulty': job['difficulty']
-            }, 'error': None }
-            self.send(client, resp)
-            self.log(f"XMRig getjob -> {job['job_id']} diff={state.difficulty}")
-            return
+            params_obj = data.get('params', {}) if isinstance(data.get('params'), dict) else {}
+            session_param = params_obj.get('id')
+            return self._handle_getjob(state, session_param, mid, params_obj=params_obj)
 
         # ---- XMRig submit (Monero style) ----
         if method == 'submit':
@@ -692,6 +693,73 @@ class MinimalStratumPool:
         finally:
             s.close()
 
-if __name__ == '__main__':
-    pool = MinimalStratumPool()
-    pool.start()
+    def _handle_getjob(self, state: ClientState, session_param: str | None, mid, params_obj=None):
+        token = None
+        if isinstance(params_obj, dict):
+            token = params_obj.get('token')
+        restored = False
+        stored_diff = None
+        # Token has priority
+        if token and token in self.session_tokens:
+            meta = self.session_tokens[token]
+            stored_diff = meta.get('difficulty')
+            sid = meta.get('session_id')
+            if sid and not state.session_id:
+                state.session_id = sid
+            if stored_diff and stored_diff > 0:
+                if state.difficulty != stored_diff:
+                    restored = True
+                state.difficulty = stored_diff
+            meta['last_seen'] = time.time()
+            self.logger.debug(f"[TOKEN] reuse token={token} session={state.session_id} diff={state.difficulty}")
+        else:
+            # Fallback to session id path
+            if session_param:
+                if not state.session_id:
+                    state.session_id = session_param
+                meta = self.sessions.get(session_param)
+                if meta:
+                    stored_diff = meta.get('difficulty', self.default_monero_difficulty)
+                    if stored_diff and stored_diff > 0 and state.difficulty != stored_diff:
+                        state.difficulty = stored_diff
+                        restored = True
+                    meta['last_seen'] = time.time()
+        # Final fallback
+        if state.difficulty < 1:
+            state.difficulty = self.default_monero_difficulty
+        # Sync caches
+        if state.session_id:
+            sess = self.sessions.setdefault(state.session_id, {'difficulty': state.difficulty, 'last_seen': time.time(), 'wallet': state.worker.lower()})
+            sess['difficulty'] = state.difficulty
+            sess['last_seen'] = time.time()
+        # Generate job
+        job = self.generate_monero_style_job(state.difficulty)
+        # Force align
+        if job['difficulty'] != state.difficulty:
+            job['difficulty'] = state.difficulty
+            job['target'] = f"{max(1, 0xFFFFFFFF // state.difficulty):08x}"
+        resp = { 'id': mid, 'jsonrpc': '2.0', 'result': {
+            'job_id': job['job_id'],
+            'blob': job['blob'],
+            'target': job['target'],
+            'seed_hash': job['seed_hash'],
+            'next_seed_hash': job['next_seed_hash'],
+            'algo': job['algo'],
+            'height': job['height'],
+            'difficulty': job['difficulty']
+        }, 'error': None }
+        self.send(state.sock, resp)
+        self.logger.debug(f"[GETJOB] token={token} session={state.session_id} diff={state.difficulty} restored={restored} target={job['target']}")
+        return
+
+    def _cleanup_session_tokens(self):
+        """Remove expired session tokens to prevent unbounded growth."""
+        try:
+            now = time.time()
+            to_del = [tok for tok, meta in self.session_tokens.items() if now - meta.get('last_seen', 0) > self.session_token_ttl]
+            for tok in to_del:
+                del self.session_tokens[tok]
+            if to_del and self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(f"[TOKEN] cleaned {len(to_del)} expired tokens (ttl={self.session_token_ttl}s)")
+        except Exception as e:
+            self.logger.debug(f"[TOKEN] cleanup error: {e}")

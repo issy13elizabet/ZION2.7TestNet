@@ -1,0 +1,7 @@
+{
+  "mining_address": "Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84",
+  "created": "2025-10-02 Perfect Memory Mining",
+  "pool_server": "91.98.122.165",
+  "pool_port": 3333,
+  "miner_type": "zion_perfect_memory_miner"
+}

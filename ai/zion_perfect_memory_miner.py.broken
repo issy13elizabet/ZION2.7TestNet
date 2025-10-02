@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+# Mining configuration  
+MINING_THREADS = 10     # 10 threads FULL POWER!
+TARGET_HASHRATE = 100000  # 100K H/s MAXIMUM PERFORMANCE
 ZION Perfect Miner v3.0 - Memory Fixed Edition
 Using proper VirtualMemory allocation patterns from XMRig
 Now with working RandomX cache allocation!
-
-This version patched for dynamic thread configuration (12-thread ultra mode).
 """
 
 import os
@@ -23,9 +23,9 @@ from threading import Lock
 sys.path.append('/media/maitreya/ZION1/ai')
 from zion_virtual_memory import allocate_randomx_memory, free_randomx_memory, zion_vm
 
-# Mining configuration (ULTRA MODE)
-MINING_THREADS = 12      # 12 threads ULTRA POWER
-TARGET_HASHRATE = 100000000  # 100M H/s target (effectively unlimited for throttling logic)
+# Mining configuration  
+MINING_THREADS = 12      # 12 threads ULTRA POWER!
+TARGET_HASHRATE = 100000000  # 100M H/s MAXIMUM BEAST MODE
 POOL_URL = "stratum+tcp://localhost:3333"
 WALLET_ADDRESS = "Z3NDN97SeT1Apeb4t3z1TFhBb7qr58pTQTjm9PWKFmhQWNWfeFKdEhVj6x2QDATBsuxYzUTKnS4Y42kXArkzJU5X2Vj1NMBc6Y"
 
@@ -241,10 +241,10 @@ def main():
     """Main ZION miner execution"""
     global mining_active
     
-    print("🌟 ZION Perfect Miner v3.0 - Ultra Mode")
+    print("🌟 ZION Perfect Miner v3.0 - Server Conservative Edition")
     print("⚡ Using ZION Virtual Memory System")  
-    print(f"🧵 Threads configured: {MINING_THREADS}")
-    print(f"🎯 Target Hashrate: {TARGET_HASHRATE} H/s (soft throttle)")
+    print("🎯 Server-friendly: 40-50% CPU load target")
+    print("🔧 6 threads, 2500 H/s target for maximum stability")
     print("=" * 60)
     
     # Setup optimizations

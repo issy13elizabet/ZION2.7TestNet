@@ -27,6 +27,7 @@ class ZionRealStratumPool:
         self.current_job_id = 0
         self.total_shares = 0
         self.accepted_shares = 0
+        self.sessions = {}  # socket -> session_id
         
         print(f"🚀 ZION REAL Stratum Pool Server v2.0")
         print(f"🌐 Will bind to {host}:{port}")
@@ -61,6 +62,30 @@ class ZionRealStratumPool:
             "nbits": nbits,
             "ntime": ntime,
             "clean_jobs": True
+        }
+
+    # --- XMRig / Monero style helper (simplified) ---
+    def generate_monero_style_job(self):
+        """Return a minimal Monero-like job object for XMRig 'login' compatibility.
+        NOTE: This is a stub – blob is NOT a valid Monero block template, only enough
+        for XMRig to continue producing 'submit' calls which we accept for testing.
+        """
+        job = self.generate_job()
+        # Fake blob: 176 bytes hex (multiple of 8). Use prev_hash + padding.
+        base = job["prev_hash"][:64]
+        padding = ("0" * 240)  # ensure long enough
+        blob = (base + padding)[:352]  # 176 bytes -> 352 hex chars
+        # Monero stratum typicky posílá 32-bit LE target (8 hex) – např. "9b0f0000".
+        # Chyba code:5 naznačuje problém s délkou/formátem targetu.
+        # Použijeme velmi nízkou obtížnost (max target): "ffffffff".
+        target = "ffffffff"  # 8 hex = 4 bytes -> parse path case 4
+        return {
+            "job_id": job["job_id"],
+            "blob": blob,
+            "target": target,
+            "algo": "rx/0",
+            "height": 1,
+            # extranonce / seed not implemented – for real network extend here
         }
         
     def send_to_client(self, client_socket, message):
@@ -146,6 +171,76 @@ class ZionRealStratumPool:
                 
                 status = "✅ ACCEPTED" if accepted else "❌ REJECTED"
                 self.log_message(f"📤 Share {self.total_shares}: {status} from {client_addr}")
+
+            # --- XMRig Monero style methods ---
+            elif method == 'login':
+                # XMRig initial login for Monero-style pools
+                # params may be dict: {"login":"addr","pass":"x","agent":"..","rigid":"..","algo":["rx/0"]}
+                login_obj = params if isinstance(params, dict) else {}
+                user_addr = login_obj.get("login") or login_obj.get("user") or "unknown"
+                job = self.generate_monero_style_job()
+                # Přidej seed hash hodnoty (RandomX seed) – jednoduché derivace
+                seed_hash = hashlib.sha256(job["blob"].encode()).hexdigest()[:64]
+                next_seed_hash = hashlib.sha256((seed_hash + "next").encode()).hexdigest()[:64]
+                job["seed_hash"] = seed_hash
+                job["next_seed_hash"] = next_seed_hash
+                # XMRig očekává target jako hex LE -> ponecháme full FFs pro test
+                session_id = f"session_{self.current_job_id}"
+                self.sessions[client_socket] = session_id
+                response = {
+                    "id": msg_id,
+                    "jsonrpc": "2.0",
+                    "result": {
+                        "id": session_id,  # session id
+                        "job": job,
+                        "status": "OK",
+                        "extensions": []
+                    },
+                    "error": None
+                }
+                self.send_to_client(client_socket, response)
+                self.log_message(f"✅ XMRig login accepted for {user_addr} (job_id={job['job_id']} target_len={len(job['target'])} target_head={job['target'][:16]})")
+
+            elif method == 'getjob':
+                job = self.generate_monero_style_job()
+                response = {
+                    "id": msg_id,
+                    "jsonrpc": "2.0",
+                    "result": job,
+                    "error": None
+                }
+                self.send_to_client(client_socket, response)
+                self.log_message(f"📋 getjob served {job['job_id']} -> {client_addr}")
+
+            elif method == 'keepalived':
+                # Heartbeat from some miners
+                response = {"id": msg_id, "jsonrpc": "2.0", "result": True, "error": None}
+                self.send_to_client(client_socket, response)
+                self.log_message(f"💓 keepalived from {client_addr}")
+
+            elif method == 'submit':
+                # Monero styl share submit (XMRig)
+                self.total_shares += 1
+                accepted = True  # Test režim – všechno přijímáme
+                # params může být dict
+                submit_obj = params if isinstance(params, dict) else {}
+                jid = submit_obj.get("job_id") or "?"
+                nonce = submit_obj.get("nonce") or "?"
+                result_hex = submit_obj.get("result") or "?"
+                # jednoduché pseudo-ověření délky result
+                if not isinstance(result_hex, str) or len(result_hex) < 16:
+                    accepted = False
+                if accepted:
+                    self.accepted_shares += 1
+                response = {
+                    "id": msg_id,
+                    "jsonrpc": "2.0",
+                    "result": {"status": "OK", "accepted": accepted},
+                    "error": None if accepted else {"code": -1, "message": "invalid result"}
+                }
+                self.send_to_client(client_socket, response)
+                status = "✅ ACCEPTED" if accepted else "❌ REJECTED"
+                self.log_message(f"📤 Submit share jid={jid} nonce={nonce} len(res)={len(result_hex)} {status} total={self.total_shares}")
                 
             else:
                 # Unknown method

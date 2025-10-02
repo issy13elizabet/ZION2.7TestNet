@@ -94,6 +94,66 @@ This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate f
 - Distinguishes share acceptance (meets client target) vs block acceptance (meets network target)
 - Broadcasts new job to all clients when a block is found
 
+### 🔐 Stateless Difficulty Persistence (Session Tokens)
+Traditional Monero / RandomX pools rely on a login per TCP connection. Our pool now supports **cross-socket difficulty continuity** using an opaque `token` returned on `login`.
+
+Flow:
+1. Miner connects & sends `login` → response contains `result.id` (session_id), `result.job` and `result.token`.
+2. If the miner opens a new TCP connection (e.g. restart, failover) it may immediately request a new job without re‑logging by sending:
+   `{ "id": 2, "jsonrpc": "2.0", "method": "getjob", "params": { "token": "<token>" } }`
+3. Pool restores the previous difficulty (and associated session id) and returns a job with identical difficulty (e.g. 32) instead of falling back to diff=1.
+
+Properties:
+- Tokens are random (SHA256 truncated 40 hex chars) and expire after 1h of inactivity (configurable `session_token_ttl`).
+- Safe to discard; miner can always re‑login to obtain a new token.
+- Backwards compatible: legacy miners that only do `login` per connection still work unchanged.
+
+Example `login` response excerpt:
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "id": "session_ab12cd34",
+    "token": "60a8d5b02d151c737dc85caf9c7c68316bb0058f",
+    "job": { "job_id": "mjob_7", "difficulty": 32, "target": "07ffffff", ... },
+    "status": "OK"
+  }
+}
+```
+
+Minimal cross-socket `getjob` using token:
+```json
+{ "id": 2, "jsonrpc": "2.0", "method": "getjob", "params": { "token": "60a8d5b02d151c737dc85caf9c7c68316bb0058f" } }
+```
+
+### 🧪 Harness / Local Verification
+A lightweight harness (`tools/pool_session_harness.py`) automates:
+1. `login` (captures session id, token, difficulty)
+2. Opens a second socket → `getjob` with the token
+3. Verifies difficulty persisted (expects 32 by default) and submits a fake share (will likely be rejected – for flow only)
+
+Run locally against a dev node:
+```bash
+python3 2.7/run_node.py --pool &             # start local testnet + pool on :3333
+ZION_POOL_HOST=127.0.0.1 python3 tools/pool_session_harness.py
+```
+Expected output (abridged):
+```
+[OK] Login session=session_4d6f9fc4 token=60a8d5... diff=32 target=07ffffff
+[OK] Cross-socket getjob difficulty=32 target=07ffffff
+[PASS] Difficulty persisted across sockets
+```
+
+If you instead see `difficulty=1` on the second connection, confirm the harness prints a token (pool version mismatch or token not passed).
+
+### 🔍 Debug Logging Tags
+- `[TOKEN] issued ...` – new token creation
+- `[TOKEN] reuse ...` – successful restoration via token
+- `[GETJOB] ... restored=True` – difficulty restored (token or session fallback)
+
+Use these to confirm behavior under miner restarts or proxy failover scenarios.
+
 ## 🔐 Security (Initial Hardening – Still Minimal)
 - Per‑message size cap: 64 KB (oversized dropped)
 - Aggregate connection buffer cap (disconnect if runaway)
