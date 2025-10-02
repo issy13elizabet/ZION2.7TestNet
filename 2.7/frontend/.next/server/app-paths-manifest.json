@@ -1,7 +1,4 @@
 {
-  "/api/blockchain/route": "app/api/blockchain/route.js",
-  "/api/mining/route": "app/api/mining/route.js",
-  "/hub/page": "app/hub/page.js",
-  "/page": "app/page.js",
-  "/ai/page": "app/ai/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js"
 }

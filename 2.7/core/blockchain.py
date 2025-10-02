@@ -4,9 +4,11 @@ Sacred Transition: RandomX → Cosmic Harmony → KRISTUS qbit
 No P2P yet. No mock balances. Deterministic genesis.
 """
 from __future__ import annotations
-import json, time, hashlib, os, threading, sys
+import json, time, hashlib, os, threading, sys, logging
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Any
+
+logger = logging.getLogger(__name__)
 
 # Import ZION Hybrid Algorithm
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -76,7 +78,7 @@ class Tx:
     # Enhanced features from 2.6.75
     version: int = 1  # Transaction version
     unlock_time: int = 0  # CryptoNote unlock time
-    extra: bytes = b''  # Extra data field
+    extra: str = ''  # Extra data field
     signatures: List[str] = field(default_factory=list)  # Ring signatures
     tx_size: int = 0  # Transaction size in bytes
     ring_size: int = 1  # Ring signature participants
@@ -98,10 +100,12 @@ class Consensus:
     # Core timing and rewards (CryptoNote-compatible)
     BLOCK_TIME = 120  # 2 minutes (vs Monero 2min)
     INITIAL_REWARD = 342_857_142_857  # atomic units (342,857 ZION) - FOR 144 BILLION TOTAL
-    MIN_DIFF = 1
+    MIN_DIFF = 1048576  # 2^20 - ULTRA MASSIVE for 256-bit hash space
     WINDOW = 12  # adjustment window
     MAX_ADJUST_FACTOR = 4.0  # clamp sudden jumps
-    MAX_TARGET = int('000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16)
+    # CRITICAL FIX: Use extremely small MAX_TARGET to match ZION's full 256-bit hash range
+    # Standard 256-bit hashes need much smaller target for solo mining
+    MAX_TARGET = int('00000000000000FF00000000000000000000000000000000000000000000000', 16)
     COINBASE_MATURITY = 10  # blocks before coinbase spendable
     
     # Enhanced CryptoNote-compatible parameters from 2.6.75
@@ -307,6 +311,63 @@ class Blockchain:
         
         self._persist_block(genesis)
         self._apply_block_utxos(genesis)
+
+    def add_block(self, block: Block) -> bool:
+        """Add a new block to the blockchain"""
+        try:
+            # Validate block is not already in chain
+            if block.hash in self._all_blocks:
+                return False
+                
+            # Validate block height is correct
+            if block.height != len(self.blocks):
+                return False
+                
+            # Validate previous hash
+            if block.prev_hash != self.blocks[-1].hash:
+                return False
+                
+            # Validate block hash
+            if block.hash != block.calc_hash():
+                return False
+                
+            # Validate proof of work
+            if not self._validate_block_pow(block):
+                return False
+                
+            # Validate transactions
+            for tx in block.txs:
+                if not self._validate_tx(tx):
+                    return False
+            
+            # Add block to chain
+            self.blocks.append(block)
+            self.height = block.height
+            self._hash_index[block.hash] = block.height
+            self._all_blocks[block.hash] = block
+            
+            # Update cumulative difficulty
+            self.cumulative_difficulty += block.difficulty
+            
+            # Update difficulty calculation arrays
+            self._difficulty_timestamps.append(block.timestamp)
+            self._difficulty_cumulative.append(self.cumulative_difficulty)
+            
+            # Apply transactions to UTXO set
+            self._apply_block_utxos(block)
+            
+            # Persist block
+            self._persist_block(block)
+            
+            # Update total transaction count
+            self.total_txs += len(block.txs)
+            
+            logger.info(f"✅ Block {block.height} added to blockchain: {block.hash[:16]}...")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to add block {block.height}: {e}")
+            return False
 
     # ---------------- Storage Helper Methods ----------------
     def _get_legacy_blocks(self) -> List[str]:
@@ -634,22 +695,28 @@ class Blockchain:
     # ---------------- Validation ----------------
     def _validate_block_pow(self, block: Block) -> bool:
         """Validate block proof of work using ZION Hybrid Algorithm"""
+        print(f"DEBUG _validate_block_pow called for block {block.height}")
         try:
             # Check difficulty target
             target = Consensus.difficulty_to_target(block.difficulty)
             
+            print(f"DEBUG: hybrid_algorithm available: {self.hybrid_algorithm is not None}")
+            
             # Use hybrid algorithm for complete validation if available
             if self.hybrid_algorithm:
+                print(f"DEBUG: Using hybrid algorithm for validation")
                 return self.hybrid_algorithm.validate_pow(block.hash, target, block.height)
-            
-            # Legacy validation fallback
-            block_hash_int = int(block.hash, 16)
-            if block_hash_int >= target:
-                print(f"❌ Block {block.height} hash {block.hash[:16]}... doesn't meet difficulty target (legacy)")
-                return False
+            else:
+                print(f"DEBUG: Using legacy validation")
                 
-            print(f"✅ Block {block.height} passed legacy PoW validation")
-            return True
+                # Legacy validation fallback
+                block_hash_int = int(block.hash, 16)
+                if block_hash_int >= target:
+                    print(f"❌ Block {block.height} hash {block.hash[:16]}... doesn't meet difficulty target (legacy)")
+                    return False
+                    
+                print(f"✅ Block {block.height} passed legacy PoW validation")
+                return True
             
         except Exception as e:
             print(f"❌ Block {block.height} PoW validation error: {e}")

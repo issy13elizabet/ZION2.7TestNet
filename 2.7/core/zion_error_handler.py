@@ -142,7 +142,10 @@ class CircuitBreaker:
 class ZionErrorHandler:
     """Unified error handling system for ZION 2.7"""
     
-    def __init__(self, error_dir: str = "/media/maitreya/ZION1/errors"):
+    def __init__(self, error_dir: str = None):
+        # Use relative path if not specified
+        if error_dir is None:
+            error_dir = os.path.join(os.path.dirname(__file__), '..', 'errors')
         self.error_dir = Path(error_dir)
         self.error_dir.mkdir(exist_ok=True)
         

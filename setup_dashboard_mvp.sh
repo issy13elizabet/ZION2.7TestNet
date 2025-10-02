@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Project root
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRONTEND_DIR="$PROJECT_ROOT/2.7/frontend"
 BACKEND_DIR="$PROJECT_ROOT/2.7"
 
@@ -444,7 +444,7 @@ EOF
 
 # Update package.json with new dependencies
 cd "$FRONTEND_DIR"
-npm install recharts lucide-react @headlessui/react
+npm install --legacy-peer-deps recharts lucide-react @headlessui/react
 
 echo -e "${GREEN}✅ Frontend dashboard setup complete${NC}"
 

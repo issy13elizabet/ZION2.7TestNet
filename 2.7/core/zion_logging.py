@@ -72,8 +72,12 @@ class LogEntry:
 class ZionLogger:
     """Enhanced ZION logging system"""
     
-    def __init__(self, component: ComponentType, log_dir: str = "/media/maitreya/ZION1/logs"):
+    def __init__(self, component: ComponentType, log_dir: str = None):
         self.component = component
+        
+        # Use relative path if not specified
+        if log_dir is None:
+            log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(exist_ok=True)
         

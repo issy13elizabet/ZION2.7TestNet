@@ -18,7 +18,7 @@ if BASE_DIR not in sys.path:
 from core.blockchain import Blockchain, Consensus
 
 # Import ZION Sacred Algorithm
-from zion_sacred_algorithm import ZionAlgorithmDefinition, ZionMinerType, SacredLevel
+from .zion_sacred_algorithm import ZionAlgorithmDefinition, ZionMinerType, SacredLevel
 
 # 🌸 Import Sacred Flower Cosmic Analyzer for eliZabet
 try:

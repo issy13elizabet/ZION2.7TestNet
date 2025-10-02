@@ -103,7 +103,10 @@ class ComponentConfig:
 class ZionConfigManager:
     """Unified configuration manager for ZION 2.7"""
     
-    def __init__(self, config_dir: str = "/media/maitreya/ZION1/config"):
+    def __init__(self, config_dir: str = None):
+        # Use relative path if not specified
+        if config_dir is None:
+            config_dir = os.path.join(os.path.dirname(__file__), '..', 'config')
         self.config_dir = Path(config_dir)
         self.config_dir.mkdir(exist_ok=True)
         
@@ -127,7 +130,12 @@ class ZionConfigManager:
     
     def _detect_system_info(self):
         """Detect system hardware for auto-optimization"""
-        cpu_freq = psutil.cpu_freq()
+        try:
+            cpu_freq = psutil.cpu_freq()
+        except:
+            # Fallback for systems where cpu_freq is not available (like macOS)
+            cpu_freq = None
+            
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
         
