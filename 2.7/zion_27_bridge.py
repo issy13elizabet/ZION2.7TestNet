@@ -304,8 +304,9 @@ def zion_27_action():
         }), 500
 
 @app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - available on both /health and /api/health"""
     return jsonify({
         "status": "healthy",
         "service": "ZION 2.7 Frontend Bridge",

@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   experimental: {
-    appDir: true,
+    // appDir is now stable in Next.js 14, removed deprecated option
   },
   
   // ZION 2.7 specific configuration
@@ -14,23 +14,8 @@ const nextConfig = {
     ZION_MINING_ENABLED: 'true',
   },
 
-  // API Routes for ZION 2.7 integration
-  async rewrites() {
-    return [
-      {
-        source: '/api/zion-core/:path*',
-        destination: 'http://localhost:18088/api/:path*',
-      },
-      {
-        source: '/api/mining/:path*', 
-        destination: 'http://localhost:18089/api/:path*',
-      },
-      {
-        source: '/api/ai/:path*',
-        destination: 'http://localhost:18090/api/:path*',
-      }
-    ];
-  },
+  // Note: API routes are handled by /app/api/* structure
+  // No rewrites needed since we have proper API route handlers
 
   // Headers for CORS and security
   async headers() {

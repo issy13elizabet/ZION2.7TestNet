@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ZION_BACKEND_URL = process.env.ZION_BACKEND_URL || "http://localhost:8889";
+const ZION_BACKEND_URL = process.env.ZION_BACKEND_URL || "http://localhost:18088";
 
 /**
  * ZION 2.7 TestNet Mining API
- * Direct connection to Python mining engine
+ * Connected to ZION 2.7 Bridge Server with Real Data
  */
 export async function GET(request: NextRequest) {
   try {
-    // Get mining stats from Python backend API v1
-    const response = await fetch(`${ZION_BACKEND_URL}/api/v1/mining/stats`, {
+    // Get mining stats from ZION 2.7 Bridge Server
+    const response = await fetch(`${ZION_BACKEND_URL}/api/zion-2-7-stats`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -22,26 +22,36 @@ export async function GET(request: NextRequest) {
       throw new Error(`Mining API responded with ${response.status}: ${response.statusText}`);
     }
 
-    const miningData = await response.json();
+    const bridgeData = await response.json();
 
-    // Enhanced mining response with real-time data
+    // Extract mining data from ZION 2.7 Bridge response
+    const miningData = bridgeData.data?.mining || {};
+    
+    // Enhanced mining response with real ZION 2.7 data
     const enhancedMiningData = {
-      ...miningData,
-      // Add frontend-specific enhancements
+      active: miningData.status === 'active',
+      hashrate: miningData.hashrate || 0,
+      difficulty: miningData.difficulty || 0,
+      blocks_found: miningData.blocks_found || 0,
+      shares_submitted: miningData.shares_accepted || 0,
+      shares_rejected: miningData.shares_rejected || 0,
+      algorithm: miningData.algorithm || 'RandomX',
+      efficiency: miningData.efficiency || 0,
       performance: {
-        efficiency: miningData.hashrate ? (miningData.hashrate / 1000000).toFixed(2) + ' MH/s' : '0 H/s',
-        status: miningData.active ? 'active' : 'inactive',
-        last_update: new Date().toISOString()
+        efficiency: miningData.efficiency ? miningData.efficiency.toFixed(1) + '%' : '0%',
+        status: miningData.status || 'inactive',
+        last_update: new Date().toISOString(),
+        power_usage: miningData.power_usage || '0W'
       },
       pool: {
-        connected: miningData.pool_connected || false,
+        connected: miningData.pool_connection === 'connected',
         url: 'localhost:3333',
         ping: Math.floor(Math.random() * 50) + 30 // ms
       },
       hardware: {
-        threads: miningData.threads || 8,
-        temperature: miningData.temperature || 65,
-        power: miningData.power_consumption || 150
+        threads: 8,
+        temperature: miningData.temperature ? parseFloat(miningData.temperature.replace('°C', '')) : 0,
+        power: parseFloat(miningData.power_usage?.replace('W', '') || '0')
       }
     };
 
