@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 ZION 2.7 REAL BLOCKCHAIN DASHBOARD 🚀</title>
+    <title>🚀 ZION 2.7 COMPLETE INTEGRATION DASHBOARD 🚀</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
@@ -548,28 +549,63 @@
         // Update Dashboard Data
         async function updateDashboard() {
             try {
-                // Update GPU Stats
-                const gpuResponse = await fetch(`${API_BASE}/gpu/stats`);
-                if (gpuResponse.ok) {
-                    const gpuData = await gpuResponse.json();
-                    updateGPUStats(gpuData);
+                // Update from ZION 2.7 Bridge API
+                const response = await fetch(`${API_BASE}/api/zion-2-7-stats`);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        updateFromBridgeData(result.data);
+                    }
+                } else {
+                    throw new Error('Bridge API not available');
                 }
-                
-                // Update Mining Stats (simulate if API not available)
-                updateMiningStats();
-                
-                // Update AI Stats (simulate if API not available)
-                updateAIStats();
-                
-                // Update System Stats
-                updateSystemStats();
                 
                 // Update Charts
                 updatePerformanceChart();
                 
             } catch (error) {
-                console.log('API not available, using simulated data');
+                console.log('Bridge API not available, using simulated data');
                 updateSimulatedData();
+            }
+        }
+        
+        // Update from Bridge API Data
+        function updateFromBridgeData(data) {
+            // Update Mining Stats
+            document.getElementById('mining-hashrate').textContent = `${data.mining.hashrate} H/s`;
+            document.getElementById('mining-algorithm').textContent = data.mining.algorithm;
+            document.getElementById('mining-status').textContent = data.mining.status === 'active' ? '✅ Active' : '❌ Inactive';
+            document.getElementById('mining-efficiency').textContent = `${data.mining.efficiency}%`;
+            
+            // Update AI Stats  
+            document.getElementById('ai-tasks-active').textContent = data.ai.active_tasks;
+            document.getElementById('ai-tasks-completed').textContent = data.ai.completed_tasks;
+            document.getElementById('ai-success-rate').textContent = `${data.ai.performance_score}%`;
+            
+            // Update Blockchain Stats
+            document.getElementById('blockchain-height').textContent = data.blockchain.height;
+            document.getElementById('blockchain-difficulty').textContent = data.blockchain.difficulty;
+            document.getElementById('blockchain-network').textContent = data.blockchain.network;
+            
+            // Update System Stats
+            document.getElementById('cpu-usage').textContent = `${data.system.cpu_usage}%`;
+            document.getElementById('memory-usage').textContent = `${data.system.memory_used}GB / ${data.system.memory_total}GB`;
+            
+            // Update GPU if available
+            if (data.gpu) {
+                document.getElementById('gpu-temperature').textContent = `${data.gpu.temperature}°C`;
+                document.getElementById('gpu-utilization').textContent = `${data.gpu.utilization}%`;
+                document.getElementById('gpu-power').textContent = `${data.gpu.power}W`;
+                
+                // Update temperature status
+                const tempElement = document.getElementById('gpu-temperature');
+                if (data.gpu.temperature > 80) {
+                    tempElement.className = 'metric-value status-critical';
+                } else if (data.gpu.temperature > 75) {
+                    tempElement.className = 'metric-value status-warning';
+                } else {
+                    tempElement.className = 'metric-value status-good';
+                }
             }
         }
         
