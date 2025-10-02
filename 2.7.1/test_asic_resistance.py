@@ -20,8 +20,8 @@ except ValueError as e:
 print("\n2. Testing Argon2 allowance...")
 try:
     algo = AlgorithmFactory.create_algorithm('argon2', {
-        'time_cost': 1,
-        'memory_cost': 16384,
+        'time_cost': 2,
+        'memory_cost': 65536,
         'parallelism': 1,
         'hash_len': 32
     })

@@ -1,16 +1,17 @@
-# ZION 2.7.1 - Pure RandomX ASIC-Resistant Blockchain Implementation
+# ZION 2.7.1 - Pure Argon2 ASIC-Resistant Blockchain Implementation
 
 ## 🌟 Overview
 
-ZION 2.7.1 is a **pure RandomX blockchain** built for maximum ASIC resistance and decentralization. By removing SHA256 entirely and focusing exclusively on RandomX, ZION ensures fair mining accessible to all CPU miners worldwide.
+ZION 2.7.1 is a **pure Argon2 blockchain** built for maximum ASIC resistance and decentralization. By focusing exclusively on Argon2 and other memory-hard algorithms, ZION ensures fair mining accessible to all CPU miners worldwide.
 
 ### ✨ Key Features
 
-- **Pure RandomX PoW**: 100% ASIC-resistant mining
+- **Pure Argon2 PoW**: 100% ASIC-resistant mining with memory-hard algorithm
 - **Maximum Decentralization**: CPU-only mining prevents hardware centralization
-- **Memory-Hard Algorithm**: Requires significant memory, preventing specialized ASICs
-- **Verified Security**: RandomX is battle-tested and cryptographically secure
-- **Clean Architecture**: Single-algorithm focus for maximum reliability
+- **Memory-Hard Algorithm**: Requires significant memory (64MB+), preventing specialized ASICs
+- **Verified Security**: Argon2 is battle-tested and cryptographically secure
+- **Multi-Algorithm Support**: Argon2 primary with GPU-friendly alternatives for flexibility
+- **Clean Architecture**: Modular design for maximum reliability
 
 ## 🛡️ ASIC Resistance Philosophy
 
@@ -20,13 +21,13 @@ ZION rejects SHA256 and other ASIC-friendly algorithms because:
 - **GPU farms** create mining pools that control network hashrate
 - **Specialized hardware** undermines the democratic nature of mining
 
-**RandomX ensures mining power correlates directly with CPU performance, making mining accessible to anyone with a computer.**
+**Argon2 ensures mining power correlates directly with CPU performance, making mining accessible to anyone with a computer.**
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.8+
-- RandomX library (see setup below)
+- Argon2 library (see setup below)
 
 ### Installation
 
@@ -34,7 +35,7 @@ ZION rejects SHA256 and other ASIC-friendly algorithms because:
 # Navigate to 2.7.1 directory
 cd /Volumes/Zion/2.7.1
 
-# Install RandomX library
+# Install Argon2 library for ASIC resistance
 ./setup_randomx.sh
 
 # Install Python dependencies
@@ -53,7 +54,7 @@ python3 zion_cli.py info
 # Run test suite
 python3 zion_cli.py test
 
-# Benchmark RandomX performance
+# Benchmark Argon2 performance
 python3 zion_cli.py algorithms benchmark
 
 # Start ASIC-resistant mining
@@ -63,7 +64,7 @@ python3 zion_cli.py mine --address your_mining_address
 python3 zion_cli.py benchmark --blocks 5
 ```
 
-## 🔧 RandomX Setup
+## 🔧 Argon2 Setup
 
 ### Automatic Setup
 ```bash
@@ -75,23 +76,21 @@ python3 zion_cli.py benchmark --blocks 5
 #### Linux (Ubuntu/Debian)
 ```bash
 sudo apt update
-sudo apt install build-essential cmake libhwloc-dev libssl-dev
-pip3 install randomx-python
+pip3 install argon2-cffi
 ```
 
 #### macOS
 ```bash
-brew install cmake openssl hwloc
-pip3 install randomx-python
+pip3 install argon2-cffi
 ```
 
 #### Windows
 ```bash
-# Using conda (recommended)
-conda install -c conda-forge randomx-python
+# Using pip (recommended)
+pip install argon2-cffi
 
-# Or using pip
-pip install randomx-python
+# Or using conda
+conda install -c conda-forge argon2-cffi
 ```
 
 ## 📁 Project Structure
@@ -99,11 +98,11 @@ pip install randomx-python
 ```
 2.7.1/
 ├── core/
-│   ├── blockchain.py      # RandomX blockchain logic
+│   ├── blockchain.py      # Argon2 blockchain logic
 │   └── __init__.py
 ├── mining/
-│   ├── algorithms.py      # Pure RandomX implementation
-│   ├── config.py          # RandomX mining configuration
+│   ├── algorithms.py      # ASIC-resistant Argon2 implementation
+│   ├── config.py          # Argon2 mining configuration
 │   ├── miner.py           # ASIC-resistant CPU miner
 │   └── __init__.py
 ├── tests/
@@ -111,7 +110,7 @@ pip install randomx-python
 │   └── run_tests.py       # Test runner
 ├── zion_cli.py            # Command-line interface
 ├── requirements.txt       # Python dependencies
-├── setup_randomx.sh       # RandomX installation script
+├── setup_randomx.sh       # Argon2 installation script
 └── README.md             # This file
 ```
 

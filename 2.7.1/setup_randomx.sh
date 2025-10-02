@@ -1,8 +1,16 @@
 #!/bin/bash
-# ZION 2.7.1 - RandomX ASIC-Resistant Setup Script
-# Install RandomX library for maximum decentralization
+# ZION 2.7.1 - Argon2 ASIC-Resistant Setup Script
+# Install Argon2 library     # Install Python Argon2
+    print_info "Installing argon2-cffi..."
+    pip3 install argon2-cffi
 
-echo "🛡️ ZION 2.7.1 ASIC-Resistant RandomX Setup"
+    if [ $? -eq 0 ]; then
+        print_status "Argon2 installed successfully on macOS"
+    else
+        print_warning "Installation failed. You may need to install Argon2 manually."
+    fium decentralization
+
+echo "🛡️ ZION 2.7.1 ASIC-Resistant Argon2 Setup"
 echo "==========================================="
 
 # Colors for output
@@ -43,21 +51,17 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Install build dependencies
         sudo apt install -y build-essential cmake libhwloc-dev libssl-dev git
 
-        # Install Python RandomX
-        print_info "Installing randomx-python..."
-        pip3 install randomx-python
+        # Install Python Argon2
+        print_info "Installing argon2-cffi..."
+        pip3 install argon2-cffi
 
         if [ $? -eq 0 ]; then
-            print_status "randomx-python installed successfully"
+            print_status "argon2-cffi installed successfully"
         else
-            print_warning "randomx-python installation failed, trying alternative..."
+            print_warning "argon2-cffi installation failed, trying alternative..."
 
             # Try installing from source
-            git clone https://github.com/tevador/randomx-python.git
-            cd randomx-python
-            pip3 install .
-            cd ..
-            rm -rf randomx-python
+            pip3 install argon2-cffi --no-cache-dir
         fi
 
     elif [[ -f /etc/redhat-release ]]; then
@@ -66,12 +70,12 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Install build dependencies
         sudo dnf install -y gcc gcc-c++ make cmake hwloc-devel openssl-devel git
 
-        # Install Python RandomX
-        pip3 install randomx-python
+        # Install Python Argon2
+        pip3 install argon2-cffi
 
     else
         print_warning "Unsupported Linux distribution"
-        print_info "Please install RandomX manually from: https://github.com/tevador/RandomX"
+        print_info "Please install Argon2 manually: pip3 install argon2-cffi"
     fi
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -102,71 +106,64 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
     echo "🪟 Windows detected"
 
-    print_info "Installing RandomX for Windows..."
+    print_info "Installing Argon2 for Windows..."
 
     # Check if we're using conda
     if command -v conda &> /dev/null; then
         print_info "Conda detected - installing via conda"
-        conda install -c conda-forge randomx-python
+        conda install -c conda-forge argon2-cffi
     else
         # Try pip installation
-        pip3 install randomx-python
+        pip3 install argon2-cffi
 
         if [ $? -ne 0 ]; then
             print_warning "Automatic installation failed."
-            print_info "Please install RandomX manually:"
-            echo "1. Download from: https://github.com/tevador/RandomX/releases"
-            echo "2. Or use conda: conda install -c conda-forge randomx-python"
+            print_info "Please install Argon2 manually:"
+            echo "1. Use pip: pip3 install argon2-cffi"
+            echo "2. Or use conda: conda install -c conda-forge argon2-cffi"
         fi
     fi
 
 else
     print_error "Unsupported OS: $OSTYPE"
-    print_info "Please install RandomX manually from: https://github.com/tevador/RandomX"
+    print_info "Please install Argon2 manually: pip3 install argon2-cffi"
     exit 1
 fi
 
 echo ""
-print_info "Testing RandomX installation..."
+print_info "Testing Argon2 installation..."
 
-# Test RandomX
+# Test Argon2
 python3 -c "
 try:
-    import randomx
-    print('✅ RandomX library available')
+    import argon2
+    print('✅ Argon2 library available')
 
     # Test basic functionality
-    key = b'ZION_TEST_KEY'
-    flags = randomx.get_flags()
-    cache = randomx.create_cache(flags, key)
-    vm = randomx.create_vm(flags, cache, None)
-
+    from argon2 import PasswordHasher
+    hasher = PasswordHasher()
     test_data = b'ZION ASIC RESISTANT TEST'
-    hash_result = randomx.calculate_hash(vm, test_data)
+    hash_result = hasher.hash(test_data)
 
-    print('✅ RandomX hash calculation works')
+    print('✅ Argon2 hash calculation works')
     print(f'   Test hash: {hash_result.hex()[:32]}...')
 
-    # Cleanup
-    randomx.destroy_vm(vm)
-    randomx.destroy_cache(cache)
-
-    print('✅ RandomX test completed successfully')
+    print('✅ Argon2 test completed successfully')
 
 except ImportError as e:
-    print('❌ RandomX library not available:', e)
-    print('💡 Install with: pip3 install randomx-python')
+    print('❌ Argon2 library not available:', e)
+    print('💡 Install with: pip3 install argon2-cffi')
     exit(1)
 except Exception as e:
-    print('❌ RandomX test failed:', e)
+    print('❌ Argon2 test failed:', e)
     exit(1)
 "
 
 if [ $? -eq 0 ]; then
     echo ""
-    print_status "RandomX ASIC-resistant mining is ready!"
+    print_status "Argon2 ASIC-resistant mining is ready!"
     echo ""
-    echo "🎯 Why RandomX?"
+    echo "🎯 Why Argon2?"
     echo "==============="
     echo "• ASIC Resistant - Maximum decentralization"
     echo "• CPU Optimized - Fair mining for everyone"
