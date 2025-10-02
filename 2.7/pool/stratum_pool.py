@@ -23,7 +23,7 @@ class ClientState:
     address: tuple
     authorized: bool = False
     worker: str = "unknown"
-    difficulty: int = 1
+    difficulty: int = 32  # Default to ZION pool difficulty
     last_adjust: float = field(default_factory=time.time)
     shares_since_adjust: int = 0
     accepted_shares: int = 0
@@ -521,8 +521,9 @@ class MinimalStratumPool:
             job = self.generate_job()
             notify = { 'id': None, 'method': 'mining.notify', 'params': [ job['job_id'], job['prev_hash'], job['coinbase1'], job['coinbase2'], job['merkle_branch'], job['version'], job['nbits'], job['ntime'], job['clean_jobs'] ] }
             self.send(client, notify)
-            # initialize difficulty (can diverge via varDiff later)
-            self._set_client_difficulty(state, max(1, self.chain.current_difficulty))
+            # initialize difficulty - use ZION default for better mining experience
+            initial_diff = max(self.default_monero_difficulty, self.chain.current_difficulty) 
+            self._set_client_difficulty(state, initial_diff)
             self.log(f"Sent job {job['job_id']} to {addr} diff={state.difficulty}")
         elif method == 'mining.authorize':
             params = data.get('params', [])
