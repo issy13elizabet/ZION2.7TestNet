@@ -365,12 +365,17 @@ class MinimalStratumPool:
             if not state.session_id:
                 state.session_id = f"session_{secrets.token_hex(4)}"
             # Reuse previous difficulty if session reconnects
+            reuse_diff = None
             if state.session_id in self.sessions:
-                prev = self.sessions[state.session_id]
-                state.difficulty = prev.get('difficulty', state.difficulty)
+                reuse_diff = self.sessions[state.session_id].get('difficulty')
+            if reuse_diff:
+                state.difficulty = reuse_diff
             else:
-                self.sessions[state.session_id] = {'difficulty': self.default_monero_difficulty, 'last_seen': time.time()}
-            state.difficulty = self.default_monero_difficulty
+                state.difficulty = self.default_monero_difficulty
+                self.sessions[state.session_id] = {'difficulty': state.difficulty, 'last_seen': time.time()}
+            # Persist touch
+            self.sessions[state.session_id]['last_seen'] = time.time()
+            self._cleanup_sessions()
             job = self.generate_monero_style_job(state.difficulty)
             # Job already has correct difficulty and target
             self.log(f"XMRig login - worker: {state.worker}, diff: {state.difficulty}, target: {job['target']}")
@@ -411,8 +416,7 @@ class MinimalStratumPool:
                 stored = self.sessions[session_param]
                 state.difficulty = stored.get('difficulty', state.difficulty)
                 stored['last_seen'] = time.time()
-            if state.difficulty < 1:
-                state.difficulty = 1
+            self._cleanup_sessions()
             job = self.generate_monero_style_job(state.difficulty)
             # Job already has correct difficulty and target
             resp = { 'id': mid, 'jsonrpc': '2.0', 'result': {
@@ -661,6 +665,17 @@ class MinimalStratumPool:
         }
         
         return stats
+
+    def _cleanup_sessions(self):
+        now = time.time()
+        to_delete = []
+        for sid, meta in self.sessions.items():
+            if now - meta.get('last_seen', 0) > 1800:  # 30 min TTL
+                to_delete.append(sid)
+        for sid in to_delete:
+            del self.sessions[sid]
+        if to_delete:
+            self.logger.debug(f"Session cleanup removed {len(to_delete)} stale sessions")
 
     def start(self):
         self.running = True
