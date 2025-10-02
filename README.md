@@ -154,6 +154,120 @@ If you instead see `difficulty=1` on the second connection, confirm the harness 
 
 Use these to confirm behavior under miner restarts or proxy failover scenarios.
 
+### ⛏️ XMRig Integration
+ZION 2.7 pool is fully compatible with XMRig and other RandomX miners. No modifications needed.
+
+**Basic XMRig Command:**
+```bash
+./xmrig -o 91.98.122.165:3333 -u YOUR_ZION_ADDRESS -p x --coin=monero
+```
+
+**Sample XMRig Config (`config.json`):**
+```json
+{
+    "pools": [
+        {
+            "algo": "rx/0",
+            "coin": "monero",
+            "url": "91.98.122.165:3333",
+            "user": "Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84",
+            "pass": "zion-worker",
+            "rig-id": "rig01",
+            "nicehash": false,
+            "keepalive": true,
+            "enabled": true,
+            "tls": false,
+            "daemon": false
+        }
+    ],
+    "cpu": {
+        "enabled": true,
+        "huge-pages": true,
+        "priority": null,
+        "yield": true,
+        "asm": true
+    },
+    "donate-level": 1,
+    "retries": 5,
+    "retry-pause": 5,
+    "verbose": 0,
+    "watch": true
+}
+```
+
+**Pool Features:**
+- ✅ **VarDiff**: Automatic difficulty adjustment (target: 15s/share)
+- ✅ **Session persistence**: Miners can reconnect without losing difficulty
+- ✅ **Token support**: Advanced miners can use tokens for stateless reconnection
+- ✅ **Compatible**: Works with XMRig, SRBMiner, and other RandomX miners
+- ✅ **Real-time**: Live job broadcasting on new blocks
+
+**Pool Statistics:**
+- **URL**: `91.98.122.165:3333`
+- **Algorithm**: RandomX (rx/0)
+- **Default Difficulty**: 32
+- **Block Time**: 120 seconds
+- **Fee**: 0% (testnet)
+
+**Troubleshooting:**
+- If difficulty shows 1 instead of 32: Check miner connects with `login` method
+- Connection refused: Verify pool is running on port 3333
+- High reject rate: Ensure `"coin": "monero"` and `"algo": "rx/0"` in config
+- For proxy/failover: Use token parameter in getjob for seamless reconnection
+        }
+    ],
+    "cpu": {
+        "enabled": true,
+        "huge-pages": true,
+        "hw-aes": null,
+        "priority": null,
+        "memory-pool": false,
+        "yield": true,
+        "asm": true,
+        "argon2-impl": null,
+        "astrobwt-max-size": 550,
+        "astrobwt-avx2": false,
+        "cn/0": false,
+        "cn-lite/0": false
+    },
+    "log-file": null,
+    "donate-level": 1,
+    "donate-over-proxy": 1,
+    "pools-file": null,
+    "retries": 5,
+    "retry-pause": 5,
+    "syslog": false,
+    "tls": {
+        "enabled": false,
+        "protocols": null,
+        "cert": null,
+        "cert_key": null,
+        "ciphers": null,
+        "ciphersuites": null,
+        "dhparam": null
+    },
+    "user-agent": null,
+    "verbose": 0,
+    "watch": true,
+    "pause-on-battery": false,
+    "pause-on-active": false
+}
+```
+
+**Features:**
+- ✅ **VarDiff**: Automatic difficulty adjustment (target: 15s/share)
+- ✅ **Session persistence**: Miners can reconnect without losing difficulty
+- ✅ **Token support**: Advanced miners can use tokens for stateless reconnection
+- ✅ **Compatible**: Works with XMRig, SRBMiner, and other RandomX miners
+- ✅ **Real-time**: Live job broadcasting on new blocks
+
+**Pool Statistics:**
+- **URL**: `91.98.122.165:3333`
+- **Algorithm**: RandomX (rx/0)
+- **Default Difficulty**: 32
+- **Block Time**: 120 seconds
+- **Fee**: 0% (testnet)
+
 ## 🔐 Security (Initial Hardening – Still Minimal)
 - Per‑message size cap: 64 KB (oversized dropped)
 - Aggregate connection buffer cap (disconnect if runaway)

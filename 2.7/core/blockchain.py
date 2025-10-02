@@ -11,7 +11,7 @@ from typing import List, Dict, Optional, Any
 # Import ZION Hybrid Algorithm
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 try:
-    from zion_hybrid_algorithm import ZionHybridAlgorithm
+    from core.zion_hybrid_algorithm import ZionHybridAlgorithm
     HYBRID_ALGORITHM_AVAILABLE = True
     print("🌟 ZION Hybrid Algorithm loaded: RandomX → Cosmic Harmony → KRISTUS qbit")
 except ImportError as e:

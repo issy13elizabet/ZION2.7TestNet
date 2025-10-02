@@ -66,16 +66,40 @@ def fake_submit(sock, job_id):
         print(f"[WARN] Submit raw: {resp}")
 
 
+def test_invalid_token():
+    """Test getjob with invalid token falls back gracefully."""
+    s = socket.socket()
+    s.connect((HOST, PORT))
+    # Use invalid token
+    req = {"id":99,"jsonrpc":"2.0","method":"getjob","params":{"token":"invalid_token_12345"}}
+    resp = send_recv(s, req)
+    if isinstance(resp, dict) and 'result' in resp:
+        diff = resp['result'].get('difficulty')
+        print(f"[TEST] Invalid token → difficulty={diff} (expect default 32)")
+    else:
+        print(f"[FAIL] Invalid token test: {resp}")
+    s.close()
+
 def main():
+    print("=== Token-Based Difficulty Persistence Test ===")
     login_sock, session_id, token, diff_login, job_login = login()
     cross_sock, diff_cross = getjob_new_socket(session_id, token)
     if diff_cross != diff_login:
         print(f"[WARN] Difficulty mismatch: login={diff_login} cross={diff_cross}")
     else:
         print("[PASS] Difficulty persisted across sockets")
+    
+    # Test negative case
+    print("\n=== Invalid Token Test ===")
+    test_invalid_token()
+    
+    # Submit test
+    print("\n=== Submit Test ===")
     fake_submit(login_sock, job_login['job_id'])
+    
     login_sock.close()
     cross_sock.close()
+    print("\n[DONE] All tests completed")
 
 if __name__ == '__main__':
     main()
