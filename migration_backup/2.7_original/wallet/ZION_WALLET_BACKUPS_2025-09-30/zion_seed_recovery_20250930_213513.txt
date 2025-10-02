@@ -1,0 +1,42 @@
+
+🔐 ZION WALLET SEED RECOVERY FILE 🔐
+Created: 20250930_213513
+Version: ZION-2.6.75
+
+EMERGENCY SEED RECOVERY INSTRUCTIONS:
+=====================================
+
+To recover any ZION genesis wallet:
+1. cd /media/maitreya/ZION1
+2. python3 tools/generate_valid_genesis.py 
+3. Use seeds below to regenerate exact addresses
+
+GENESIS SEEDS:
+=============
+MAIN_GENESIS: ZION_MAIN_GENESIS_SACRED_TECHNOLOGY_2025
+SACRED_GENESIS: SACRED_DHARMA_CONSCIOUSNESS_LIBERATION
+DHARMA_GENESIS: DHARMA_CONSENSUS_ETHICAL_VALIDATION
+UNITY_GENESIS: UNITY_COSMIC_HARMONY_FREQUENCY_PROTOCOLS
+LIBERATION_GENESIS: LIBERATION_MINING_FREEDOM_DECENTRALIZED
+AI_MINER_GENESIS: AI_MINER_COSMIC_HARMONY_ALGORITHM_STACK
+
+RECOVERY COMMANDS:
+=================
+python3 -c "
+from tools.generate_valid_genesis import generate_zion_address
+address = generate_zion_address('YOUR_SEED_HERE')
+print(f'Recovered address: {address}')
+"
+
+VALIDATION COMMANDS:
+===================
+python3 tools/validate_wallet_format.py YOUR_ADDRESS_HERE
+python3 tools/address_decode.py YOUR_ADDRESS_HERE
+
+WALLET IMPORT:
+=============
+from zion.wallet.wallet_core import ZionWallet
+wallet = ZionWallet()
+# Use wallet methods to import recovered address
+
+SECURITY HASH: b3663f78c375fa6e

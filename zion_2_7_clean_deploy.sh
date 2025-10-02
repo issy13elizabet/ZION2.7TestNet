@@ -8,7 +8,7 @@ echo
 # SSH Configuration (using existing keys from docs)
 SSH_HOST="91.98.122.165"  # From TEST_SSH_SERVER.md
 SSH_USER="root"
-SSH_KEY="~/.ssh/id_ed25519_zion"
+SSH_KEY="~/.ssh/id_ed25519"
 SSH_PORT="22"
 
 echo "🔗 Target server: $SSH_USER@$SSH_HOST:$SSH_PORT"
