@@ -18,7 +18,34 @@ python3 2.7/mining/zion_miner.py --address YOUR_ADDRESS
 ```
 **Works with ANY RandomX miner immediately! XMRig, SRBMiner, etc. - 100% compatible!** ZION 2.7 TestNet – Phase 2+ Minimal Real Core (October 2025)
 
-This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate from legacy 2.6.x) with a strict **NO SIMULATION** policy. The legacy 2.6.75 marketing / expansive platform README follows below (kept for historical context). Phase 2+ focuses on correctness, transparency, and verifiable minimal consensus before any higher‑level “sacred” layers return.
+This section documents the in‑progress ZION 2.7 TestNet rebuild (clean slate from legacy 2.6.x) with a strict **NO SIMULATION** policy. The legacy 2.6.75 marketing / expansive platform README follows below (kept for historical context). Phase 2+ focuses on correctness, transparency, and verifiable minimal consensus before any higher‑level "sacred" layers return.
+
+## ⛏️ **MINING POOL - READY NOW!**
+
+### 🚀 **Production Pool Status**
+- **Pool URL**: `91.98.122.165:3333`
+- **Algorithm**: RandomX (rx/0) - 100% XMRig compatible
+- **Status**: ✅ **LIVE & ACCEPTING SHARES**
+- **Default Difficulty**: 32 (auto-adjusts via VarDiff)
+- **Fee**: 0% (testnet phase)
+- **Block Time**: 120 seconds
+
+### ⚡ **Start Mining Immediately**
+```bash
+# XMRig - Replace with your ZION address
+./xmrig -o 91.98.122.165:3333 -u Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84 -p x --coin=monero
+
+# Or any RandomX miner - works out of the box!
+```
+
+### 🔐 **Advanced Features**
+- ✅ **Token-based session persistence** - reconnect without losing difficulty
+- ✅ **Variable difficulty adjustment** - optimizes for 15s/share target
+- ✅ **Cross-socket compatibility** - supports miner failover/restart
+- ✅ **Real-time job distribution** - immediate new block notifications
+- ✅ **Full Monero/XMRig protocol support** - no modifications needed
+
+**Ready to mine? Just point your RandomX miner at `91.98.122.165:3333`!**
 
 ## 🌟 **KRISTUS Quantum Engine - World's First Divine Computing**
 
