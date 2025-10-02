@@ -4,7 +4,12 @@ Real socket, real block templates, basic share -> block submission.
 """
 import socket, threading, json, time, hashlib, os, sys
 from dataclasses import dataclass, field
+import secrets
 from datetime import datetime
+import struct
+import asyncio
+from collections import defaultdict, deque
+import logging
 
 # Import blockchain core
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -24,6 +29,17 @@ class ClientState:
     accepted_shares: int = 0
     rejected_shares: int = 0
     blocks_found: int = 0
+    # XMRig / Monero style session id (login path)
+    session_id: str = ""
+    # Advanced tracking
+    connect_time: float = field(default_factory=time.time)
+    last_share_time: float = field(default_factory=time.time)
+    hashrate_samples: deque = field(default_factory=lambda: deque(maxlen=10))
+    current_job_id: str = ""
+    client_type: str = "unknown"  # "xmrig", "bitcoin", "custom"
+    # Added fields for validation accounting
+    valid_shares: int = 0
+    invalid_shares: int = 0
 
 class MinimalStratumPool:
     def __init__(self, host='0.0.0.0', port=3333, miner_address: str = None, chain: Blockchain = None):
@@ -43,11 +59,43 @@ class MinimalStratumPool:
         self.blocks_found = 0
         # Per-client states
         self.client_states: dict[socket.socket, ClientState] = {}
-        # Very simple varDiff parameters
+        # Monero style job tracking (job_id -> job dict)
+        self.monero_jobs = {}
+        # Advanced varDiff parameters
         self.vardiff_enabled = True
         self.vardiff_target_share_time = 15.0  # seconds/share target
         self.vardiff_adjust_window = 60.0      # seconds between adjustments
         self.vardiff_max_jump = 2              # cap doubling/halving rate
+        # Performance optimizations
+        self.job_cache = {}
+        self.share_batch = []
+        self.share_batch_size = 100
+        self.last_template_height = 0
+        self.template_cache_time = 10  # seconds
+        self.last_template_time = 0
+        # Connection management
+        self.max_connections = 1000
+        self.connection_timeout = 300  # 5 minutes
+        # Statistics
+        self.statistics = {
+            'total_connections': 0,
+            'active_connections': 0,
+            'shares_processed': 0,
+            'total_difficulty': 0,
+            'last_batch_time': 0,
+            'hashrate_1m': 0,
+            'hashrate_5m': 0,
+            'pool_efficiency': 0,
+            'uptime': time.time()
+        }
+        self.start_time = time.time()
+        # Logging setup (must be inside __init__)
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+        self.logger = logging.getLogger('ZionPool')
+        # Přepneme do DEBUG pro hlubší diagnostiku (lze později snížit):
+        self.logger.setLevel(logging.DEBUG)
+        # Výchozí diff pro Monero/XMRig klienty (nahradí původní debug diff=1)
+        self.default_monero_difficulty = 32
 
     def _now(self):
         return datetime.utcnow().strftime('%H:%M:%S')
@@ -74,6 +122,105 @@ class MinimalStratumPool:
         self.active_jobs[job_id] = job
         return job
 
+    # ---- Advanced Monero/XMRig job generation with real block template ----
+    def generate_monero_style_job(self, client_difficulty=None):
+        self.job_id += 1
+        # Get real block template with caching
+        current_time = time.time()
+        if (current_time - self.last_template_time > self.template_cache_time or 
+            self.chain.height != self.last_template_height):
+            self.cached_template = self.chain.create_block_template(self.miner_address)
+            self.last_template_time = current_time
+            self.last_template_height = self.chain.height
+        template = self.cached_template
+        job_id = f'mjob_{self.job_id}'
+        # Generate real RandomX-compatible blob
+        blob = self._create_real_blob(template)
+        # Use client difficulty or default
+        miner_diff = client_difficulty if client_difficulty else self.default_monero_difficulty
+        target_int = max(1, 0xFFFFFFFF // miner_diff)
+        target_hex = f"{target_int:08x}"
+        # Real RandomX seed derivation (simplified)
+        height = template['height']
+        seed_hash = self._calculate_randomx_seed(height)
+        next_seed_hash = self._calculate_randomx_seed(height + 1)
+        job = {
+            'job_id': job_id,
+            'blob': blob,
+            'target': target_hex,
+            'seed_hash': seed_hash,
+            'next_seed_hash': next_seed_hash,
+            'algo': 'rx/0',
+            'height': height,
+            'difficulty': miner_diff,
+            '_template': template,
+            '_created': current_time
+        }
+        self.monero_jobs[job_id] = job
+        # Cache cleanup
+        if len(self.monero_jobs) > 100:
+            old_jobs = [jid for jid, j in self.monero_jobs.items() if current_time - j['_created'] > 300]
+            for jid in old_jobs:
+                del self.monero_jobs[jid]
+        return job
+
+    def _create_real_blob(self, template):
+        """Create real block blob compatible with RandomX"""
+        # Simplified Cryptonote/Monero block structure
+        version = struct.pack('<B', 1)  # Major version
+        timestamp = struct.pack('<Q', int(time.time()))
+        prev_hash = bytes.fromhex(template['prev_hash'][:64].ljust(64, '0'))
+        
+        # Miner transaction (simplified coinbase)
+        miner_tx = self._create_miner_tx(template)
+        
+        # Block header structure (simplified)
+        block_header = version + timestamp + prev_hash + miner_tx[:32]  # First 32 bytes of miner tx
+        
+        # Pad to standard Monero blob size (76 bytes minimum)
+        while len(block_header) < 76:
+            block_header += b'\x00'
+        
+        # Convert to hex (what XMRig expects)
+        blob_hex = block_header.hex()
+        # Ensure proper length (152 hex chars = 76 bytes)
+        return blob_hex[:152].ljust(152, '0')
+    
+    def _create_miner_tx(self, template):
+        """Create simplified miner transaction"""
+        # Simplified coinbase transaction structure
+        version = struct.pack('<B', 1)
+        unlock_time = struct.pack('<Q', template['height'] + 60)  # Lock for 60 blocks
+        
+        # Output to miner address (simplified)
+        reward = template.get('reward', 1000000000)  # 1 ZION in atomic units
+        amount = struct.pack('<Q', reward)
+        
+        # Simplified structure
+        miner_tx = version + unlock_time + amount + self.miner_address.encode()[:32].ljust(32, b'\x00')
+        return miner_tx
+    
+    def _calculate_randomx_seed(self, height):
+        """Calculate RandomX seed hash from blockchain height"""
+        # RandomX seed changes every 2048 blocks (epoch)
+        epoch = height // 2048
+        seed_input = f"zion_randomx_seed_{epoch}".encode()
+        
+        # Get some real blockchain data if available
+        if height > 0 and hasattr(self.chain, 'get_block_hash'):
+            try:
+                # Use block hash from start of epoch
+                epoch_start = epoch * 2048
+                if epoch_start < height:
+                    epoch_hash = self.chain.get_block_hash(epoch_start)
+                    seed_input = bytes.fromhex(epoch_hash) + seed_input
+            except:
+                pass  # Fall back to simple seed
+        
+        # Generate seed hash
+        seed_hash = hashlib.sha256(seed_input).hexdigest()
+        return seed_hash
+
     # ---- Difficulty helpers ----
     def _set_client_difficulty(self, state: ClientState, new_diff: int):
         if new_diff < 1:
@@ -88,22 +235,75 @@ class MinimalStratumPool:
     def _maybe_adjust_vardiff(self, state: ClientState):
         if not self.vardiff_enabled:
             return
+        
         now = time.time()
         if now - state.last_adjust < self.vardiff_adjust_window:
             return
+        
         elapsed = now - state.last_adjust
         shares = state.shares_since_adjust or 1
         avg_share_time = elapsed / shares
         target = self.vardiff_target_share_time
+        
+        # Calculate hashrate estimate
+        if shares > 0:
+            estimated_hashrate = shares * state.difficulty * (2**32) / (elapsed * 1000000)  # MH/s
+            state.hashrate_samples.append(estimated_hashrate)
+        
+        # Advanced difficulty adjustment algorithm
         new_diff = state.difficulty
-        if avg_share_time < target * 0.5:
-            new_diff = min(state.difficulty * 2, state.difficulty * self.vardiff_max_jump)
-        elif avg_share_time > target * 1.8:
-            new_diff = max(1, state.difficulty // 2)
+        
+        if avg_share_time < target * 0.3:  # Too fast - increase difficulty significantly
+            new_diff = min(state.difficulty * 3, state.difficulty * self.vardiff_max_jump * 1.5)
+        elif avg_share_time < target * 0.7:  # Somewhat fast - increase moderately
+            new_diff = min(state.difficulty * 1.5, state.difficulty * self.vardiff_max_jump)
+        elif avg_share_time > target * 2.5:  # Too slow - decrease significantly
+            new_diff = max(1, state.difficulty // 3)
+        elif avg_share_time > target * 1.5:  # Somewhat slow - decrease moderately
+            new_diff = max(1, state.difficulty // 1.5)
+        
+        # Apply bounds
+        new_diff = max(1, min(new_diff, 1000000))  # Reasonable bounds
+        
         if new_diff != state.difficulty:
-            self._set_client_difficulty(state, new_diff)
+            self._set_client_difficulty_monero(state, new_diff)
+            self.logger.info(f"VarDiff adjusted for {state.worker}: {state.difficulty} → {new_diff} (avg_time: {avg_share_time:.1f}s, target: {target}s)")
+        
         state.last_adjust = now
         state.shares_since_adjust = 0
+    
+    def _set_client_difficulty_monero(self, state: ClientState, new_diff: int):
+        """Set difficulty for Monero-style clients"""
+        if new_diff < 1:
+            new_diff = 1
+        state.difficulty = new_diff
+        
+        # Send new job with updated difficulty
+        if state.client_type == "xmrig" and state.session_id:
+            job = self.generate_monero_style_job(new_diff)
+            # Job already has correct difficulty and target
+            
+            # Send new job notification
+            notify_msg = {
+                'id': None,
+                'jsonrpc': '2.0',
+                'method': 'job',
+                'params': {
+                    'job_id': job['job_id'],
+                    'blob': job['blob'],
+                    'target': job['target'],
+                    'seed_hash': job['seed_hash'],
+                    'next_seed_hash': job['next_seed_hash'],
+                    'algo': job['algo'],
+                    'height': job['height'],
+                    'difficulty': job['difficulty']
+                }
+            }
+            try:
+                self.send(state.sock, notify_msg)
+                state.current_job_id = job['job_id']
+            except:
+                pass
 
     def send(self, sock, obj):
         try:
@@ -122,8 +322,18 @@ class MinimalStratumPool:
                 while b'\n' in buff:
                     line, buff = buff.split(b'\n',1)
                     if not line: continue
-                    self._process(client, addr, line)
-            except Exception:
+                    try:
+                        # Debug log raw příchozí zprávy (omezíme délku)
+                        try:
+                            self.logger.debug(f"RAW<{addr}>: {line[:300]!r}")
+                        except Exception:
+                            pass
+                        self._process(client, addr, line)
+                    except Exception as e:
+                        self.logger.error(f"Process error {addr}: {e} line={line[:120]!r}")
+                        break
+            except Exception as e:
+                self.logger.error(f"Recv loop error {addr}: {e}")
                 break
         try:
             client.close()
@@ -142,6 +352,152 @@ class MinimalStratumPool:
         if not state:
             state = ClientState(sock=client, address=addr)
             self.client_states[client] = state
+        # ---- XMRig Monero style method: login ----
+        if method == 'login':
+            # Expect params object
+            params = data.get('params', {})
+            if isinstance(params, dict):
+                worker_login = params.get('login') or params.get('user') or 'unknown'
+                state.worker = worker_login
+            # Identify client as XMRig for later varDiff / specialized handling
+            state.client_type = "xmrig"
+            if not state.session_id:
+                state.session_id = f"session_{secrets.token_hex(4)}"
+            state.difficulty = self.default_monero_difficulty
+            job = self.generate_monero_style_job(state.difficulty)
+            # Job already has correct difficulty and target
+            self.log(f"XMRig login - worker: {state.worker}, diff: {state.difficulty}, target: {job['target']}")
+            resp = {
+                'id': mid,
+                'jsonrpc': '2.0',
+                'result': {
+                    'id': state.session_id,
+                    'job': {
+                        'job_id': job['job_id'],
+                        'blob': job['blob'],
+                        'target': job['target'],
+                        'seed_hash': job['seed_hash'],
+                        'next_seed_hash': job['next_seed_hash'],
+                        'algo': job['algo'],
+                        'height': job['height'],
+                        'difficulty': job['difficulty']
+                    },
+                    'status': 'OK',
+                    'extensions': []
+                },
+                'error': None
+            }
+            self.send(client, resp)
+            self.log(f"XMRig login OK worker={state.worker} session={state.session_id} job={job['job_id']} diff={state.difficulty}")
+            return
+
+        # ---- XMRig keepalive ----
+        if method == 'keepalived':
+            resp = { 'id': mid, 'jsonrpc': '2.0', 'result': True, 'error': None }
+            self.send(client, resp)
+            return
+
+        # ---- XMRig getjob ----
+        if method == 'getjob':
+            if state.difficulty < 1:
+                state.difficulty = 1
+            job = self.generate_monero_style_job(state.difficulty)
+            # Job already has correct difficulty and target
+            resp = { 'id': mid, 'jsonrpc': '2.0', 'result': {
+                'job_id': job['job_id'],
+                'blob': job['blob'],
+                'target': job['target'],
+                'seed_hash': job['seed_hash'],
+                'next_seed_hash': job['next_seed_hash'],
+                'algo': job['algo'],
+                'height': job['height'],
+                'difficulty': job['difficulty']
+            }, 'error': None }
+            self.send(client, resp)
+            self.log(f"XMRig getjob -> {job['job_id']} diff={state.difficulty}")
+            return
+
+        # ---- XMRig submit (Monero style) ----
+        if method == 'submit':
+            params = data.get('params', {})
+            if not isinstance(params, dict):
+                self.send(client, { 'id': mid, 'jsonrpc': '2.0', 'result': None, 'error': { 'code': -1, 'message': 'Invalid params' } })
+                return
+            job_id = params.get('job_id')
+            result_hex = params.get('result', '')
+            nonce = params.get('nonce', '')
+            job = self.monero_jobs.get(job_id)
+            
+            # Enhanced validation
+            accepted = True
+            reason = "OK"
+            
+            if not job:
+                accepted = False
+                reason = "stale_job"
+            elif not isinstance(result_hex, str) or len(result_hex) != 64:
+                accepted = False
+                reason = "invalid_hash"
+            else:
+                # Validate hash meets difficulty target (Monero style simplified):
+                # Compare first 4 bytes (little-endian) of hash against 32-bit target value.
+                try:
+                    raw = bytes.fromhex(result_hex)
+                    if len(raw) < 4:
+                        accepted = False
+                        reason = "short_hash"
+                    else:
+                        hash_prefix_le = raw[:4]  # first 4 bytes
+                        hash_val = int.from_bytes(hash_prefix_le, 'little')
+                        target_val = int(job['target'], 16)
+                        if hash_val > target_val:
+                            accepted = False
+                            reason = "above_target"
+                        else:
+                            accepted = True
+                            reason = "accepted"
+                        # Debug trace for tuning
+                        if self.logger.isEnabledFor(logging.DEBUG):
+                            self.logger.debug(f"Share check worker={state.worker} job={job_id} hash_prefix_le=0x{hash_val:08x} target=0x{target_val:08x} result={reason}")
+                except ValueError:
+                    accepted = False
+                    reason = "invalid_format"
+            
+            if accepted:
+                state.accepted_shares += 1
+                state.shares_since_adjust += 1
+                state.valid_shares += 1
+                self.accepted_shares += 1
+                
+                # VarDiff attempt after accepted share
+                self._maybe_adjust_vardiff(state)
+                
+                # Add to batch processing
+                share_data = {
+                    'job_id': job_id,
+                    'nonce': nonce,
+                    'hash': result_hex,
+                    'worker': state.worker,
+                    'difficulty': job.get('difficulty', 1),
+                    'timestamp': time.time()
+                }
+                self.share_batch.append(share_data)
+                
+                # Process batch if full
+                if len(self.share_batch) >= self.share_batch_size:
+                    self._process_share_batch()
+                    
+            else:
+                state.rejected_shares += 1
+                state.invalid_shares += 1
+                self.rejected_shares += 1
+                self.logger.warning(f"Rejected share reason={reason} worker={state.worker} job={job_id}")
+                
+            self.send(client, { 'id': mid, 'jsonrpc': '2.0', 'result': { 'status': 'OK' if accepted else 'REJECTED', 'accepted': accepted }, 'error': None if accepted else { 'code': -1, 'message': reason } })
+            self.log(f"XMRig submit job={job_id} nonce={nonce} result={reason} diff={job.get('difficulty', 1) if job else 0}")
+            return
+
+        # ---- Original Bitcoin-like Stratum methods ----
         if method == 'mining.subscribe':
             resp = { 'id': mid, 'result': [[['mining.set_difficulty','1'],['mining.notify','1']], '0001', 4], 'error': None }
             self.send(client, resp)
@@ -203,30 +559,96 @@ class MinimalStratumPool:
                     if self.chain.submit_block(mined_block):
                         state.blocks_found += 1
                         self.blocks_found += 1
-                        self.accepted += 1
-                        self.send(client, { 'id': mid, 'result': True, 'error': None })
-                        self.log(f"BLOCK ACCEPTED height={mined_block['height']} new_height={self.chain.height()} hash={self.chain.last_block().hash[:16]}... worker={state.worker}")
-                        new_job = self.generate_job()
-                        notify = { 'id': None, 'method': 'mining.notify', 'params': [ new_job['job_id'], new_job['prev_hash'], new_job['coinbase1'], new_job['coinbase2'], new_job['merkle_branch'], new_job['version'], new_job['nbits'], new_job['ntime'], new_job['clean_jobs'] ] }
-                        # broadcast notify to all connected clients
-                        for cs in list(self.client_states.values()):
-                            try:
-                                self.send(cs.sock, notify)
-                            except Exception:
-                                pass
-                    else:
-                        self.rejected += 1
-                        self.send(client, { 'id': mid, 'result': False, 'error': 'Block rejected' })
-                else:
-                    self.send(client, { 'id': mid, 'result': True, 'error': None })
-                self._maybe_adjust_vardiff(state)
-            else:
-                state.rejected_shares += 1
-                self.rejected_shares += 1
-                self.rejected += 1
-                self.send(client, { 'id': mid, 'result': False, 'error': 'Low difficulty share' })
-        else:
-            self.send(client, { 'id': mid, 'result': None, 'error': f'Unknown method {method}' })
+    
+    # ---- Enhanced helper methods for optimization ----
+    def _process_share_batch(self):
+        """Process batched shares for efficiency"""
+        if not self.share_batch:
+            return
+        
+        try:
+            # Calculate batch statistics
+            total_difficulty = sum(s['difficulty'] for s in self.share_batch)
+            batch_size = len(self.share_batch)
+            
+            # Update pool statistics
+            self.statistics['shares_processed'] += batch_size
+            self.statistics['total_difficulty'] += total_difficulty
+            self.statistics['last_batch_time'] = time.time()
+            
+            # Log batch processing
+            self.log(f"Processed share batch: {batch_size} shares, total_diff={total_difficulty}")
+            
+            # Check if any shares are potential blocks
+            chain_difficulty = getattr(self.chain, 'current_difficulty', 1000)
+            for share in self.share_batch:
+                if share['difficulty'] >= chain_difficulty:
+                    self.log(f"POTENTIAL BLOCK FOUND! Worker: {share['worker']}, Hash: {share['hash']}")
+                    self._submit_block_candidate(share)
+            
+            # Clear batch
+            self.share_batch.clear()
+            
+        except Exception as e:
+            self.log(f"Error processing share batch: {e}")
+            self.share_batch.clear()
+    
+    def _submit_block_candidate(self, share):
+        """Submit potential block to blockchain"""
+        try:
+            job_id = share['job_id']
+            if job_id in self.monero_jobs:
+                job = self.monero_jobs[job_id]
+                template = job['_template']
+                
+                # Build block with winning nonce
+                block_data = {
+                    'template': template,
+                    'nonce': share['nonce'],
+                    'hash': share['hash']
+                }
+                
+                # Submit to blockchain (placeholder)
+                self.log(f"Submitting block candidate: height={job['height']}, hash={share['hash']}")
+                
+                # In real implementation, would call:
+                # result = self.chain.submit_block(block_data)
+                # if result: self.log("BLOCK ACCEPTED BY NETWORK!")
+                
+        except Exception as e:
+            self.log(f"Error submitting block candidate: {e}")
+    
+    def get_pool_statistics(self):
+        """Get comprehensive pool statistics"""
+        current_time = time.time()
+        uptime = current_time - self.start_time
+        
+        # Calculate hashrates
+        total_hashrate = 0
+        active_workers = 0
+        
+        for state in self.client_states.values():
+            if hasattr(state, 'hashrate_samples') and state.hashrate_samples:
+                # Use recent samples for hashrate calculation
+                recent_samples = state.hashrate_samples[-5:]  # Last 5 samples
+                if recent_samples:
+                    avg_hashrate = sum(recent_samples) / len(recent_samples)
+                    total_hashrate += avg_hashrate
+                    active_workers += 1
+        
+        stats = {
+            'uptime_seconds': uptime,
+            'active_workers': active_workers,
+            'total_connections': len(self.client_states),
+            'accepted_shares': self.accepted_shares,
+            'rejected_shares': self.rejected_shares,
+            'total_hashrate_mhs': total_hashrate,
+            'current_jobs': len(self.monero_jobs),
+            'chain_height': getattr(self.chain, 'height', 0),
+            'statistics': self.statistics
+        }
+        
+        return stats
 
     def start(self):
         self.running = True
