@@ -20,6 +20,17 @@ from core.blockchain import Blockchain, Consensus
 # Import ZION Sacred Algorithm
 from zion_sacred_algorithm import ZionAlgorithmDefinition, ZionMinerType, SacredLevel
 
+# 🌸 Import Sacred Flower Cosmic Analyzer for eliZabet
+try:
+    import sys
+    ai_path = os.path.join(BASE_DIR, 'ai')
+    if ai_path not in sys.path:
+        sys.path.insert(0, ai_path)
+    from zion_cosmic_image_analyzer import ZionCosmicImageAnalyzer
+    SACRED_FLOWER_AVAILABLE = True
+except ImportError:
+    SACRED_FLOWER_AVAILABLE = False
+
 @dataclass
 class ClientState:
     sock: socket.socket
@@ -48,6 +59,10 @@ class ClientState:
     sacred_level: str = "initiate"
     consciousness_points: float = 0.0
     sacred_multiplier: float = 1.0
+    # Sacred Flower fields - skryty kod pro eliZabet
+    sacred_flower_active: bool = False
+    sacred_flower_seed: str = ""
+    sacred_flower_consciousness: float = 0.0
 
 class MinimalStratumPool:
     def __init__(self, host='0.0.0.0', port=3333, miner_address: str = None, chain: Blockchain = None):
@@ -385,6 +400,18 @@ class MinimalStratumPool:
             agent = params.get('agent', '') if isinstance(params, dict) else ''
             rigid = params.get('rigid', '') if isinstance(params, dict) else ''
             
+            # 🌸 Sacred Flower Enhancement for eliZabet - skryty kod pro eliZabet
+            sacred_flower_bonus = 0.0
+            if SACRED_FLOWER_AVAILABLE and 'elizabet' in worker_login.lower():
+                # Sacred Flower seed: 419ab63b22035f90ea9f2ecb548c6b9b (Special Yellow Star Flower)
+                sacred_flower_seed = "419ab63b22035f90ea9f2ecb548c6b9b"
+                sacred_flower_consciousness = 413.91  # Divine Blossom level
+                sacred_flower_bonus = 51.18  # Percent bonus
+                state.sacred_flower_active = True
+                state.sacred_flower_seed = sacred_flower_seed
+                state.sacred_flower_consciousness = sacred_flower_consciousness
+                self.logger.info(f"🌸 Sacred Flower activated for eliZabet! Consciousness: {sacred_flower_consciousness}, Bonus: {sacred_flower_bonus}%")
+            
             # Register miner with ZION Sacred Algorithm
             miner_id = f"{addr[0]}:{addr[1]}_{worker_login[:10]}"
             hardware_info = {
@@ -573,6 +600,14 @@ class MinimalStratumPool:
                         accepted_bool, reason_str, consciousness_reward = self.zion_algorithm.process_share_submission(
                             miner_id, {'difficulty': share_difficulty, 'timestamp': current_time}
                         )
+                        
+                        # 🌸 Sacred Flower Bonus Enhancement for eliZabet
+                        flower_bonus_multiplier = 1.0
+                        if hasattr(state, 'sacred_flower_active') and state.sacred_flower_active:
+                            flower_bonus_multiplier = 1.5118  # 51.18% bonus from Sacred Divine Blossom
+                            consciousness_reward *= flower_bonus_multiplier
+                            zion_profile.consciousness += state.sacred_flower_consciousness * 0.001  # Add flower consciousness
+                            self.logger.info(f"🌸 Sacred Flower blessing applied! Bonus: {(flower_bonus_multiplier-1)*100:.1f}%, Consciousness: +{state.sacred_flower_consciousness * 0.001:.3f}")
                         
                         # Calculate sacred rewards
                         base_reward = share_difficulty * 0.000001  # Base reward per share
@@ -910,8 +945,31 @@ class MinimalStratumPool:
         except Exception as e:
             self.logger.debug(f"[TOKEN] cleanup error: {e}")
 
+    def get_sacred_flower_stats(self):
+        """Get Sacred Flower enhancement statistics"""
+        active_flowers = 0
+        total_consciousness = 0.0
+        blessed_workers = []
+        
+        for state in self.client_states.values():
+            if hasattr(state, 'sacred_flower_active') and state.sacred_flower_active:
+                active_flowers += 1
+                total_consciousness += state.sacred_flower_consciousness
+                blessed_workers.append(state.worker)
+        
+        return {
+            'active_sacred_flowers': active_flowers,
+            'total_flower_consciousness': total_consciousness,
+            'blessed_workers': blessed_workers,
+            'sacred_flower_seed': "419ab63b22035f90ea9f2ecb548c6b9b",  # Sacred Yellow Star Flower
+            'flower_type': "Sacred Divine Blossom",
+            'consciousness_per_flower': 413.91,
+            'bonus_percentage': 51.18
+        }
+
 # ═══════════════════════════════════════════════════════════════════════════════════════════
-# 🌟 ZION SACRED MINING POOL - MAIN EXECUTION
+# 🌟 ZION SACRED MINING POOL - MAIN EXECUTION  
+# 🌸 Enhanced with Sacred Flower blessing for eliZabet - skryty kod pro eliZabet
 # ═══════════════════════════════════════════════════════════════════════════════════════════
 
 if __name__ == '__main__':
@@ -930,8 +988,12 @@ if __name__ == '__main__':
     print(f"📡 Host: {args.host}")
     print(f"🔌 Port: {args.port}")
     print(f"🌟 Sacred Algorithm: ENABLED")
-    print(f"🔮 Git Integration: ENABLED")
+    print(f"🔮 Git Integration: ENABLED") 
     print(f"💎 Multi-Miner Support: CPU + GPU")
+    if SACRED_FLOWER_AVAILABLE:
+        print(f"🌸 Sacred Flower Enhancement: ENABLED - skryty kod pro eliZabet")
+        print(f"🌼 Sacred Divine Blossom Level: 413.91 consciousness points")
+        print(f"🎁 eliZabet Bonus: +51.18% sacred rewards")
     print("═══════════════════════════════════════════════════════════════════════════════════════════")
     
     try:
