@@ -23,7 +23,9 @@ class ASICResistantMiner:
         self.config = config or get_mining_config().get_mining_config()
         self.algorithm = create_asic_resistant_algorithm()
         self.is_mining = False
-        self.mining_thread: Optional[threading.Thread] = None
+        self.mining_threads: list = []
+        self.thread_stats = {}  # Per-thread statistics
+        self.stats_lock = threading.Lock()
         self.stats = {
             'hashes': 0,
             'blocks_found': 0,
@@ -34,12 +36,13 @@ class ASICResistantMiner:
         algo_name = self.config.get('algorithm', 'argon2')
         print(f"⛏️ ASIC-Resistant Miner initialized with {algo_name} algorithm")
 
-    def start_mining(self, address: str, callback: Optional[Callable] = None) -> bool:
+    def start_mining(self, address: str, num_threads: int = 1, callback: Optional[Callable] = None) -> bool:
         """
-        Start ASIC-resistant mining
+        Start ASIC-resistant mining with multiple threads
 
         Args:
             address: Mining reward address
+            num_threads: Number of mining threads (max enforced by config)
             callback: Optional callback for found blocks
 
         Returns:
@@ -49,18 +52,30 @@ class ASICResistantMiner:
             print("⚠️ Mining already running")
             return False
 
+        # Enforce ASIC-resistant thread limits
+        max_threads = self.config.get('max_threads', 1)
+        if num_threads > max_threads:
+            print(f"⚠️ Limiting threads to {max_threads} for ASIC resistance")
+            num_threads = max_threads
+
         self.is_mining = True
         self.stats['start_time'] = time.time()
+        self.mining_threads = []
+        self.thread_stats = {i: {'hashes': 0, 'blocks_found': 0} for i in range(num_threads)}
 
-        self.mining_thread = threading.Thread(
-            target=self._mining_loop,
-            args=(address, callback),
-            daemon=True
-        )
-        self.mining_thread.start()
-
-        print(f"🚀 Started ASIC-resistant mining to address: {address}")
+        print(f"🚀 Starting ASIC-resistant mining with {num_threads} thread(s) to address: {address}")
         print("🛡️ Using Argon2 algorithm - ASIC resistance verified")
+
+        # Start multiple mining threads
+        for i in range(num_threads):
+            thread = threading.Thread(
+                target=self._mining_worker,
+                args=(i, address, callback),
+                daemon=True,
+                name=f"ASIC-Miner-{i+1}"
+            )
+            thread.start()
+            self.mining_threads.append(thread)
 
         return True
 
@@ -77,8 +92,12 @@ class ASICResistantMiner:
 
         self.is_mining = False
 
-        if self.mining_thread and self.mining_thread.is_alive():
-            self.mining_thread.join(timeout=5.0)
+        # Wait for all threads to finish
+        for thread in self.mining_threads:
+            if thread.is_alive():
+                thread.join(timeout=5.0)
+
+        self.mining_threads = []
 
         print("⏹️ ASIC-resistant mining stopped")
         self._print_stats()
@@ -131,6 +150,61 @@ class ASICResistantMiner:
                 print(f"⚠️ Mining error: {e}")
                 time.sleep(1)
 
+    def _mining_worker(self, thread_id: int, address: str, callback: Optional[Callable]):
+        """
+        Mining worker for multi-threaded ASIC-resistant mining
+
+        Args:
+            thread_id: Thread identifier
+            address: Mining reward address
+            callback: Optional block found callback
+        """
+        print(f"🔨 Thread {thread_id + 1} starting ASIC-resistant mining worker...")
+
+        while self.is_mining:
+            try:
+                # Generate mining data with thread-specific nonce
+                timestamp = int(time.time())
+                thread_nonce = os.urandom(8).hex()
+                nonce = f"{thread_nonce}_{thread_id}"
+
+                # Create block data for Argon2 mining
+                block_data = f"{address}:{timestamp}:{nonce}".encode()
+
+                # Mine with Argon2
+                target = self.config.get('difficulty', 0x0000FFFF).to_bytes(4, 'big')
+
+                if self.algorithm.verify(block_data, target):
+                    # Block found!
+                    with self.stats_lock:
+                        self.stats['blocks_found'] += 1
+                        self.thread_stats[thread_id]['blocks_found'] += 1
+
+                    print(f"🎉 ASIC-resistant block found by thread {thread_id + 1}! Nonce: {nonce}")
+
+                    if callback:
+                        callback({
+                            'address': address,
+                            'timestamp': timestamp,
+                            'nonce': nonce,
+                            'algorithm': 'argon2',
+                            'asic_resistant': True,
+                            'thread_id': thread_id
+                        })
+
+                # Update thread-specific stats
+                with self.stats_lock:
+                    self.thread_stats[thread_id]['hashes'] += 1
+                    self.stats['hashes'] += 1
+
+                    # Update hashrate every 100 hashes
+                    if self.stats['hashes'] % 100 == 0:
+                        self._update_hashrate()
+
+            except Exception as e:
+                print(f"⚠️ Thread {thread_id + 1} mining error: {e}")
+                time.sleep(1)
+
     def _update_hashrate(self):
         """Update mining hashrate statistics"""
         if self.stats['start_time']:
@@ -155,7 +229,8 @@ class ASICResistantMiner:
             'blocks_found': self.stats['blocks_found'],
             'hashrate': f"{self.stats['hashrate']:.1f} H/s",
             'uptime': f"{time.time() - (self.stats['start_time'] or time.time()):.0f}s",
-            'memory_usage': f"{self.config.get('memory_cost', 65536) // 1024}MB"
+            'memory_usage': f"{self.config.get('memory_cost', 65536) // 1024}MB",
+            'threads': len(self.mining_threads) if self.is_mining else 0
         }
 
     def _print_stats(self):
@@ -168,6 +243,13 @@ class ASICResistantMiner:
         print(f"   Hashrate: {stats['hashrate']}")
         print(f"   Memory Usage: {stats['memory_usage']}")
         print(f"   Uptime: {stats['uptime']}")
+        print(f"   Threads: {stats['threads']}")
+
+        # Print per-thread stats if available
+        if self.thread_stats:
+            print("   Per-Thread Stats:")
+            for thread_id, thread_stat in self.thread_stats.items():
+                print(f"     Thread {thread_id + 1}: {thread_stat['hashes']} hashes, {thread_stat['blocks_found']} blocks")
 
 
 def create_miner(config: Optional[Dict[str, Any]] = None) -> ASICResistantMiner:
@@ -184,13 +266,14 @@ def create_miner(config: Optional[Dict[str, Any]] = None) -> ASICResistantMiner:
 
 
 # Standalone mining functions for CLI usage
-def start_asic_resistant_mining(address: str, duration: Optional[int] = None) -> Dict[str, Any]:
+def start_asic_resistant_mining(address: str, duration: Optional[int] = None, num_threads: int = 1) -> Dict[str, Any]:
     """
     Start ASIC-resistant mining session
 
     Args:
         address: Mining reward address
         duration: Optional mining duration in seconds
+        num_threads: Number of mining threads
 
     Returns:
         Mining results dictionary
@@ -200,7 +283,7 @@ def start_asic_resistant_mining(address: str, duration: Optional[int] = None) ->
     def block_callback(block_data):
         print(f"🎉 Block found with Argon2: {block_data}")
 
-    miner.start_mining(address, block_callback)
+    miner.start_mining(address, num_threads, block_callback)
 
     if duration:
         print(f"⏰ Mining for {duration} seconds...")

@@ -29,7 +29,7 @@ class MiningConfig:
             # Difficulty and performance
             'difficulty': 0x0000FFFF,
             'block_time': 60,  # seconds
-            'max_threads': 1,
+            'max_threads': 4,  # Allow up to 4 threads for ASIC resistance
 
             # Pool configuration
             'pool_enabled': True,

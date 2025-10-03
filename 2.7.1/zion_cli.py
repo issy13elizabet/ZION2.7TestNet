@@ -222,7 +222,7 @@ class ZionCLI:
         print("=" * 60)
 
         try:
-            results = start_asic_resistant_mining(args.address, args.duration)
+            results = start_asic_resistant_mining(args.address, args.duration, getattr(args, 'threads', 1))
 
             print("\n📊 Mining Session Complete:")
             print(f"   Algorithm: {results['algorithm']}")
@@ -231,6 +231,7 @@ class ZionCLI:
             print(f"   Blocks Found: {results['blocks_found']}")
             print(f"   Average Hashrate: {results['hashrate']}")
             print(f"   Memory Usage: {results['memory_usage']}")
+            print(f"   Threads Used: {results['threads']}")
 
         except KeyboardInterrupt:
             print("\n⏹️ Mining interrupted by user")
