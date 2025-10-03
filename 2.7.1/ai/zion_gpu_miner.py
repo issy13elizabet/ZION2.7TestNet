@@ -43,6 +43,7 @@ class ZionGPUMiner:
         """Najde SRBMiner-MULTI executable"""
         possible_paths = [
             os.path.join(os.path.dirname(__file__), '..', 'miners', 'SRBMiner-Multi-latest', 'SRBMiner-Multi-2-9-8', 'SRBMiner-MULTI.exe'),
+            os.path.join(os.path.dirname(__file__), '..', 'miners', 'SRBMiner-Multi-extracted', 'SRBMiner-Multi-2-9-8', 'SRBMiner-MULTI.exe'),
             os.path.join(os.path.dirname(__file__), '..', 'miners', 'SRBMiner-Multi-2-9-8', 'SRBMiner-MULTI.exe'),
             os.path.join(os.path.dirname(__file__), '..', 'miners', 'SRBMiner-MULTI.exe'),
             'SRBMiner-MULTI.exe'  # V PATH
@@ -53,7 +54,7 @@ class ZionGPUMiner:
                 logger.info(f"Found SRBMiner-MULTI at: {path}")
                 return path
 
-        logger.warning("SRBMiner-MULTI not found - falling back to CPU simulation")
+        logger.warning("SRBMiner-MULTI not found - GPU mining will use simulation")
         return None
 
     def _load_mining_config(self):
@@ -211,7 +212,7 @@ class ZionGPUMiner:
         logger.info(f"GPU benchmark completed: {hashrate:.1f} MH/s for {self.current_algorithm} on {gpu_type.upper()} GPU")
         return hashrate
 
-    def start_mining(self, algorithm="kawpow", pool_url=None, wallet_address=None):
+    def start_mining(self, algorithm="kawpow", pool_config=None, wallet_address=None):
         """Spustí mining s SRBMiner-Multi"""
         if self.is_mining:
             logger.warning("Mining already running")
@@ -223,19 +224,28 @@ class ZionGPUMiner:
 
         self.current_algorithm = algorithm
 
-        # Použij konfiguraci z config souboru nebo parametry
-        if pool_url and wallet_address:
-            pool_config = {"url": pool_url, "user": wallet_address, "pass": "x"}
+        # Handle pool config - can be dict or string
+        if isinstance(pool_config, dict):
+            pool_url = pool_config.get("url")
+            pool_user = pool_config.get("user", wallet_address or "test_wallet")
+            pool_pass = pool_config.get("pass", "x")
+        elif pool_config and wallet_address:
+            pool_url = pool_config
+            pool_user = wallet_address
+            pool_pass = "x"
         else:
             pool_config = self.mining_config["pools"][0]
+            pool_url = pool_config['url']
+            pool_user = pool_config['user']
+            pool_pass = pool_config['pass']
 
         # Připrav argumenty pro SRBMiner
         cmd = [
             self.srbminer_path,
             '--algorithm', algorithm,
-            '--pool', pool_config['url'],
-            '--wallet', pool_config['user'],
-            '--password', pool_config['pass'],
+            '--pool', pool_url,
+            '--wallet', pool_user,
+            '--password', pool_pass,
             '--gpu-boost', '3',  # Optimalizace pro výkon
             '--disable-cpu',  # Pouze GPU mining
             '--api-enable',  # Povol API pro monitoring
@@ -338,26 +348,82 @@ class ZionGPUMiner:
         logger.info("Mining stopped")
 
     def _monitor_mining(self):
-        """Monitoruje mining proces a aktualizuje statistiky"""
-        while not self.stop_monitoring and self.mining_process:
-            if self.mining_process.poll() is not None:
-                # Proces skončil
-                logger.warning("Mining process terminated unexpectedly")
-                self.is_mining = False
-                break
+        """Monitoruje skutečné SRBMiner GPU mining výstupy (žádná simulace!)"""
+        if not self.mining_process:
+            return
 
-            # Zkusíme získat hashrate z API
-            try:
-                import requests
-                response = requests.get('http://127.0.0.1:5380/api', timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    if 'hashrate' in data:
-                        self.hashrate = float(data['hashrate'].get('total', [0])[0])
-            except:
-                pass
+        try:
+            while not self.stop_monitoring and self.mining_process.poll() is None:
+                # Čti výstup ze SRBMiner procesu
+                line = self.mining_process.stdout.readline()
+                if not line:
+                    time.sleep(0.1)
+                    continue
 
-            time.sleep(5)
+                line = line.strip()
+
+                # Parsuj SRBMiner výstup pro shares a statistiky
+                if "accepted" in line.lower() and ("diff" in line.lower() or "difficulty" in line.lower()):
+                    # Accepted share
+                    if hasattr(self, 'hybrid_miner') and self.hybrid_miner:
+                        self.hybrid_miner.mining_stats["gpu_shares"]["accepted"] += 1
+                        self.hybrid_miner.mining_stats["gpu_shares"]["total"] = (
+                            self.hybrid_miner.mining_stats["gpu_shares"]["accepted"] +
+                            self.hybrid_miner.mining_stats["gpu_shares"]["rejected"]
+                        )
+
+                        # Extrahuj difficulty
+                        try:
+                            if "diff" in line:
+                                diff_part = line.split("diff")[1].split()[0]
+                                difficulty = int(diff_part.replace(",", "").replace(")", ""))
+                                if difficulty > self.hybrid_miner.mining_stats["best_share"]["gpu"]:
+                                    self.hybrid_miner.mining_stats["best_share"]["gpu"] = difficulty
+                        except:
+                            difficulty = 0
+
+                        print(f"[GPU] Accept Share! Diff: {difficulty} (best: {self.hybrid_miner.mining_stats['best_share']['gpu']})")
+
+                elif "rejected" in line.lower() or "stale" in line.lower():
+                    # Rejected share
+                    if hasattr(self, 'hybrid_miner') and self.hybrid_miner:
+                        self.hybrid_miner.mining_stats["gpu_shares"]["rejected"] += 1
+                        self.hybrid_miner.mining_stats["gpu_shares"]["total"] = (
+                            self.hybrid_miner.mining_stats["gpu_shares"]["accepted"] +
+                            self.hybrid_miner.mining_stats["gpu_shares"]["rejected"]
+                        )
+                        print("[GPU] Reject Share! Invalid solution")
+
+                elif "hashrate" in line.lower() or "mh/s" in line.lower() or "kh/s" in line.lower():
+                    # Aktualizuj hashrate
+                    try:
+                        if "MH/s" in line:
+                            mhs_part = line.split("MH/s")[0].split()[-1]
+                            self.hashrate = float(mhs_part.replace(",", ""))
+                        elif "KH/s" in line:
+                            khs_part = line.split("KH/s")[0].split()[-1]
+                            self.hashrate = float(khs_part.replace(",", "")) / 1000.0
+                    except:
+                        pass
+
+                elif "block found" in line.lower() or ("block" in line.lower() and "found" in line.lower()):
+                    # Block found
+                    if hasattr(self, 'hybrid_miner') and self.hybrid_miner:
+                        self.hybrid_miner.mining_stats["blocks_found"]["gpu"] += 1
+                        self.hybrid_miner.mining_stats["blocks_found"]["total"] += 1
+                        print(f"[GPU] BLOCK FOUND! Block #{self.hybrid_miner.mining_stats['blocks_found']['total']} submitted to pool")
+
+                elif "new job" in line.lower():
+                    # New job received
+                    print("[GPU] New job received from pool")
+
+                # Krátká pauza
+                time.sleep(0.05)
+
+        except Exception as e:
+            logger.error(f"SRBMiner monitoring error: {e}")
+
+        logger.info("SRBMiner monitoring stopped")
 
     def get_stats(self):
         """Vrátí aktuální mining statistiky"""
