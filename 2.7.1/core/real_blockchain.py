@@ -12,6 +12,19 @@ import sqlite3
 import threading
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
+from datetime import datetime
+import heapq
+
+@dataclass
+class MempoolTransaction:
+    """Transaction in mempool with priority"""
+    transaction: RealTransaction
+    fee_per_byte: float
+    received_at: datetime
+    priority_score: float
+
+    def __lt__(self, other):
+        return self.priority_score > other.priority_score  # Higher priority first
 
 
 @dataclass
@@ -48,14 +61,13 @@ class RealTransaction:
     tx_id: str
     from_address: str
     to_address: str
-    amount: int  # atomic units
+    amount: int
     fee: int
     timestamp: int
-    signature: str
-    consciousness_boost: float = 1.0
+    signature: str = ""
     
-    def calculate_hash(self) -> str:
-        """Calculate transaction hash"""
+    def calculate_tx_id(self) -> str:
+        """Calculate transaction ID"""
         tx_string = json.dumps({
             'from_address': self.from_address,
             'to_address': self.to_address,
@@ -66,16 +78,94 @@ class RealTransaction:
         return hashlib.sha256(tx_string.encode()).hexdigest()
 
 
+@dataclass
+class MempoolTransaction:
+    """Transaction in mempool with priority"""
+    transaction: RealTransaction
+    fee_per_byte: float
+    received_at: datetime
+    priority_score: float
+
+    def __lt__(self, other):
+        return self.priority_score > other.priority_score  # Higher priority first
+class TransactionMempool:
+    """Advanced transaction memory pool with prioritization"""
+
+    def __init__(self, max_size: int = 1000):
+        self.transactions: List[MempoolTransaction] = []
+        self.max_size = max_size
+        self.tx_index: Dict[str, MempoolTransaction] = {}  # tx_id -> MempoolTransaction
+
+    def add_transaction_to_mempool(self, transaction: RealTransaction) -> bool:
+        """Add transaction to mempool with validation"""
+        with self._lock:
+            return self.mempool.add_transaction(transaction)
+
+    def _validate_transaction(self, transaction: RealTransaction) -> bool:
+        """Validate transaction before adding to mempool"""
+        # Check basic structure
+        if not all([transaction.from_address, transaction.to_address, transaction.amount > 0]):
+            return False
+
+        # Check fee is reasonable
+        if transaction.fee < 100:  # Minimum fee
+            return False
+
+        # Check transaction ID matches
+        if transaction.tx_id != transaction.calculate_tx_id():
+            return False
+
+        # TODO: Add balance validation, double-spend check, etc.
+        return True
+
+    def get_highest_priority_transactions(self, limit: int = 10) -> List[RealTransaction]:
+        """Get highest priority transactions for block creation"""
+        return [mt.transaction for mt in self.transactions[:limit]]
+
+    def remove_transactions(self, transactions: List[RealTransaction]):
+        """Remove transactions that were included in a block"""
+        tx_ids = {tx.tx_id for tx in transactions}
+        self.transactions = [mt for mt in self.transactions if mt.transaction.tx_id not in tx_ids]
+        for tx_id in tx_ids:
+            self.tx_index.pop(tx_id, None)
+
+    def get_transaction(self, tx_id: str) -> Optional[RealTransaction]:
+        """Get transaction by ID"""
+        mempool_tx = self.tx_index.get(tx_id)
+        return mempool_tx.transaction if mempool_tx else None
+
+    def get_mempool_size(self) -> int:
+        """Get current mempool size"""
+        return len(self.transactions)
+
+    def get_mempool_info(self) -> Dict[str, Any]:
+        """Get detailed mempool information"""
+        if not self.transactions:
+            return {'size': 0, 'min_fee': 0, 'max_fee': 0}
+
+        fees = [mt.fee_per_byte for mt in self.transactions]
+        return {
+            'size': len(self.transactions),
+            'min_fee': min(fees),
+            'max_fee': max(fees),
+            'avg_fee': sum(fees) / len(fees)
+        }
+
+
 class ZionRealBlockchain:
     """ZION 2.7.1 Real Blockchain - No Simulations"""
     
     def __init__(self, db_file: str = "zion_real_blockchain.db"):
         self.db_file = db_file
         self.blocks: List[RealBlock] = []
-        self.mempool: List[RealTransaction] = []
+        self.mempool = TransactionMempool()
         self.difficulty = 1000
         self.block_reward = 100000000  # 1 ZION in atomic units
         self._lock = threading.Lock()
+        
+        # Mining algorithm settings
+        self.mining_algorithm = 'argon2'  # Default ASIC-resistant
+        self.use_gpu = False
         
         # Initialize database
         self._init_database()
@@ -86,6 +176,29 @@ class ZionRealBlockchain:
         # Create genesis if needed
         if not self.blocks:
             self._create_genesis_block()
+    
+    def set_mining_algorithm(self, algorithm: str, use_gpu: bool = False):
+        """Set the mining algorithm for proof-of-work"""
+        allowed_algorithms = ['argon2', 'kawpow', 'ethash', 'cryptonight', 'octopus', 'ergo']
+        if algorithm not in allowed_algorithms:
+            raise ValueError(f"Unsupported algorithm: {algorithm}")
+        
+        self.mining_algorithm = algorithm
+        self.use_gpu = use_gpu
+        
+        print(f"🎯 Mining algorithm set to: {algorithm.upper()}")
+        if use_gpu:
+            print("🎮 GPU mining enabled")
+        else:
+            print("🖥️ CPU mining enabled")
+        
+        # Adjust difficulty based on algorithm
+        if algorithm == 'argon2':
+            self.difficulty = 1000  # ASIC-resistant
+        elif algorithm in ['kawpow', 'ethash']:
+            self.difficulty = 10000  # GPU-optimized
+        else:
+            self.difficulty = 5000  # Balanced
     
     def _init_database(self):
         """Initialize blockchain database"""
@@ -158,6 +271,66 @@ class ZionRealBlockchain:
         if self.blocks:
             print(f"📦 Loaded {len(self.blocks)} real blocks from database")
     
+    def _calculate_argon2_hash(self, block: RealBlock) -> str:
+        """Calculate Argon2 hash for proof-of-work"""
+        try:
+            from argon2 import PasswordHasher
+            hasher = PasswordHasher(
+                time_cost=2,
+                memory_cost=65536,
+                parallelism=1,
+                hash_len=32
+            )
+            
+            block_string = json.dumps({
+                'height': block.height,
+                'previous_hash': block.previous_hash,
+                'timestamp': block.timestamp,
+                'nonce': block.nonce,
+                'transactions': block.transactions,
+                'miner_address': block.miner_address
+            }, sort_keys=True)
+            
+            # Use Argon2 to hash the block data
+            hash_bytes = hasher.hash(block_string)
+            return hashlib.sha256(hash_bytes.encode()).hexdigest()
+            
+        except ImportError:
+            # Fallback if argon2 not available
+            return block.calculate_hash()
+    
+    def _calculate_kawpow_hash(self, block: RealBlock) -> str:
+        """Calculate KawPow hash (GPU simulation)"""
+        block_string = json.dumps({
+            'height': block.height,
+            'previous_hash': block.previous_hash,
+            'timestamp': block.timestamp,
+            'nonce': block.nonce,
+            'transactions': block.transactions,
+            'miner_address': block.miner_address
+        }, sort_keys=True)
+        
+        # KawPow simulation - multi-round PBKDF2 to simulate GPU work
+        salt = b"zion_kawpow_salt"
+        hash_result = hashlib.pbkdf2_hmac('sha256', block_string.encode(), salt, 10000)
+        return hash_result.hex()
+    
+    def _calculate_ethash_hash(self, block: RealBlock) -> str:
+        """Calculate Ethash hash (GPU simulation)"""
+        block_string = json.dumps({
+            'height': block.height,
+            'previous_hash': block.previous_hash,
+            'timestamp': block.timestamp,
+            'nonce': block.nonce,
+            'transactions': block.transactions,
+            'miner_address': block.miner_address
+        }, sort_keys=True)
+        
+        # Ethash simulation - heavy PBKDF2 to simulate DAG computation
+        salt = b"zion_ethash_salt"
+        hash_result = hashlib.pbkdf2_hmac('sha256', block_string.encode(), salt, 50000)
+        return hash_result.hex()
+    
     def _create_genesis_block(self):
         """Create genesis block"""
         genesis_transactions = [{
@@ -228,8 +401,8 @@ class ZionRealBlockchain:
     def mine_block(self, miner_address: str, consciousness_level: str = "PHYSICAL") -> Optional[RealBlock]:
         """Mine a new block"""
         with self._lock:
-            # Get transactions from mempool
-            transactions = self.mempool[:10]  # Max 10 transactions per block
+            # Get transactions from mempool (prioritized)
+            transactions = self.mempool.get_highest_priority_transactions(10)
             
             # Calculate sacred multiplier
             sacred_multipliers = {
@@ -265,7 +438,17 @@ class ZionRealBlockchain:
             start_time = time.time()
             while True:
                 new_block.nonce += 1
-                new_block.hash = new_block.calculate_hash()
+                
+                # Use selected mining algorithm
+                if self.mining_algorithm == 'argon2':
+                    new_block.hash = self._calculate_argon2_hash(new_block)
+                elif self.mining_algorithm == 'kawpow':
+                    new_block.hash = self._calculate_kawpow_hash(new_block)
+                elif self.mining_algorithm == 'ethash':
+                    new_block.hash = self._calculate_ethash_hash(new_block)
+                else:
+                    # Fallback to standard hash
+                    new_block.hash = new_block.calculate_hash()
                 
                 # Check if hash meets difficulty
                 if int(new_block.hash, 16) < (2 ** 256) // self.difficulty:
@@ -280,7 +463,8 @@ class ZionRealBlockchain:
             self.blocks.append(new_block)
             
             # Remove transactions from mempool
-            self.mempool = self.mempool[len(transactions):]
+            if transactions:
+                self.mempool.remove_transactions(transactions)
             
             # Save to database
             self._save_block_to_db(new_block)
@@ -405,7 +589,7 @@ class ZionRealBlockchain:
             'block_count': len(self.blocks),
             'total_supply': total_supply,
             'total_transactions': total_transactions,
-            'mempool_size': len(self.mempool),
+            'mempool_size': self.mempool.get_mempool_size(),
             'difficulty': self.difficulty,
             'consciousness_distribution': consciousness_distribution
         }

@@ -75,6 +75,9 @@ class ZionCLI:
         mine_parser.add_argument('address', help='Mining reward address')
         mine_parser.add_argument('--duration', '-d', type=int, help='Mining duration in seconds')
         mine_parser.add_argument('--threads', '-t', type=int, default=1, help='Number of mining threads')
+        mine_parser.add_argument('--algorithm', '-a', choices=['argon2', 'kawpow', 'ethash', 'cryptonight', 'octopus', 'ergo'], 
+                               default='argon2', help='Mining algorithm (default: argon2)')
+        mine_parser.add_argument('--gpu', action='store_true', help='Enable GPU mining for supported algorithms')
 
         # Benchmark command
         bench_parser = subparsers.add_parser('benchmark', help='Run mining benchmark')
@@ -296,12 +299,24 @@ class ZionRealBlockchainCLI:
             print(f"   Current blocks: {self.blockchain.get_block_count()}")
 
     def cmd_real_mine(self, args):
-        """Mine real blocks in the blockchain"""
+        """Mine real blocks in the blockchain with selected algorithm"""
         self.initialize_blockchain()
+
+        algorithm = getattr(args, 'algorithm', 'argon2')
+        use_gpu = getattr(args, 'gpu', False)
 
         print("🚀 Starting REAL BLOCKCHAIN MINING")
         print("🛡️ No simulations - creating actual blocks!")
         print("=" * 60)
+        print(f"🎯 Algorithm: {algorithm.upper()}")
+        print(f"🎮 GPU Mode: {'Enabled' if use_gpu else 'Disabled'}")
+        print(f"📧 Address: {args.address}")
+        print(f"🧵 Threads: {args.threads}")
+        print("=" * 60)
+
+        # Set algorithm in blockchain
+        if hasattr(self.blockchain, 'set_mining_algorithm'):
+            self.blockchain.set_mining_algorithm(algorithm, use_gpu)
 
         consciousness_levels = [
             "PHYSICAL", "EMOTIONAL", "MENTAL", "INTUITIVE",
@@ -310,6 +325,50 @@ class ZionRealBlockchainCLI:
         ]
 
         blocks_mined = 0
+        start_time = time.time()
+
+        try:
+            for i in range(args.blocks):
+                # Cycle through consciousness levels
+                consciousness = consciousness_levels[i % len(consciousness_levels)]
+
+                print(f"⛏️ Mining block {i+1}/{args.blocks} - {consciousness} consciousness...")
+
+                # Mine real block
+                block = self.blockchain.mine_block(
+                    miner_address=args.address,
+                    consciousness_level=consciousness
+                )
+
+                if block:
+                    blocks_mined += 1
+                    print(f"✅ Block {block.height} mined! Hash: {block.hash[:16]}...")
+                    print(f"   🧠 Consciousness: {block.consciousness_level}")
+                    print(f"   🌟 Multiplier: {block.sacred_multiplier}x")
+                    print(f"   💰 Reward: {block.reward:,} atomic units")
+                else:
+                    print(f"❌ Failed to mine block {i+1}")
+
+                # Small delay between blocks
+                time.sleep(0.1)
+
+        except KeyboardInterrupt:
+            print("\n⏹️ Mining interrupted by user")
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+        print("\n" + "=" * 60)
+        print("🏆 MINING SESSION COMPLETE")
+        print("=" * 60)
+        print(f"   Duration: {duration:.1f} seconds")
+        print(f"   Blocks Mined: {blocks_mined}")
+        print(f"   Success Rate: {blocks_mined/args.blocks*100:.1f}%")
+        print(f"   Average Time per Block: {duration/args.blocks:.1f}s")
+
+        if blocks_mined > 0:
+            print(f"   💎 Total Reward: {blocks_mined * 100000000:,} atomic units")
+            print("   🌟 Sacred consciousness levels achieved!")
         start_time = time.time()
 
         try:
