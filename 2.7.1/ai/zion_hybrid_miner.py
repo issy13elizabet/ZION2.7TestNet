@@ -63,7 +63,7 @@ class ZionHybridMiner:
             "randomx": {
                 "name": "RandomX",
                 "description": "Monero-style CPU mining algorithm",
-                "threads": max(1, os.cpu_count() // 2),
+                "threads": 10,  # 10 threads as requested
                 "hugepages": True,
                 "asm": "auto",
                 "mode": "fast"
@@ -237,7 +237,7 @@ class ZionHybridMiner:
             json.dump(xmrig_config, f, indent=2)
 
         # Spusť Xmrig proces
-        cmd = [self.xmrig_path, '--config', config_path, '--no-color']
+        cmd = [self.xmrig_path, '--config', config_path]
         logger.info(f"Starting Xmrig with command: {' '.join(cmd)}")
 
         self.cpu_process = subprocess.Popen(
@@ -376,14 +376,20 @@ class ZionHybridMiner:
         if not self.cpu_process:
             return
 
+        print("[DEBUG] Starting Xmrig monitoring...")
         try:
             while not self.stop_cpu_monitoring and self.cpu_process.poll() is None:
-                # Čti výstup z Xmrig procesu
+                # Čti výstup z Xmrig procesu (stdout a stderr)
                 line = self.cpu_process.stdout.readline()
                 if not line:
-                    break
+                    # Also check stderr
+                    line = self.cpu_process.stderr.readline()
+                    if not line:
+                        time.sleep(0.1)  # Small delay to avoid busy waiting
+                        continue
 
                 line = line.strip()
+                print(f"[DEBUG] Xmrig output: {line}")  # Debug: show all output
 
                 # Parsuj Xmrig výstup pro shares a statistiky
                 if "accepted" in line.lower() and ("diff" in line.lower() or "difficulty" in line.lower()):
@@ -507,7 +513,7 @@ class ZionHybridMiner:
             cpu_accept_rate = (self.mining_stats["cpu_shares"]["accepted"] / self.mining_stats["cpu_shares"]["total"]) * 100
 
         print(" CPU (RandomX):")
-        print(f"   Hashrate: {self.cpu_hashrate:.1f} H/s")
+        print(f"   Hashrate: {self.cpu_hashrate / 1000000:.3f} MH/s")  # Convert H/s to MH/s
         print(f"   Shares: {self.mining_stats['cpu_shares']['accepted']}/{self.mining_stats['cpu_shares']['total']} ({cpu_accept_rate:.1f}%)")
         print(f"   Best Share: {self.mining_stats['best_share']['cpu']}")
         print(f"   Blocks Found: {self.mining_stats['blocks_found']['cpu']}")
@@ -610,7 +616,7 @@ class ZionHybridMiner:
             "total_hashrate": gpu_stats.get("hashrate", 0) + self.cpu_hashrate,
             "power_consumption": self._calculate_power_consumption(gpu_stats),
             "efficiency_score": self._calculate_efficiency_score(gpu_stats),
-            "ai_optimization": self.ai_optimization_active,
+            "ai_optimization_active": self.ai_optimization_active,
             "timestamp": datetime.now().isoformat()
         }
 

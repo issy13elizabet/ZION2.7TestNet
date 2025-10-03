@@ -76,13 +76,13 @@ def main():
         print("✅ Hybrid mining started successfully!")
         print("Watch for 'Accept Share!' and 'Block Found!' messages...")
 
-        # Keep running for 30 seconds for demo
-        print("Running for 30 seconds demo...")
-        time.sleep(30)
-        print("\nDemo completed! Stopping mining...")
+        # Keep running for 60 seconds for debug
+        print("Running for 60 seconds debug...")
+        time.sleep(60)
+        print("\nDebug completed! Stopping mining...")
         miner.stop_hybrid_mining()
-        print("✅ Real hybrid mining test completed successfully!")
-        print("You should have seen 'Accept Share!' messages from both CPU and GPU miners!")
+        print("✅ Real hybrid mining debug completed!")
+        print("Check debug output above to see miner activity!")
     else:
         print("❌ Failed to start hybrid mining")
 

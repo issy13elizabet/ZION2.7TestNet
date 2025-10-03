@@ -352,15 +352,20 @@ class ZionGPUMiner:
         if not self.mining_process:
             return
 
+        print("[DEBUG] Starting SRBMiner monitoring...")
         try:
             while not self.stop_monitoring and self.mining_process.poll() is None:
-                # Čti výstup ze SRBMiner procesu
+                # Čti výstup ze SRBMiner procesu (stdout a stderr)
                 line = self.mining_process.stdout.readline()
                 if not line:
-                    time.sleep(0.1)
-                    continue
+                    # Also check stderr
+                    line = self.mining_process.stderr.readline()
+                    if not line:
+                        time.sleep(0.1)
+                        continue
 
                 line = line.strip()
+                print(f"[DEBUG] SRBMiner output: {line}")  # Debug: show all output
 
                 # Parsuj SRBMiner výstup pro shares a statistiky
                 if "accepted" in line.lower() and ("diff" in line.lower() or "difficulty" in line.lower()):
