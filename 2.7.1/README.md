@@ -1,53 +1,184 @@
-# ZION 2.7.1 - Complete Blockchain System
+# ZION 2.7.1 - Advanced Blockchain System
 
 ## 🌟 Overview
 
-ZION 2.7.1 is a **complete blockchain ecosystem** featuring:
+ZION 2.7.1 is a **production-ready blockchain ecosystem** featuring enterprise-grade features:
 - **Real blockchain** with persistent storage (NO SIMULATIONS)
-- **ASIC-resistant mining** (Argon2 algorithm)
-- **Wallet system** for address and transaction management
-- **P2P network** for node communication
+- **Advanced P2P Network** with peer discovery and synchronization
+- **Multi-Algorithm GPU Mining** (KawPow, Ethash, Argon2)
+- **Encrypted Wallet System** with backup and key management
+- **Advanced Transaction Pool** with prioritization and validation
 - **REST API** for application integration
-- **GPU mining** support
+- **Web Frontend** with real-time blockchain data
 
-### ✨ Key Features
+### ✨ Advanced Features Implemented
 
-- **Real Blocks**: Persistent SQLite database with actual blockchain data
-- **ASIC-Resistant**: Argon2 mining prevents hardware centralization
-- **Wallet System**: Complete address and transaction management
-- **P2P Network**: Decentralized node communication
-- **REST API**: FastAPI-based endpoints for integration
-- **GPU Support**: KawPow, Ethash, and Octopus algorithms
-- **Consciousness Mining**: Unique sacred multiplier system
+- **🔗 P2P Network Expansion**: Auto peer discovery, block synchronization, transaction broadcasting
+- **⛏️ GPU Mining Activation**: CLI algorithm selection, dynamic difficulty, performance monitoring
+- **🌐 Web Frontend Integration**: Next.js API routes with real backend data
+- **🔐 Advanced Wallet Security**: AES-256 encryption, PBKDF2 key derivation, secure backup/restore
+- **📊 Transaction Pool Management**: Priority queue with fee-based scoring, validation, network broadcasting
+- **🛡️ ASIC-Resistant Mining**: Argon2 algorithm prevents hardware centralization
+- **🎯 Consciousness Mining**: Unique sacred multiplier system with 10 consciousness levels
 
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
 ```bash
 pip install -r requirements.txt
-# For API server:
-pip install fastapi uvicorn
+# Additional packages for advanced features:
+pip install cryptography fastapi uvicorn
 ```
 
 ### 2. Start API Server
 ```bash
-python zion_cli.py api
-# API available at http://localhost:8000
-# Docs at http://localhost:8000/docs
+python run_api.py
+# API available at http://localhost:8001
+# Interactive docs at http://localhost:8001/docs
 ```
 
-### 3. Create Wallet
+### 3. Create Encrypted Wallet
 ```bash
 python zion_cli.py wallet create
-python zion_cli.py wallet list
+python zion_cli.py wallet set-password
+python zion_cli.py wallet backup
 ```
 
-### 4. Mine Blocks
+### 4. Mine with Advanced Algorithms
 ```bash
-python zion_cli.py mine --address YOUR_ADDRESS --blocks 5
+# ASIC-resistant mining
+python zion_cli.py asic-mine --address YOUR_ADDRESS --duration 60
+
+# GPU mining with algorithm selection
+python zion_cli.py mine --address YOUR_ADDRESS --algorithm kawpow --blocks 5
+python zion_cli.py mine --address YOUR_ADDRESS --algorithm ethash --gpu --blocks 5
 ```
 
-### 5. Check Stats
+### 5. Check Advanced Stats
+```bash
+python zion_cli.py stats
+python zion_cli.py balance --address YOUR_ADDRESS
+```
+
+### 6. Network Operations
+```bash
+# Check network peers
+python zion_cli.py network peers
+
+# Connect to peer
+python zion_cli.py network connect --host peer.zion.network --port 8333
+
+# Broadcast transaction
+python zion_cli.py network broadcast-transaction --tx-id YOUR_TX_ID
+```
+
+## 🏗️ Architecture
+
+### Core Components
+- **`core/real_blockchain.py`**: Production blockchain with advanced mempool
+- **`network/__init__.py`**: P2P network with peer management
+- **`wallet/__init__.py`**: Encrypted wallet with backup functionality
+- **`mining/`**: Multi-algorithm mining system
+- **`api/__init__.py`**: FastAPI REST endpoints
+
+### Advanced Features
+- **Transaction Mempool**: Priority-based queue with fee-per-byte scoring
+- **Peer Discovery**: Automatic peer finding and connection management
+- **Block Synchronization**: Real-time block and transaction sync
+- **Wallet Encryption**: Fernet-based encryption with PBKDF2 key derivation
+- **Algorithm Selection**: Runtime switching between mining algorithms
+
+## 🔧 API Endpoints
+
+### Blockchain Operations
+- `GET /stats` - Blockchain statistics
+- `GET /blockchain/blocks` - Block list
+- `POST /blockchain/verify` - Verify blockchain integrity
+
+### Wallet Management
+- `GET /wallet/addresses` - List wallet addresses
+- `POST /wallet/addresses` - Create new address
+- `POST /wallet/encrypt` - Encrypt wallet
+- `POST /wallet/backup` - Backup wallet
+- `POST /wallet/restore` - Restore wallet
+
+### Mining Operations
+- `POST /mining/start` - Start mining
+- `GET /mining/status` - Mining status
+
+### Network Operations
+- `GET /network/peers` - Connected peers
+- `POST /network/connect` - Connect to peer
+- `POST /network/broadcast-transaction` - Broadcast transaction
+
+### Transaction Pool
+- `GET /mempool/stats` - Mempool statistics
+- `GET /mempool/transactions` - Mempool transactions
+- `POST /mempool/submit` - Submit transaction
+
+## 🎯 Consciousness Mining System
+
+ZION features a unique **consciousness-based mining** system with 10 levels:
+1. PHYSICAL - Base level
+2. EMOTIONAL - Heart-based mining
+3. MENTAL - Logic-based mining
+4. INTUITIVE - Insight-based mining
+5. SPIRITUAL - Soul-based mining
+6. COSMIC - Universal mining
+7. UNITY - Oneness mining
+8. ENLIGHTENMENT - Wisdom mining
+9. LIBERATION - Freedom mining
+10. ON_THE_STAR - Ultimate consciousness
+
+Each level provides different **sacred multipliers** for mining rewards.
+
+## 🔒 Security Features
+
+- **ASIC Resistance**: Argon2 algorithm prevents mining centralization
+- **Wallet Encryption**: AES-256 encryption with secure key derivation
+- **Transaction Validation**: Comprehensive validation and double-spend prevention
+- **Peer Authentication**: Secure peer connections and message validation
+
+## 📊 Performance
+
+- **ASIC Mining**: ~5 H/s with Argon2 (CPU-only for decentralization)
+- **GPU Mining**: Variable performance based on algorithm and hardware
+- **Block Time**: ~30 seconds (configurable difficulty)
+- **Memory Usage**: ~64MB for Argon2 mining
+- **Network**: Efficient P2P communication with automatic peer discovery
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+# Start API server
+python run_api.py
+
+# Start mining
+python zion_cli.py asic-mine --address YOUR_ADDRESS --duration 3600
+
+# Check status
+python zion_cli.py stats
+```
+
+### Production Deployment
+```bash
+# Use provided Docker configurations
+docker build -f docker/Dockerfile.zion-cryptonote.minimal -t zion:production .
+docker run -p 8001:8001 zion:production
+```
+
+## 🤝 Contributing
+
+ZION 2.7.1 represents a complete blockchain implementation with advanced features. The system is designed for:
+- **Decentralization**: ASIC-resistant mining prevents centralization
+- **Security**: Encrypted wallets and validated transactions
+- **Scalability**: Efficient P2P network and transaction pooling
+- **Usability**: Comprehensive CLI and REST API interfaces
+
+## 📄 License
+
+This implementation is part of the ZION blockchain ecosystem, focused on creating decentralized, consciousness-aware financial systems.
 ```bash
 python zion_cli.py stats
 ```

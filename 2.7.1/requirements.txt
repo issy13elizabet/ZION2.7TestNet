@@ -4,6 +4,7 @@
 # Core dependencies
 argon2-cffi>=23.1.0        # ASIC-resistant Argon2 password hashing
 pycryptodome>=3.19.0       # Cryptographic primitives
+cryptography>=41.0.0       # Advanced cryptographic library for wallet encryption
 typing-extensions>=4.5.0    # Type hints support
 
 # Development and testing

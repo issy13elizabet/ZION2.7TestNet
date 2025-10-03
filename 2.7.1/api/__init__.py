@@ -12,6 +12,8 @@ import uvicorn
 import logging
 from datetime import datetime
 from dataclasses import asdict
+import os
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +82,21 @@ def get_network_instance():
             logger.warning(f"Could not set blockchain reference: {e}")
     return network
 
+# Import AI orchestrator
+try:
+    ai_path = r'e:\2.7.1\ai'
+    sys.path.insert(0, ai_path)
+    from zion_ai_master_orchestrator import ZionAIMasterOrchestrator
+    ai_orchestrator = ZionAIMasterOrchestrator()
+    # Load AI components
+    loaded_count = ai_orchestrator.load_components()
+    AI_AVAILABLE = True
+    logger.info(f"✅ AI Orchestrator loaded successfully with {loaded_count} components")
+except Exception as e:
+    logger.warning(f"⚠️ AI Orchestrator not available: {e}")
+    ai_orchestrator = None
+    AI_AVAILABLE = False
+
 # Pydantic models
 class TransactionRequest(BaseModel):
     from_address: str
@@ -111,7 +128,11 @@ async def root():
             "/wallet/addresses",
             "/wallet/balance/{address}",
             "/mining/start",
-            "/network/peers"
+            "/network/peers",
+            "/ai/status",
+            "/ai/sacred-mining",
+            "/ai/analysis",
+            "/ai/resources"
         ]
     }
 
@@ -467,15 +488,103 @@ async def submit_transaction(tx: TransactionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transaction submission failed: {e}")
 
+# AI Orchestrator Endpoints
+@app.get("/ai/status")
+async def get_ai_status():
+    """Get AI orchestrator status"""
+    if not AI_AVAILABLE or ai_orchestrator is None:
+        raise HTTPException(status_code=503, detail="AI Orchestrator not available")
+
+    try:
+        status = ai_orchestrator.get_status()
+        return {
+            "ai_available": True,
+            "orchestrator_status": status,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI status error: {e}")
+
+@app.post("/ai/sacred-mining")
+async def perform_sacred_mining(mining_data: Optional[Dict] = None):
+    """Perform sacred mining with AI support"""
+    if not AI_AVAILABLE or ai_orchestrator is None:
+        raise HTTPException(status_code=503, detail="AI Orchestrator not available")
+
+    try:
+        result = ai_orchestrator.perform_sacred_mining(mining_data)
+        return {
+            "sacred_mining_result": result,
+            "status": "completed",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Sacred mining error: {e}")
+
+@app.get("/ai/analysis")
+async def get_ai_analysis():
+    """Get unified AI analysis"""
+    if not AI_AVAILABLE or ai_orchestrator is None:
+        raise HTTPException(status_code=503, detail="AI Orchestrator not available")
+
+    try:
+        analysis = ai_orchestrator.perform_unified_ai_analysis()
+        return {
+            "ai_analysis": analysis,
+            "status": "completed",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI analysis error: {e}")
+
+@app.get("/ai/resources")
+async def get_ai_resources():
+    """Get AI resource usage and optimization"""
+    if not AI_AVAILABLE or ai_orchestrator is None:
+        raise HTTPException(status_code=503, detail="AI Orchestrator not available")
+
+    try:
+        resources = ai_orchestrator.get_resource_usage()
+        optimization = ai_orchestrator.optimize_resources()
+        return {
+            "resource_usage": resources,
+            "optimization": optimization,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Resource monitoring error: {e}")
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {
+    health_data = {
         "status": "healthy",
-        "blockchain_blocks": blockchain.get_block_count(),
-        "wallet_addresses": len(wallet.get_addresses()),
-        "mempool_size": len(blockchain.mempool)
+        "ai_available": AI_AVAILABLE,
+        "timestamp": datetime.now().isoformat()
     }
+
+    try:
+        bc = get_blockchain()
+        health_data["blockchain_blocks"] = bc.get_block_count()
+        health_data["mempool_size"] = len(bc.mempool)
+    except:
+        health_data["blockchain_status"] = "unavailable"
+
+    try:
+        w = get_wallet()
+        health_data["wallet_addresses"] = len(w.get_addresses())
+    except:
+        health_data["wallet_status"] = "unavailable"
+
+    if AI_AVAILABLE and ai_orchestrator:
+        try:
+            ai_status = ai_orchestrator.get_status()
+            health_data["ai_components"] = ai_status["total_components"]
+            health_data["ai_active"] = ai_status["active_components"]
+        except:
+            health_data["ai_status"] = "error"
+
+    return health_data
 
 if __name__ == "__main__":
     print("🚀 Starting ZION Blockchain API...")

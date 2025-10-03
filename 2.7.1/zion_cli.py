@@ -481,6 +481,9 @@ def main():
         mine_parser = subparsers.add_parser('mine', help='Mine real blocks')
         mine_parser.add_argument('--address', '-a', required=True, help='Miner reward address')
         mine_parser.add_argument('--blocks', '-b', type=int, default=5, help='Number of blocks to mine')
+        mine_parser.add_argument('--algorithm', choices=['argon2', 'kawpow', 'ethash'], default='argon2', help='Mining algorithm')
+        mine_parser.add_argument('--gpu', action='store_true', help='Enable GPU mining')
+        mine_parser.add_argument('--threads', '-t', type=int, default=1, help='Number of mining threads')
 
         # Real stats command
         stats_parser = subparsers.add_parser('stats', help='Show blockchain statistics')

@@ -6,35 +6,48 @@
       "public_key": "bcf8515d8ef6d66e63d92d1b8a57b7a8655855c35f974e9bda62e3f121a0ec89",
       "private_key": "1f590c68450aa9b4a308eb3067524d98ba127ab7e0d6529835c8c53477796cce",
       "created_at": "2025-10-03T01:43:47.217965",
-      "label": "Default Address"
+      "label": "Default Address",
+      "encrypted": false
     },
     {
       "address": "ZION_C806923E65C3640CFFB3DA786A0BF579",
       "public_key": "82a692fec11113a28732149cb18c4924b9628c0b6c1f5b890d4c270e4ee618fc",
       "private_key": "8d36f7db2d2ae52bc31105c3bfe81eeb221ddf13490cbb5a97eea4f75aeac6f9",
       "created_at": "2025-10-03T01:43:47.219971",
-      "label": "Miner Address"
+      "label": "Miner Address",
+      "encrypted": false
     },
     {
       "address": "ZION_95D2E77DB8918162CD9EF15A0421C7F1",
       "public_key": "c27919f205cdd8143f6db116db52cab583ae048402ae93e71fe342502a0cff71",
       "private_key": "da36cfe166a73be9cec3cf7c4c5ac9479e7577b9383669b86a32aef1a82a444d",
       "created_at": "2025-10-03T01:43:47.220974",
-      "label": "Recipient Address"
+      "label": "Recipient Address",
+      "encrypted": false
     },
     {
       "address": "ZION_A29DDFE78A12C594D6321C4FA7F4FBEB",
       "public_key": "f4ddfdead9cfc0ec5c0ce2f38b1c2a5b82ed32d0599e3d25a55f2c24438e472e",
       "private_key": "af74865b604f06bb52c9f9f5b2327b93c961fc55481fdf6e96f0ae8300765904",
       "created_at": "2025-10-03T01:45:42.535415",
-      "label": "Miner Address"
+      "label": "Miner Address",
+      "encrypted": false
     },
     {
       "address": "ZION_C4A12D12084EDC3D44FCEC0F03C15246",
       "public_key": "e4afb169be3fe4526dc402f37e299c5791054acbd130cd34a964074ff8d8b871",
       "private_key": "88219b1fa32da0a31a5432f1904e9c694ce9a59326ee7f81384be8258a282927",
       "created_at": "2025-10-03T01:45:42.536414",
-      "label": "Recipient Address"
+      "label": "Recipient Address",
+      "encrypted": false
+    },
+    {
+      "address": "ZION_FE4DDD3406285B61AE4743823933B146",
+      "public_key": "9111a1180c6277c62cb2bb175c9935abb146e4642423d95914277c203de10006",
+      "private_key": "eed4ddb5a6197ca9a06e82c46595cb08a0f5b10bec9743fb08acd7cea2737e09",
+      "created_at": "2025-10-03T02:33:47.055612",
+      "label": "",
+      "encrypted": false
     }
   ]
 }

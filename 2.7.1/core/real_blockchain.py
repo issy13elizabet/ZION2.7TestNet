@@ -16,18 +16,6 @@ from datetime import datetime
 import heapq
 
 @dataclass
-class MempoolTransaction:
-    """Transaction in mempool with priority"""
-    transaction: RealTransaction
-    fee_per_byte: float
-    received_at: datetime
-    priority_score: float
-
-    def __lt__(self, other):
-        return self.priority_score > other.priority_score  # Higher priority first
-
-
-@dataclass
 class RealBlock:
     """Real production block"""
     height: int

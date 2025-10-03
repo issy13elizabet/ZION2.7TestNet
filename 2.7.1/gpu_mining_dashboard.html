@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZION GPU Mining Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #00d4ff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #b0b0b0;
+            font-size: 1.1em;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .stat-card h3 {
+            margin: 0 0 15px 0;
+            color: #00d4ff;
+            font-size: 1.2em;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #00ff88;
+        }
+        .stat-label {
+            color: #b0b0b0;
+            font-size: 0.9em;
+        }
+        .mining-controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .control-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .control-group label {
+            min-width: 120px;
+            color: #00d4ff;
+        }
+        select, input, button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1em;
+        }
+        button {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+        .status-inactive {
+            background: #ff4444;
+        }
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .log-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .log-info { color: #00d4ff; }
+        .log-warning { color: #ffa500; }
+        .log-error { color: #ff4444; }
+        .log-success { color: #00ff88; }
+        .algorithm-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 2px;
+            background: rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .control-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ ZION GPU Mining Dashboard</h1>
+            <p>Real-time GPU Mining Monitor & Control Center</p>
+        </div>
+
+        <div class="mining-controls">
+            <h3>🎮 Mining Controls</h3>
+            <div class="control-group">
+                <label>Algorithm:</label>
+                <select id="algorithm-select">
+                    <option value="kawpow">KawPow</option>
+                    <option value="octopus">Octopus</option>
+                    <option value="ethash">Ethash</option>
+                    <option value="ergo">Autolykos2</option>
+                </select>
+
+                <label>Intensity:</label>
+                <input type="range" id="intensity-slider" min="10" max="100" value="75">
+                <span id="intensity-value">75%</span>
+
+                <button id="start-mining-btn">🚀 Start Mining</button>
+                <button id="stop-mining-btn" disabled>⏹️ Stop Mining</button>
+            </div>
+
+            <div class="control-group">
+                <label>Pool:</label>
+                <input type="text" id="pool-host" placeholder="stratum.ravenminer.com" value="stratum.ravenminer.com">
+                <input type="number" id="pool-port" placeholder="3838" value="3838" style="width: 80px;">
+
+                <label>Wallet:</label>
+                <input type="text" id="wallet-address" placeholder="Your wallet address" style="min-width: 200px;">
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>⛏️ Mining Status</h3>
+                <div class="stat-value">
+                    <span class="status-indicator" id="mining-status"></span>
+                    <span id="mining-status-text">Inactive</span>
+                </div>
+                <div class="stat-label">Current State</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>⚡ Hashrate</h3>
+                <div class="stat-value" id="hashrate">0.00 MH/s</div>
+                <div class="stat-label">Current Performance</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>🌡️ Temperature</h3>
+                <div class="stat-value" id="temperature">--°C</div>
+                <div class="stat-label">GPU Core Temperature</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>⚡ Power Usage</h3>
+                <div class="stat-value" id="power-usage">--W</div>
+                <div class="stat-label">GPU Power Consumption</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>🎯 Efficiency</h3>
+                <div class="stat-value" id="efficiency">--%</div>
+                <div class="stat-label">Mining Efficiency</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>💰 Earnings</h3>
+                <div class="stat-value" id="earnings">$0.00</div>
+                <div class="stat-label">Estimated Daily Earnings</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>📈 Performance Chart</h3>
+            <canvas id="hashrate-chart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="log-container">
+            <h3>📋 Mining Log</h3>
+            <div id="mining-log">
+                <div class="log-entry log-info">[INFO] Dashboard initialized</div>
+                <div class="log-entry log-info">[INFO] GPU detected: AMD Radeon</div>
+                <div class="log-entry log-info">[INFO] SRBMiner-MULTI ready</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Dashboard state
+        let miningActive = false;
+        let currentStats = {
+            hashrate: 0,
+            temperature: 0,
+            powerUsage: 0,
+            efficiency: 0,
+            earnings: 0
+        };
+        let hashrateHistory = [];
+        let chart;
+
+        // Initialize chart
+        function initChart() {
+            const ctx = document.getElementById('hashrate-chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Hashrate (MH/s)',
+                        data: [],
+                        borderColor: '#00d4ff',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update UI with stats
+        function updateStats(stats) {
+            currentStats = stats;
+
+            // Update status indicator
+            const statusIndicator = document.getElementById('mining-status');
+            const statusText = document.getElementById('mining-status-text');
+
+            if (stats.is_mining) {
+                statusIndicator.className = 'status-indicator status-active';
+                statusText.textContent = 'Active';
+                document.getElementById('start-mining-btn').disabled = true;
+                document.getElementById('stop-mining-btn').disabled = false;
+            } else {
+                statusIndicator.className = 'status-indicator status-inactive';
+                statusText.textContent = 'Inactive';
+                document.getElementById('start-mining-btn').disabled = false;
+                document.getElementById('stop-mining-btn').disabled = true;
+            }
+
+            // Update stats
+            document.getElementById('hashrate').textContent = `${stats.hashrate?.toFixed(2) || 0} MH/s`;
+            document.getElementById('temperature').textContent = `${stats.temperature?.toFixed(0) || '--'}°C`;
+            document.getElementById('power-usage').textContent = `${stats.power_usage?.toFixed(0) || '--'}W`;
+            document.getElementById('efficiency').textContent = `${(stats.efficiency * 100)?.toFixed(1) || '--'}%`;
+
+            // Calculate earnings (rough estimate)
+            const earnings = (stats.hashrate || 0) * 0.001; // $0.001 per MH/s per day
+            document.getElementById('earnings').textContent = `$${earnings.toFixed(4)}`;
+
+            // Update chart
+            updateChart(stats.hashrate || 0);
+        }
+
+        // Update hashrate chart
+        function updateChart(hashrate) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString();
+
+            hashrateHistory.push(hashrate);
+
+            // Keep only last 20 points
+            if (hashrateHistory.length > 20) {
+                hashrateHistory.shift();
+            }
+
+            chart.data.labels = Array.from({length: hashrateHistory.length}, (_, i) =>
+                new Date(now.getTime() - (hashrateHistory.length - 1 - i) * 5000).toLocaleTimeString()
+            );
+            chart.data.datasets[0].data = hashrateHistory;
+            chart.update();
+        }
+
+        // Add log entry
+        function addLogEntry(message, type = 'info') {
+            const logContainer = document.getElementById('mining-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Mining controls
+        document.getElementById('start-mining-btn').addEventListener('click', async () => {
+            const algorithm = document.getElementById('algorithm-select').value;
+            const intensity = document.getElementById('intensity-slider').value;
+            const poolHost = document.getElementById('pool-host').value;
+            const poolPort = document.getElementById('pool-port').value;
+            const wallet = document.getElementById('wallet-address').value;
+
+            addLogEntry(`Starting mining: ${algorithm} at ${intensity}% intensity`, 'info');
+
+            try {
+                const response = await fetch('/api/mining/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        algorithm: algorithm,
+                        intensity: parseInt(intensity),
+                        pool_config: {
+                            host: poolHost,
+                            port: parseInt(poolPort),
+                            wallet: wallet
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    addLogEntry('Mining started successfully', 'success');
+                } else {
+                    addLogEntry('Failed to start mining', 'error');
+                }
+            } catch (error) {
+                addLogEntry(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        document.getElementById('stop-mining-btn').addEventListener('click', async () => {
+            addLogEntry('Stopping mining...', 'warning');
+
+            try {
+                const response = await fetch('/api/mining/stop', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    addLogEntry('Mining stopped successfully', 'success');
+                } else {
+                    addLogEntry('Failed to stop mining', 'error');
+                }
+            } catch (error) {
+                addLogEntry(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Update intensity value display
+        document.getElementById('intensity-slider').addEventListener('input', (e) => {
+            document.getElementById('intensity-value').textContent = `${e.target.value}%`;
+        });
+
+        // Periodic stats update
+        async function updateStatsFromServer() {
+            try {
+                const response = await fetch('/api/mining/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    updateStats(stats);
+                }
+            } catch (error) {
+                console.error('Failed to fetch stats:', error);
+            }
+        }
+
+        // Initialize
+        initChart();
+        setInterval(updateStatsFromServer, 5000); // Update every 5 seconds
+
+        // Initial stats load
+        updateStatsFromServer();
+
+        addLogEntry('Dashboard ready - monitoring GPU mining', 'success');
+    </script>
+</body>
+</html>

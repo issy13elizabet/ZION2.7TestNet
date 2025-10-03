@@ -168,12 +168,13 @@ class P2PNetwork:
                     await writer.drain()
 
                     # Add peer
+                    peer_key = f"{peer_addr[0]}:{peer_addr[1]}"
                     peer = Peer(
                         host=peer_addr[0],
                         port=peer_addr[1],
                         last_seen=datetime.now()
                     )
-                    self.peers.add(peer)
+                    self.peers[peer_key] = peer
                     logger.info(f"Added peer: {peer.host}:{peer.port}")
 
         except Exception as e:
@@ -485,18 +486,21 @@ class P2PNetwork:
 
     def add_peer(self, host: str, port: int):
         """Manually add a peer"""
+        peer_key = f"{host}:{port}"
         peer = Peer(
             host=host,
             port=port,
             last_seen=datetime.now()
         )
-        self.peers.add(peer)
+        self.peers[peer_key] = peer
         logger.info(f"Added peer: {host}:{port}")
 
     def remove_peer(self, host: str, port: int):
         """Remove a peer"""
-        self.peers = {p for p in self.peers if not (p.host == host and p.port == port)}
-        logger.info(f"Removed peer: {host}:{port}")
+        peer_key = f"{host}:{port}"
+        if peer_key in self.peers:
+            del self.peers[peer_key]
+            logger.info(f"Removed peer: {host}:{port}")
 
     def get_peer_count(self) -> int:
         """Get number of connected peers"""
@@ -504,7 +508,7 @@ class P2PNetwork:
 
     def get_peer_list(self) -> List[Dict]:
         """Get list of peers"""
-        return [peer.to_dict() for peer in self.peers]
+        return [peer.to_dict() for peer in self.peers.values()]
 
 
 # Global network instance
