@@ -27,7 +27,7 @@ class MiningConfig:
             'hash_len': 32,
 
             # Difficulty and performance
-            'difficulty': 0x0000FFFF,
+            'difficulty': 0x00000001,  # Very low difficulty for testing (1)
             'block_time': 60,  # seconds
             'max_threads': 4,  # Allow up to 4 threads for ASIC resistance
 

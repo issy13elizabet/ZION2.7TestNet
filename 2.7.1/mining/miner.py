@@ -123,10 +123,15 @@ class ASICResistantMiner:
                 # Create block data for Argon2 mining
                 block_data = f"{address}:{timestamp}:{nonce}".encode()
 
-                # Mine with Argon2
-                target = self.config.get('difficulty', 0x0000FFFF).to_bytes(4, 'big')
+                # Mine with Argon2 - difficulty is checked in verify method
+                # No need for separate target calculation
 
-                if self.algorithm.verify(block_data, target):
+                # Calculate target from difficulty for verification
+                max_target = (1 << 256) - 1
+                target_int = max_target // self.config.get('difficulty', 0x0000FFFF)
+                target_hash = target_int.to_bytes(32, 'big')
+
+                if self.algorithm.verify(block_data, target_hash):
                     # Block found!
                     self.stats['blocks_found'] += 1
                     print(f"🎉 ASIC-resistant block found! Nonce: {nonce}")
@@ -171,10 +176,15 @@ class ASICResistantMiner:
                 # Create block data for Argon2 mining
                 block_data = f"{address}:{timestamp}:{nonce}".encode()
 
-                # Mine with Argon2
-                target = self.config.get('difficulty', 0x0000FFFF).to_bytes(4, 'big')
+                # Mine with Argon2 - difficulty is checked in verify method
+                # No need for separate target calculation
 
-                if self.algorithm.verify(block_data, target):
+                # Calculate target from difficulty for verification
+                max_target = (1 << 256) - 1
+                target_int = max_target // self.config.get('difficulty', 0x0000FFFF)
+                target_hash = target_int.to_bytes(32, 'big')
+
+                if self.algorithm.verify(block_data, target_hash):
                     # Block found!
                     with self.stats_lock:
                         self.stats['blocks_found'] += 1
