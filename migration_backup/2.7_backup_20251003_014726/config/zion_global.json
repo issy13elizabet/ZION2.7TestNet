@@ -1,0 +1,25 @@
+{
+  "zion_version": "2.7",
+  "network": "mainnet",
+  "data_dir": "/media/maitreya/ZION1/data",
+  "log_dir": "/media/maitreya/ZION1/logs",
+  "blockchain": {
+    "port": 18080,
+    "rpc_port": 18081,
+    "max_block_size": 1048576,
+    "difficulty_target": 120,
+    "emission_factor": 20
+  },
+  "p2p": {
+    "max_peers": 50,
+    "seed_nodes": [
+      "seed1.zion.network:18080",
+      "seed2.zion.network:18080"
+    ]
+  },
+  "security": {
+    "ssl_enabled": true,
+    "api_key_required": true,
+    "rate_limiting": true
+  }
+}

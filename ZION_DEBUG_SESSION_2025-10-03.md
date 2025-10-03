@@ -68,4 +68,27 @@ MIN_DIFF=65536: target=1526509230159381480005384734075503288370228422487572480
 - **Production Ready**: ❌ Require further testing
 
 ---
+## 🚨 KRITICKÁ CHYBA OBJEVENA: Hash Input Format Mismatch
+
+### 🔍 Root Cause Confirmed:
+**Mining Bridge** (mining_bridge.py):
+```python
+block_data = (str(height) + prev_hash + str(timestamp) + merkle_root + str(difficulty) + str(nonce)).encode()
+```
+
+**Block.calc_hash()** (blockchain.py):
+```python  
+blob = json.dumps({'p': prev_hash, 't': timestamp, 'm': merkle_root, 'd': difficulty, 'n': nonce, 'x': txs}, sort_keys=True).encode()
+```
+
+### ⚡ IMMEDIATE FIX REQUIRED:
+- Mining: String concatenation bez transakcí
+- Validation: JSON serialization s transakcemi  
+- **RESULT**: Různé input formáty → různé hashe → validation failure
+
+## 📋 CRITICAL NEXT STEPS:
+1. **Sjednotit hash input format** napříč systémem
+2. Test mining s opravenými hashe
+3. Re-enable hybrid algorithm s deterministickým chováním
+
 *Debug session completed by AI Assistant - 3. října 2025*
