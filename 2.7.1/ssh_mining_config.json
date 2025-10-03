@@ -1,0 +1,101 @@
+{
+    "ssh_mining_config": {
+        "server": "91.98.122.165",
+        "user": "root",
+        "zion_directory": "/root/zion-2.7.1",
+        
+        "mining_settings": {
+            "algorithm": "argon2",
+            "reason": "Maximální ASIC resistance a decentralizace",
+            "threads": "auto",
+            "memory_usage": "64MB_per_thread",
+            "priority": "normal"
+        },
+        
+        "performance_optimization": {
+            "cpu_threads": "auto-detect",
+            "memory_limit": "80%",
+            "thermal_throttling": true,
+            "power_management": "balanced"
+        },
+        
+        "gpu_settings": {
+            "enable_gpu_optimizer": true,
+            "auto_detect": true,
+            "thermal_limit": 85,
+            "power_limit": 90,
+            "memory_optimization": true
+        },
+        
+        "monitoring": {
+            "log_level": "info",
+            "stats_interval": 60,
+            "health_check_interval": 300,
+            "auto_restart_on_failure": true
+        },
+        
+        "backup_algorithms": [
+            "cryptonight",
+            "ergo",
+            "kawpow"
+        ],
+        
+        "network_settings": {
+            "port": 8080,
+            "max_connections": 50,
+            "timeout": 30
+        },
+        
+        "security": {
+            "firewall_ports": [8080, 22],
+            "fail2ban": true,
+            "ssh_key_auth": true
+        }
+    },
+    
+    "recommended_commands": {
+        "start_mining": "python3 zion_cli.py mine YOUR_ADDRESS",
+        "check_status": "python3 zion_cli.py stats",
+        "switch_algorithm": "python3 zion_cli.py algorithms switch argon2",
+        "benchmark": "python3 zion_cli.py algorithms benchmark",
+        "gpu_optimize": "cd mining && python3 zion_gpu_mining_optimizer.py --auto-detect",
+        "monitor_logs": "tail -f mining.log"
+    },
+    
+    "troubleshooting": {
+        "low_hashrate": [
+            "Zkontroluj CPU temperature",
+            "Zvětši počet threadů",
+            "Zkontroluj dostupnou RAM",
+            "Restartuj mining proces"
+        ],
+        "connection_issues": [
+            "Zkontroluj síťové připojení",
+            "Restartuj ZION node",
+            "Zkontroluj firewall",
+            "Zkontroluj port 8080"
+        ],
+        "memory_issues": [
+            "Sniž počet threadů",
+            "Zkontroluj dostupnou RAM",
+            "Restartuj systém",
+            "Zvětši swap file"
+        ]
+    },
+    
+    "performance_expectations": {
+        "argon2_hashrate": {
+            "Intel_i7_8700K": "800-1200 H/s",
+            "AMD_Ryzen_7_3700X": "1000-1500 H/s",
+            "Apple_M1_M2": "400-800 H/s",
+            "VPS_2_CPU": "200-400 H/s",
+            "VPS_4_CPU": "400-800 H/s"
+        },
+        
+        "memory_requirements": {
+            "argon2": "64MB per thread",
+            "cryptonight": "2MB per thread",
+            "ergo": "2-4MB per thread"
+        }
+    }
+}
