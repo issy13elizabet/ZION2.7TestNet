@@ -207,11 +207,10 @@ class ZionUniversalPool:
         # Create job for login response  
         job = self.get_job_for_miner(addr)
         
-        # XMRig expects exact login response format
+        # XMRig expects exact login response format - NO error field when successful
         response = json.dumps({
             "id": data.get("id"),
             "jsonrpc": "2.0",
-            "error": None,
             "result": {
                 "id": self.miners[addr]['id'],
                 "job": job,
@@ -251,11 +250,10 @@ class ZionUniversalPool:
             else:
                 print(f"🔄 Legacy Address: {address}")
         
-        # XMRig expects specific response format for share acceptance
+        # XMRig expects specific response format for share acceptance - NO error field when successful
         response = json.dumps({
             "id": data.get('id'),
             "jsonrpc": "2.0",
-            "error": None,
             "result": {
                 "status": "OK"
             }
@@ -288,7 +286,6 @@ class ZionUniversalPool:
         return json.dumps({
             "id": data.get('id'),
             "jsonrpc": "2.0",
-            "error": None,
             "result": {"status": "KEEPALIVED"}
         }) + '\n'
     
