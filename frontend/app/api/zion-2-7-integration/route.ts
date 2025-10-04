@@ -85,73 +85,44 @@ const getMockZion27Stats = (): ZION27Stats => ({
 
 export async function GET(request: NextRequest) {
   try {
-    const host = process.env.ZION_BACKEND_HOST || '127.0.0.1';
-    const port = Number(process.env.ZION_BACKEND_PORT || 8000);
-
-    // Fetch real data from ZION 2.7 backend
-    const [blockchainRes, walletRes, miningRes, networkRes] = await Promise.all([
-      fetch(`http://${host}:${port}/blockchain/stats`).catch(() => null),
-      fetch(`http://${host}:${port}/wallet/addresses`).catch(() => null),
-      fetch(`http://${host}:${port}/mining/status`).catch(() => null),
-      fetch(`http://${host}:${port}/network/status`).catch(() => null)
-    ]);
-
-    // Parse responses
-    const blockchain = blockchainRes?.ok ? await blockchainRes.json() : null;
-    const wallet = walletRes?.ok ? await walletRes.json() : null;
-    const mining = miningRes?.ok ? await miningRes.json() : null;
-    const network = networkRes?.ok ? await networkRes.json() : null;
-
-    // Build real ZION 2.7 stats
-    const stats: ZION27Stats = {
-      ai: {
-        active_tasks: 0, // TODO: Integrate with AI system
-        completed_tasks: 0,
-        failed_tasks: 0,
-        gpu_utilization: mining?.gpu_enabled ? 85 : 0,
-        memory_usage: 60,
-        performance_score: 95
-      },
-      mining: {
-        hashrate: 0, // TODO: Get from mining system
-        algorithm: mining?.algorithm || 'argon2',
-        status: 'active',
-        difficulty: blockchain?.difficulty || 1000,
-        blocks_found: blockchain?.total_blocks || 0,
-        shares_accepted: 0,
-        shares_rejected: 0,
-        pool_connection: 'connected',
-        efficiency: 96.3
-      },
-      blockchain: {
-        height: blockchain?.total_blocks || 0,
-        network: 'zion-mainnet',
-        difficulty: blockchain?.difficulty || 1000,
-        last_block_time: blockchain?.latest_block?.timestamp ?
-          new Date(blockchain.latest_block.timestamp * 1000).toISOString() : new Date().toISOString(),
-        peers: network?.connected_peers || 0,
-        sync_status: 'synced',
-        mempool_size: blockchain?.mempool_size || 0
-      },
-      system: {
-        cpu_usage: 45,
-        memory_usage: 60,
-        disk_usage: 25,
-        uptime: '2d 14h 32m',
-        temperature: 68
-      }
-    };
-
-    return NextResponse.json(stats);
-  } catch (error) {
-    console.error('ZION 2.7 Integration Error:', error);
-
-    // Fallback to mock data if backend is unavailable
-    const mockStats = getMockZion27Stats();
+    // Fetch real data from ZION 2.7 backend bridge
+    const response = await fetch('http://localhost:18088/api/zion-2-7-stats');
+    
+    if (!response.ok) {
+      throw new Error(`Bridge server error: ${response.status}`);
+    }
+    
+    const bridgeData = await response.json();
+    
+    if (!bridgeData.success) {
+      throw new Error(bridgeData.error || 'Bridge returned error');
+    }
+    
+    // Transform bridge data to frontend format
+    const stats = bridgeData.data;
+    
     return NextResponse.json({
-      ...mockStats,
-      error: 'Backend unavailable, showing mock data',
-      backend_status: 'offline'
+      success: true,
+      data: stats,
+      timestamp: bridgeData.timestamp,
+      version: '2.7.0',
+      message: '🚀 ZION 2.7 Real Integration Active! 🚀',
+      source: 'bridge_server'
+    });
+  } catch (error) {
+    console.error('ZION 2.7 Integration API Error:', error);
+    
+    // Fallback to mock data if bridge is unavailable
+    const fallbackStats = getMockZion27Stats();
+    
+    return NextResponse.json({
+      success: true,
+      data: fallbackStats,
+      timestamp: new Date().toISOString(),
+      version: '2.7.0',
+      message: '⚠️ ZION 2.7 Fallback Mode (Bridge Offline)',
+      source: 'fallback',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 }

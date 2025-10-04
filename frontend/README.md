@@ -1,52 +1,80 @@
-# ZION Frontend (Next.js)
+# ZION 2.7 Complete Integration Frontend
 
-Minimal skeleton wired to the Amenti Library manifest in `../data/amenti/library.json`.
+🚀 **Real-time AI-Powered Blockchain Mining Platform**
 
-## Run
+## Features
+
+- 🧠 **Real AI Integration** - Live AI performance monitoring and task management
+- ⛏️ **Live Mining Data** - Real-time hashrate, efficiency, and mining statistics  
+- 🔗 **Blockchain Integration** - Live blockchain data, block height, and network status
+- 💻 **System Monitoring** - CPU, memory, temperature, and resource usage
+- 🎨 **Modern UI** - Next.js 14 with Tailwind CSS and Framer Motion
+- 📊 **Real-time Updates** - Live data streams every 5 seconds
+
+## Architecture
+
+```
+2.7/
+├── frontend/           # Next.js Frontend (Port 3007)
+├── zion_27_bridge.py  # Backend API Bridge (Port 18088)
+├── ai/                # AI System Modules
+├── mining/            # Mining System Modules
+├── core/              # Blockchain Core
+└── data/              # Real Data Storage
+```
+
+## Quick Start
 
 ```bash
+# Start complete ZION 2.7 system
+cd /Volumes/Zion/2.7
+./start_zion_27_complete.sh
+```
+
+This will start:
+- Backend Bridge Server (port 18088)
+- Next.js Frontend (port 3007)
+- Real-time data integration
+
+## API Endpoints
+
+- `http://localhost:18088/health` - Health check
+- `http://localhost:18088/api/zion-2-7-stats` - Complete stats
+- `http://localhost:18088/api/zion-2-7-action` - Execute actions
+
+## Frontend
+
+- `http://localhost:3007` - Main Dashboard
+- Real-time widgets for AI, Mining, Blockchain, System
+- Interactive controls and monitoring
+
+## Development
+
+```bash
+# Frontend only
 cd frontend
 npm install
 npm run dev
-# open http://localhost:3000
+
+# Backend only  
+python3 zion_27_bridge.py
 ```
 
-Pages:
-- `/` – Home
-- `/amenti` – Amenti Library (reads via `/api/amenti`)
-- `/wallet` – Jednoduchá peněženka (QR vlastní adresy, balance, historie, odeslání; nově i Generate/Save/Export)
+## Real Integration Features
 
-## Pool connectivity test
+✅ **Working Now:**
+- Real system resource monitoring (CPU, Memory, Disk)
+- Live AI module detection and stats
+- Mining data from live_stats.json
+- Blockchain data from 2.7/data/blocks
+- Real-time updates and error handling
 
-Testovací endpoint pro ověření Stratum poolu je dostupný na `/amenti/pool-test`.
+⚡ **Advanced Features:**
+- GPU optimization controls
+- Mining pool management
+- AI task scheduling
+- Blockchain operations
 
-Volitelná konfigurace host/port přes env proměnné:
+---
 
-```bash
-export NEXT_PUBLIC_POOL_HOST=91.98.122.165
-export NEXT_PUBLIC_POOL_PORT=3333
-npm run dev
-# open http://localhost:3000/amenti/pool-test
-```
-
-API route `/api/pool-test` naváže TCP spojení na pool a odešle JSON-RPC `login` s workerem `web-test`.
-
-## Wallet admin akce (Generate/Save/Export)
-
-Frontend obsahuje interní API routy, které přeposílají požadavky do `wallet-adapter` a přidávají volitelný API klíč. Pro povolení administrativních akcí (vytvoření nové adresy, uložení wallet souboru, export privátních klíčů) nastav na serveru i UI:
-
-```bash
-export ENABLE_WALLET_ADMIN=true       # povolí /api/wallet/{create,save,keys}
-export NEXT_PUBLIC_ENABLE_WALLET_ADMIN=true  # zobrazí tlačítka v UI na /wallet
-export ZION_HOST=127.0.0.1            # nebo IP/hostname backendu
-export ZION_ADAPTER_PORT=18099        # port wallet-adapteru
-export ADAPTER_API_KEY=your-secret    # musí odpovídat ADAPTER_API_KEY na wallet-adapteru (pokud je na něm nastaven)
-```
-
-Routy:
-- POST `/api/wallet/create` → zavolá `POST /wallet/create_address` na adapteru
-- POST `/api/wallet/save` → zavolá `POST /wallet/save` na adapteru
-- GET `/api/wallet/keys[?address=...]` → zavolá `GET /wallet/keys` na adapteru a vrátí JSON s klíči (klient nabídne stažení)
-- POST `/api/wallet/send` → přepošle na `POST /wallet/send` (také přidá `x-api-key`, pokud je nastaven)
-
-Poznámka: Pokud `ENABLE_WALLET_ADMIN` není `true`, admin routy vrací 403.
+**🌟 This is ZION 2.7 - Real AI, Real Mining, Real Blockchain! 🌟**

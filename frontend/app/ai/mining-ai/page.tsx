@@ -20,33 +20,57 @@ interface MiningPrediction {
 export default function MiningAIPage() {
   const [cosmicData, setCosmicData] = useState<CosmicConditions | null>(null);
   const [prediction, setPrediction] = useState<MiningPrediction | null>(null);
+  const [realMiningData, setRealMiningData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Mock cosmic data - později připojíme real APIs
-    setTimeout(() => {
+  // Fetch enhanced AI mining data from API
+  const fetchRealMiningData = async () => {
+    try {
+      const response = await fetch('/api/ai/mining');
+      const data = await response.json();
+      if (data.success) {
+        setRealMiningData(data.raw_data);
+        
+        // Use enhanced AI predictions from API
+        setCosmicData(data.cosmic_conditions);
+        setPrediction({
+          optimal_time: data.ai_predictions.optimal_time,
+          expected_hashrate_boost: data.ai_predictions.expected_hashrate_boost,
+          cosmic_multiplier: data.ai_predictions.cosmic_multiplier,
+          recommendations: data.ai_predictions.recommendations
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch real mining data:', error);
+      // Fallback to mock data
       setCosmicData({
         solar_activity: 87,
-        lunar_phase: "Waxing Gibbous 🌔",
+        lunar_phase: "Connecting... 🌔",
         mercury_retrograde: false,
         crystal_grid_active: true,
         dharma_alignment: 94
       });
 
       setPrediction({
-        optimal_time: "3:33 AM - 4:44 AM (Cosmic Portal Window)",
-        expected_hashrate_boost: 15.7,
-        cosmic_multiplier: 1.42,
+        optimal_time: "Connecting to ZION 2.7 Bridge...",
+        expected_hashrate_boost: 0,
+        cosmic_multiplier: 1.0,
         recommendations: [
-          "🌟 Crystal Grid je aktivní - zvyš mining power!",
-          "⚡ High solar activity = better RandomX performance",
-          "🌙 Waxing Moon fáze = roste i hashrate",
-          "🕉️ Dharma alignment 94% - výborná synchronizace!",
-          "💫 Doporučení: Medituj před začátkem těžby pro vyšší výkon"
+          "🔌 Connecting to ZION 2.7 backend...",
+          "⚡ Please ensure bridge server is running on port 18088",
+          "🌟 Fallback cosmic data active",
         ]
       });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    fetchRealMiningData();
+    // Update every 10 seconds
+    const interval = setInterval(fetchRealMiningData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {

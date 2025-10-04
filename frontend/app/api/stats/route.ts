@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ZION_BACKEND_URL = process.env.ZION_BACKEND_URL || "http://localhost:8889";
+const ZION_BACKEND_URL = process.env.ZION_BACKEND_URL || "http://localhost:18088";
 
 /**
  * ZION 2.7 TestNet Stats API v1
- * Direct connection to Python FastAPI backend
- * Replaces old core 2.5 dependency
+ * Direct connection to ZION Bridge backend
+ * Updated for ZION 2.7 integration
  */
 export async function GET(request: NextRequest) {
   try {
-    // Fetch unified stats from ZION 2.7 Python backend API v1
-    const statsResponse = await fetch(`${ZION_BACKEND_URL}/api/v1/stats`, {
+    // Fetch unified stats from ZION 2.7 Bridge API
+    const statsResponse = await fetch(`${ZION_BACKEND_URL}/api/zion-2-7-stats`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Fetch health status
-    const healthResponse = await fetch(`${ZION_BACKEND_URL}/api/v1/health`, {
+    const healthResponse = await fetch(`${ZION_BACKEND_URL}/health`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',

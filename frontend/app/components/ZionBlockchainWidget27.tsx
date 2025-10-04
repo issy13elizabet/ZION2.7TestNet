@@ -78,10 +78,19 @@ export default function ZionBlockchainWidget({ className }: Props) {
     return `${hashrate.toFixed(0)} H/s`;
   };
 
-  const formatSupply = (supply: number): string => {
-    if (supply >= 1000000) return `${(supply / 1000000).toFixed(2)}M`;
-    if (supply >= 1000) return `${(supply / 1000).toFixed(2)}K`;
-    return supply.toFixed(0);
+  const formatSupply = (supply: number | string): string => {
+    // Parse string values like "2300 ZION" to numbers
+    let numericSupply = 0;
+    if (typeof supply === 'string') {
+      const parsed = parseFloat(supply.replace(/[^\d.-]/g, ''));
+      numericSupply = isNaN(parsed) ? 0 : parsed;
+    } else {
+      numericSupply = supply || 0;
+    }
+    
+    if (numericSupply >= 1000000) return `${(numericSupply / 1000000).toFixed(2)}M`;
+    if (numericSupply >= 1000) return `${(numericSupply / 1000).toFixed(2)}K`;
+    return numericSupply.toFixed(0);
   };
 
   if (loading) {

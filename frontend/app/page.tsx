@@ -20,10 +20,10 @@ export default function Page() {
   const backoffRef = useRef<number>(10000); // start with 10s
   const mountedRef = useRef<boolean>(false);
 
-  // ZION 2.7 TestNet Data Fetcher - Direct Python Backend
+  // ZION 2.7 TestNet Data Fetcher - Bridge API Backend
   const fetchZionCoreStats = async () => {
     try {
-      const response = await fetch('/api/stats', {
+      const response = await fetch('http://localhost:18088/api/zion-2-7-stats', {
         method: 'GET',
         cache: 'no-store',
         signal: AbortSignal.timeout(5000)
