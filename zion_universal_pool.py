@@ -204,9 +204,10 @@ class ZionUniversalPool:
             'session_active': True
         }
         
-        # Send job with login response
+        # Create job for login response  
         job = self.get_job_for_miner(addr)
         
+        # XMRig expects exact login response format
         response = json.dumps({
             "id": data.get("id"),
             "jsonrpc": "2.0",
@@ -250,28 +251,28 @@ class ZionUniversalPool:
             else:
                 print(f"🔄 Legacy Address: {address}")
         
-        # Send acceptance response with immediate new job
-        new_job = self.get_job_for_miner(addr)
-        
+        # XMRig expects specific response format for share acceptance
         response = json.dumps({
             "id": data.get('id'),
             "jsonrpc": "2.0",
             "error": None,
-            "result": {"status": "OK"}
+            "result": {
+                "status": "OK"
+            }
         }) + '\n'
         
-        # Always send new job to keep miner active
+        # Create and send new job immediately to maintain connection
+        new_job = self.get_job_for_miner(addr)
         if new_job:
+            # XMRig expects job notification in specific format
             job_notification = json.dumps({
                 "jsonrpc": "2.0",
                 "method": "job",
                 "params": new_job
             }) + '\n'
             
-            # Send both response and new job
-            combined_response = response + job_notification
             logger.info(f"Sent share acceptance + new job to {addr}")
-            return combined_response
+            return response + job_notification
         
         return response
     
@@ -323,56 +324,62 @@ class ZionUniversalPool:
         return job
     
     async def send_periodic_jobs(self, addr):
-        """Enhanced periodic jobs with session maintenance"""
+        """Enhanced periodic jobs with proper connection maintenance"""
         job_count = 0
-        last_activity_check = time.time()
+        
+        # Wait a bit before starting periodic jobs to avoid conflicts
+        await asyncio.sleep(10)  
         
         while addr in self.miners:
-            await asyncio.sleep(25)  # More frequent jobs (25s instead of 30s)
+            await asyncio.sleep(30)  # Standard 30 second interval
             job_count += 1
             
             if addr not in self.miners:
                 break
                 
             try:
-                # Check if miner is still active
                 current_time = time.time()
-                last_share = self.miners[addr].get('last_share', self.miners[addr].get('connected', current_time))
                 
-                # If no activity for 60 seconds, send keepalive
-                if current_time - last_share > 60:
-                    writer = self.miners[addr]['writer']
-                    keepalive_msg = json.dumps({
-                        "jsonrpc": "2.0",
-                        "method": "keepalived",
-                        "params": {}
-                    }) + '\n'
-                    
-                    writer.write(keepalive_msg.encode('utf-8'))
-                    await writer.drain()
-                    print(f"💓 Sent keepalive to {addr}")
+                # Check miner activity
+                last_activity = self.miners[addr].get('last_activity', 
+                                                   self.miners[addr].get('connected', current_time))
                 
-                # Always send new job
+                # Send keepalive if no recent activity
+                if current_time - last_activity > 45:
+                    if 'writer' in self.miners[addr]:
+                        writer = self.miners[addr]['writer']
+                        keepalive_msg = json.dumps({
+                            "jsonrpc": "2.0",
+                            "method": "keepalived",
+                            "params": {}
+                        }) + '\n'
+                        
+                        writer.write(keepalive_msg.encode('utf-8'))
+                        await writer.drain()
+                        print(f"💓 Sent keepalive to {addr}")
+                
+                # Send periodic job to maintain connection
                 job = self.get_job_for_miner(addr)
                 if job and 'writer' in self.miners[addr]:
                     writer = self.miners[addr]['writer']
                     
                     job_notification = json.dumps({
-                        "jsonrpc": "2.0",
+                        "jsonrpc": "2.0", 
                         "method": "job",
                         "params": job
                     }) + '\n'
                     
                     writer.write(job_notification.encode('utf-8'))
                     await writer.drain()
-                    print(f"📡 Sent periodic job #{job_count} to {addr}")
+                    print(f"📡 Periodic job #{job_count} sent to {addr}")
                     
-                    # Update miner activity
+                    # Update activity
                     self.miners[addr]['last_job_sent'] = current_time
+                    self.miners[addr]['last_activity'] = current_time
                     
             except Exception as e:
                 logger.error(f"Error in periodic jobs for {addr}: {e}")
-                print(f"❌ Lost connection to {addr}, cleaning up")
+                print(f"❌ Connection lost to {addr}")
                 if addr in self.miners:
                     del self.miners[addr]
                 break
