@@ -1,0 +1,42 @@
+{
+    "pools": [
+        {
+            "name": "ZION Autolykos v2 Pool",
+            "url": "127.0.0.1:3333",
+            "user": "Z3NDN97SeT1Apeb4t3z1TFhBb7qr58pTQTjm9PWKFmhQWNWfeFKdEhVj6x2QDATBsuxYzUTKnS4Y42kXArkzJU5X2Vj1NMBc6Y",
+            "pass": "autolykos",
+            "worker": "zion-autolykos-gpu",
+            "algo": "autolykos2",
+            "enabled": true,
+            "tls": false,
+            "keepalive": true
+        }
+    ],
+    "gpu": {
+        "enabled": true,
+        "platform": "NVIDIA",
+        "devices": [0],
+        "threads": 2,
+        "blocks": 1024,
+        "bfactor": 6,
+        "bsleep": 0,
+        "mem-mode": 1
+    },
+    "cpu": {
+        "enabled": false
+    },
+    "api": {
+        "enabled": true,
+        "port": 16002,
+        "host": "0.0.0.0"
+    },
+    "logging": {
+        "level": 3,
+        "file": "zion-autolykos-gpu.log"
+    },
+    "donate": 0.0,
+    "watchdog": {
+        "enabled": true,
+        "restart": 5
+    }
+}
