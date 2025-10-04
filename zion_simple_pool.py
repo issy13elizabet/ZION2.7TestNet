@@ -221,13 +221,18 @@ class ZionSimplePool:
         """Handle xmrig-style login method"""
         params = data.get('params', {})
         login = params.get('login', 'unknown')
-        print(f"👤 Login request from {addr}: {login}")
+        password = params.get('pass', 'x')
+        agent = params.get('agent', 'unknown')
+        
+        print(f"👤 Login request from {addr}: {login}, agent: {agent}")
         
         # Store miner connection
         self.miners[addr] = {
             'wallet': login,
             'connected': time.time(),
-            'share_count': 0
+            'share_count': 0,
+            'agent': agent,
+            'authorized': True
         }
         
         # Send login response with job
@@ -240,16 +245,19 @@ class ZionSimplePool:
             "seed_hash": "00" * 32
         }
         
+        # XMrig expects specific format
         response = json.dumps({
             "id": data.get("id"),
+            "jsonrpc": "2.0",
             "result": {
                 "id": f"miner_{addr[1]}",
                 "job": job_data,
                 "status": "OK"
-            }
+            },
+            "error": None
         }) + '\n'
         
-        print(f"📤 Sent login response to {addr}")
+        print(f"📤 Sent XMrig login response to {addr}")
         return response
 
 async def main():

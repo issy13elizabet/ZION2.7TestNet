@@ -28,13 +28,9 @@ class ZionUniversalPool:
         }
         self.job_counter = 0
         self.difficulty = {
-            'cpu': 10000,    # RandomX difficulty (baseline)
-            'gpu': 500       # KawPow placeholder difficulty (integer for target calc)
+            'cpu': 10000,    # RandomX difficulty
+            'gpu': 0.1       # GPU difficulty
         }
-        # Uchování detailů jobů pro validaci shares
-        self.jobs: Dict[str, Dict[str, Any]] = {}
-        # Sledování použitých (job_id, nonce) kombinací pro detekci duplicit
-        self.submissions = set()
         
     def validate_zion_address(self, address):
         """Validate ZION address format"""
@@ -71,9 +67,8 @@ class ZionUniversalPool:
         print(f"✅ Universal Pool listening on 0.0.0.0:{self.port}")
         print(f"🔧 Algorithms: RandomX (CPU), KawPow (GPU), Ethash (GPU)")
         
-        # Create initial jobs for algorithms we currently support
+        # Create initial jobs for all algorithms
         self.create_randomx_job()
-        self.create_kawpow_job()
         
         # Start session cleanup task
         asyncio.create_task(self.cleanup_inactive_sessions())
@@ -175,33 +170,23 @@ class ZionUniversalPool:
         login = params.get('login', 'unknown')
         password = params.get('pass', 'x')
         agent = params.get('agent', 'unknown')
-        # Optional algorithm selection (multi-algo support)
-        algo_param = (params.get('algo') or params.get('algorithm') or 'randomx').lower()
-        if algo_param in ['kawpow', 'kp', 'kaw']:
-            selected_algo = 'kawpow'
-        elif algo_param in ['randomx', 'rx', 'rx/0']:
-            selected_algo = 'randomx'
-        else:
-            selected_algo = 'randomx'
-            logger.warning(f"Unknown algo '{algo_param}' from {addr}, defaulting to randomx")
         
         # Validate ZION address
         is_zion_address = self.validate_zion_address(login)
         
         logger.info(f"XMrig login: {login} from {addr} (ZION: {is_zion_address})")
-        print(f"🖥️ Miner Login from {addr}")
+        print(f"🖥️ XMrig (CPU) Login from {addr}")
         print(f"💰 Address: {login}")
         if is_zion_address:
             print(f"✅ Valid ZION address detected!")
         else:
             print(f"⚠️ Legacy address format accepted")
-        print(f"🧮 Algorithm requested: {selected_algo}")
         
         # Store miner info with enhanced session tracking
         self.miners[addr] = {
-            'type': 'gpu' if selected_algo != 'randomx' else 'cpu',
+            'type': 'cpu',
             'protocol': 'xmrig',
-            'algorithm': selected_algo,
+            'algorithm': 'randomx',
             'id': f"zion_{int(time.time())}_{addr[1]}",
             'login': login,
             'is_zion_address': is_zion_address,
@@ -213,11 +198,7 @@ class ZionUniversalPool:
             'share_count': 0,
             'last_job_id': None,
             'writer': writer,
-            'session_active': True,
-            # Adaptivní obtížnost
-            'difficulty': self.difficulty['gpu'] if selected_algo == 'kawpow' else self.difficulty['cpu'],
-            'last_adjust': time.time(),
-            'shares_window': []  # (timestamp) pro výpočet rychlosti
+            'session_active': True
         }
         
         # Create job for login response  
@@ -234,8 +215,8 @@ class ZionUniversalPool:
             }
         }) + '\n'
         
-        logger.info(f"Miner login successful for {addr} algo={selected_algo}")
-        print(f"✅ Miner login successful (algo={selected_algo})")
+        logger.info(f"XMrig login successful for {addr}")
+        print(f"✅ CPU miner login successful")
         
         # Start sending periodic jobs to maintain connection
         asyncio.create_task(self.send_periodic_jobs(addr))
@@ -250,78 +231,6 @@ class ZionUniversalPool:
         result = params.get('result', 'unknown')
         
         logger.info(f"[SUBMIT] From {addr} job={job_id} nonce={nonce} result={result}")
-
-        # --- VALIDACE SHARE ---
-        error_response = None
-        # 1) Existence jobu
-        job = self.jobs.get(job_id)
-        if not job:
-            error_response = {
-                "id": data.get('id'),
-                "jsonrpc": "2.0",
-                "error": {"code": -1, "message": "Invalid job_id"}
-            }
-        # 1b) Kontrola že job algoritmus odpovídá minerovi (multi-algo ochrana)
-        if not error_response and addr in self.miners:
-            miner_algo = self.miners[addr].get('algorithm')
-            job_algo = job.get('algo') if job else None
-            # KawPow job se ukládá s algo="kawpow"
-            if miner_algo == 'kawpow' and job_algo != 'kawpow':
-                error_response = {
-                    "id": data.get('id'),
-                    "jsonrpc": "2.0",
-                    "error": {"code": -6, "message": "Algo mismatch (expected kawpow)"}
-                }
-            elif miner_algo == 'randomx' and job_algo not in ['rx/0', 'randomx']:
-                error_response = {
-                    "id": data.get('id'),
-                    "jsonrpc": "2.0",
-                    "error": {"code": -6, "message": "Algo mismatch (expected randomx)"}
-                }
-        # 2) Formát nonce/result (hex)
-        if not error_response:
-            for label, val, min_len, max_len in [
-                ("nonce", nonce, 2, 64),
-                ("result", result, 8, 128)
-            ]:
-                if not isinstance(val, str) or any(c not in '0123456789abcdefABCDEF' for c in val):
-                    error_response = {
-                        "id": data.get('id'),
-                        "jsonrpc": "2.0",
-                        "error": {"code": -2, "message": f"Invalid hex {label}"}
-                    }
-                    break
-                if len(val) < min_len or len(val) > max_len:
-                    error_response = {
-                        "id": data.get('id'),
-                        "jsonrpc": "2.0",
-                        "error": {"code": -3, "message": f"{label} length out of range"}
-                    }
-                    break
-        # 3) Duplicate (job_id, nonce)
-        key = (job_id, nonce)
-        if not error_response and key in self.submissions:
-            error_response = {
-                "id": data.get('id'),
-                "jsonrpc": "2.0",
-                "error": {"code": -4, "message": "Duplicate share"}
-            }
-        # 4) Pseudo difficulty check (mock) - jen kontrola prefixu (simulace cíle)
-        if not error_response:
-            # V reálu by se počítal hash; zde placeholder: akceptujeme vše kromě result začínající 'ffff'
-            if isinstance(result, str) and result.lower().startswith('ffff'):
-                error_response = {
-                    "id": data.get('id'),
-                    "jsonrpc": "2.0",
-                    "error": {"code": -5, "message": "Low difficulty / invalid result"}
-                }
-
-        if error_response:
-            logger.warning(f"Share REJECTED from {addr}: {error_response['error']}")
-            return json.dumps(error_response) + '\n'
-        else:
-            # Zaregistruj share jako použitý
-            self.submissions.add(key)
         
         # Accept share and update stats
         if addr in self.miners:
@@ -337,12 +246,6 @@ class ZionUniversalPool:
                 print(f"💰 ZION Address: {address}")
             else:
                 print(f"🔄 Legacy Address: {address}")
-            # Adaptivní obtížnost – zaznamenat čas share do okna a případně upravit
-            self.miners[addr]['shares_window'].append(time.time())
-            # Udržet jen posledních 20 záznamů
-            if len(self.miners[addr]['shares_window']) > 20:
-                self.miners[addr]['shares_window'] = self.miners[addr]['shares_window'][-20:]
-            self.adapt_difficulty(addr)
         
         # XMRig expects specific response format for share acceptance - NO error field when successful
         response = json.dumps({
@@ -353,12 +256,9 @@ class ZionUniversalPool:
             }
         }) + '\n'
 
-        # Force creation of a fresh job for next work (respektovat algoritmus)
+        # Force creation of a fresh job for next work to avoid stale job reuse
         try:
-            if addr in self.miners and self.miners[addr].get('algorithm') == 'kawpow':
-                self.create_kawpow_job()
-            else:
-                self.create_randomx_job()
+            self.create_randomx_job()
             new_job = self.get_job_for_miner(addr)
         except Exception as e:
             logger.error(f"Job refresh failure after share from {addr}: {e}")
@@ -396,119 +296,29 @@ class ZionUniversalPool:
         self.job_counter += 1
         job_id = f"zion_rx_{self.job_counter:06d}"
         
-        job_obj = {
+        self.current_jobs['randomx'] = {
             "job_id": job_id,
-            # 76 bytes total (Monero-like style), simplified random content
-            "blob": "0606" + secrets.token_hex(73),
-            # target - nízká obtížnost = vysoké číslo (little-endian interpretace)
-            "target": "b88d0600",
+            "blob": "0606" + secrets.token_hex(73),  # 76 bytes total
+            "target": "b88d0600",  # Difficulty target
             "algo": "rx/0",
             "height": 1000 + self.job_counter,
-            "seed_hash": secrets.token_hex(32),
-            "created": time.time(),
-            "difficulty": self.difficulty['cpu']
+            "seed_hash": secrets.token_hex(32)
         }
-        self.current_jobs['randomx'] = job_obj
-        # Registrace do mapy pro validaci
-        self.jobs[job_id] = job_obj
         
         logger.info(f"Created RandomX job: {job_id}")
         print(f"🔨 RandomX job: {job_id}")
-        return job_obj
-
-    def create_kawpow_job(self):
-        """Vytvoří jednoduchý fake KawPow job (placeholder – neprovádí reálný DAG / epoch výpočet)."""
-        self.job_counter += 1
-        job_id = f"zion_kp_{self.job_counter:06d}"
-        height = 200000 + self.job_counter
-        # Seed / epoch placeholder (normálně by se počítalo dle height)
-        epoch = (height // 7500) % 1024
-        seed = secrets.token_hex(32)
-        header_hash = secrets.token_hex(32)
-        mix_hash = secrets.token_hex(16)
-        job_obj = {
-            "job_id": job_id,
-            "algo": "kawpow",
-            "height": height,
-            "epoch": epoch,
-            "seed_hash": seed,
-            "header_hash": header_hash,
-            "mix_hash": mix_hash,
-            # Jednoduchý target – pro GPU placeholder použijeme pevnou hodnotu
-            "target": "ffff0f00",
-            "created": time.time(),
-            "difficulty": self.difficulty['gpu']
-        }
-        self.current_jobs['kawpow'] = job_obj
-        self.jobs[job_id] = job_obj
-        logger.info(f"Created KawPow job: {job_id} (epoch={epoch})")
-        print(f"🔥 KawPow job: {job_id} epoch={epoch}")
-        return job_obj
-
-    def difficulty_to_target(self, diff: int) -> str:
-        """Konverze jednoduché difficulty na 4B little-endian target (mock).
-        Nižší target = vyšší obtížnost, zde jen hrubý inverzní poměr.
-        """
-        # Ochrana rozmezí
-        diff = max(1, min(diff, 2_000_000_000))
-        base = 0xFFFF00  # základní rozsah
-        scaled = int(base / diff)
-        if scaled < 1:
-            scaled = 1
-        if scaled > 0xFFFFFFFF:
-            scaled = 0xFFFFFFFF
-        # Little-endian hex (4 byty)
-        return scaled.to_bytes(4, 'little').hex()
-
-    def adapt_difficulty(self, addr):
-        """Jednoduché adaptivní ladění difficulty na základě rychlosti shares.
-        Cíl: průměrný čas share kolem ~20s (hranice 12s rychlé / 35s pomalé).
-        """
-        miner = self.miners.get(addr)
-        if not miner:
-            return
-        window = miner.get('shares_window', [])
-        if len(window) < 4:  # počkej aspoň na pár shares
-            return
-        # Spočítej průměrný interval posledních N shares
-        times = window[-8:] if len(window) >= 8 else window
-        if len(times) < 2:
-            return
-        intervals = [t2 - t1 for t1, t2 in zip(times[:-1], times[1:])]
-        avg = sum(intervals) / len(intervals)
-        now = time.time()
-        if now - miner.get('last_adjust', 0) < 30:  # neupravuj moc často
-            return
-        old_diff = miner['difficulty']
-        new_diff = old_diff
-        if avg < 12:  # příliš rychlé → zvýšit diff
-            new_diff = int(old_diff * 1.35)
-        elif avg > 35:  # příliš pomalé → snížit diff
-            new_diff = int(old_diff * 0.70)
-        # Omezit rozsah
-        new_diff = max(500, min(new_diff, 2_000_000))
-        if new_diff != old_diff:
-            miner['difficulty'] = new_diff
-            miner['last_adjust'] = now
-            logger.info(f"[DIFF] Miner {addr} avg_interval={avg:.1f}s diff {old_diff} -> {new_diff}")
-            print(f"⚙️  Difficulty adjust {old_diff} -> {new_diff} (avg {avg:.1f}s)")
+        return self.current_jobs['randomx']
     
     def get_job_for_miner(self, addr):
         """Get appropriate job for miner"""
         if addr not in self.miners:
             return None
-        algo = self.miners[addr].get('algorithm', 'randomx')
-        if algo == 'kawpow':
-            if not self.current_jobs['kawpow'] or self.job_counter % 7 == 0:
-                self.create_kawpow_job()
-            job = self.current_jobs['kawpow'].copy()
-        else:  # default randomx
-            if not self.current_jobs['randomx'] or self.job_counter % 5 == 0:
-                self.create_randomx_job()
-            job = self.current_jobs['randomx'].copy()
-        # Adjust per-miner target
-        miner_diff = self.miners[addr].get('difficulty', self.difficulty['gpu'] if algo == 'kawpow' else self.difficulty['cpu'])
-        job['target'] = self.difficulty_to_target(int(miner_diff))
+            
+        # For now, only RandomX jobs
+        if not self.current_jobs['randomx'] or self.job_counter % 5 == 0:
+            self.create_randomx_job()
+            
+        job = self.current_jobs['randomx'].copy()
         self.miners[addr]['last_job_id'] = job['job_id']
         return job
     
@@ -547,7 +357,8 @@ class ZionUniversalPool:
                         await writer.drain()
                         print(f"💓 Sent keepalive to {addr}")
                 
-                # Always generate fresh job for miner's algorithm to avoid stale reuse
+                # Always generate fresh job to avoid stale reuse
+                self.create_randomx_job()
                 job = self.get_job_for_miner(addr)
                 if job and 'writer' in self.miners[addr]:
                     writer = self.miners[addr]['writer']
@@ -560,7 +371,7 @@ class ZionUniversalPool:
                     
                     writer.write(job_notification.encode('utf-8'))
                     await writer.drain()
-                    print(f"📡 Periodic job #{job_count} sent to {addr} (algo={self.miners[addr].get('algorithm')})")
+                    print(f"📡 Periodic job #{job_count} sent to {addr}")
                     
                     # Update activity
                     self.miners[addr]['last_job_sent'] = current_time
