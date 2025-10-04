@@ -1,8 +1,8 @@
-# 🌟 ZION 2.7.1 - Revolutionary AI-Powered Blockchain with Quantum Future 🌟
+# 🌟 ZION 2.7.1 - Revolutionary AI-Powered Blockchain with Universal Mining Pool 🌟
 
 [![AI Ecosystem](https://img.shields.io/badge/AI-11_Components-blue)](https://github.com/issy13elizabet/ZION2.7TestNet)
 [![KRISTUS Engine](https://img.shields.io/badge/KRISTUS-Quantum_Future-purple)](https://github.com/issy13elizabet/ZION2.7TestNet)
-[![Mining](https://img.shields.io/badge/Mining-Multi_Algorithm-green)](https://github.com/issy13elizabet/ZION2.7TestNet)
+[![Mining Pool](https://img.shields.io/badge/Mining_Pool-Multi_Algorithm_Ready-green)](https://github.com/issy13elizabet/ZION2.7TestNet)
 [![Production](https://img.shields.io/badge/Status-Production_Ready-gold)](https://github.com/issy13elizabet/ZION2.7TestNet)
 
 ## 🚀 Overview
@@ -95,9 +95,23 @@ print('🛡️ KRISTUS Quantum Engine ready for future!')
 "
 ```
 
-### 6. Start Advanced GPU Mining
+### 6. Start ZION Universal Mining Pool
 ```bash
-# GPU mining with AI optimization
+# Production mining pool (supports CPU + GPU)
+python zion_universal_pool.py
+
+# Deploy to remote server
+POOL_PORT=3333 bash deploy_xmrig_pool.sh
+
+# Connect CPU miners (XMrig)
+xmrig -o YOUR_SERVER:3333 -u ZION_your32hexaddress -p x
+
+# Connect GPU miners (SRBMiner)  
+SRBMiner-MULTI --algorithm kawpow --pool YOUR_SERVER:3333 --wallet ZION_your32hexaddress
+
+### 7. Start Advanced GPU Mining
+```bash
+# Local GPU mining with AI optimization
 python mining/zion_gpu_mining_optimizer.py --benchmark 60
 python zion_cli.py mine --address YOUR_ADDRESS --algorithm kawpow --gpu --ai-enhanced
 
@@ -105,32 +119,48 @@ python zion_cli.py mine --address YOUR_ADDRESS --algorithm kawpow --gpu --ai-enh
 python zion_cli.py asic-mine --address YOUR_ADDRESS --duration 60 --consciousness-level 7
 ```
 
-## ⛏️ **MINING POOL - READY NOW!**
+## ⛏️ **ZION UNIVERSAL MINING POOL - PRODUCTION READY!**
 
-### 🚀 **Production Pool Status**
+### 🚀 **Multi-Algorithm Pool Status**
 - **Pool URL**: `91.98.122.165:3333`
-- **Algorithm**: RandomX (rx/0) - 100% XMRig compatible
-- **Status**: ✅ **LIVE & ACCEPTING SHARES**
-- **Default Difficulty**: 32 (auto-adjusts via VarDiff)
+- **CPU Algorithm**: RandomX (rx/0) - ✅ **XMRig Compatible & LIVE**
+- **GPU Algorithm**: KawPow - 🚧 **SRBMiner Integration (Testing)**
+- **Status**: ✅ **ACCEPTING SHARES** (4612+ jobs processed)
+- **Difficulty**: CPU=10000, GPU=50 (auto-adjusts via VarDiff)
 - **Fee**: 0% (testnet phase)
 - **Block Time**: 120 seconds
+- **Reward System**: 🚧 **Share Counting Active, Payouts In Development**
 
 ### ⚡ **Start Mining Immediately**
-```bash
-# XMRig - Replace with your ZION address
-./xmrig -o 91.98.122.165:3333 -u Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84 -p x --coin=monero
 
-# Or any RandomX miner - works out of the box!
+#### **CPU Mining (RandomX) - LIVE NOW**
+```bash
+# XMrig - Replace with your ZION address  
+./xmrig -o 91.98.122.165:3333 -u ZION_your32hexaddress -p x --coin=monero
+
+# Alternative port (if needed)
+./xmrig -o 91.98.122.165:3334 -u ZION_your32hexaddress -p x --coin=monero
 ```
 
-### 🔐 **Advanced Features**
-- ✅ **Token-based session persistence** - reconnect without losing difficulty
-- ✅ **Variable difficulty adjustment** - optimizes for 15s/share target
-- ✅ **Cross-socket compatibility** - supports miner failover/restart
-- ✅ **Real-time job distribution** - immediate new block notifications
-- ✅ **Full Monero/XMRig protocol support** - no modifications needed
+#### **GPU Mining (KawPow) - TESTING PHASE**
+```bash
+# SRBMiner-MULTI
+SRBMiner-MULTI.exe --algorithm kawpow --pool 91.98.122.165:3333 --wallet ZION_your32hexaddress
 
-**Ready to mine? Just point your RandomX miner at `91.98.122.165:3333`!**
+# T-Rex Miner (alternative)
+t-rex -a kawpow -o stratum+tcp://91.98.122.165:3333 -u ZION_your32hexaddress -p x
+```
+
+### 🔐 **Advanced Pool Features**
+- ✅ **Dual Protocol Support** - JSON-RPC (XMRig) + Stratum (GPU miners)
+- ✅ **Multi-Algorithm Ready** - RandomX + KawPow + planned Ethash
+- ✅ **Token-based Sessions** - reconnect without losing difficulty  
+- ✅ **Variable Difficulty** - auto-adjusts for optimal share rates
+- ✅ **Real-time Statistics** - share tracking, job distribution, connection monitoring
+- ✅ **Auto-Deployment** - robust SSH deployment with health monitoring
+- 🚧 **Reward System** - share counting active, full payouts in development
+
+**Ready to mine? Point your miner at `91.98.122.165:3333` and start earning ZION!**
 
 ## 🌟 **KRISTUS Quantum Engine - World's First Divine Computing**
 
