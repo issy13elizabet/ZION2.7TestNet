@@ -1,0 +1,291 @@
+{
+  "unified_miner_profiles": {
+    "description": "ZION AI Unified Miner Configuration Templates",
+    "version": "2025.1.0",
+    "profiles": {
+      "eco_champion": {
+        "name": "Eco Champion - Maximum Efficiency",
+        "description": "Prioritize Yescrypt for 15% eco-bonus and 80W power consumption",
+        "pool_host": "127.0.0.1",
+        "pool_port": 3333,
+        "ai_mode": "eco_bonus",
+        "power_limit_watts": 150.0,
+        "afterburner_enabled": true,
+        "thermal_protection": true,
+        "algorithm_priority": ["yescrypt", "randomx"],
+        "optimization_weights": {
+          "efficiency": 0.4,
+          "profitability": 0.2,
+          "eco_bonus": 0.3,
+          "stability": 0.1
+        }
+      },
+      "profit_maximizer": {
+        "name": "Profit Maximizer - All Algorithms",
+        "description": "Run all available algorithms for maximum hashrate",
+        "pool_host": "127.0.0.1",
+        "pool_port": 3333,
+        "ai_mode": "profit_first",
+        "power_limit_watts": 400.0,
+        "afterburner_enabled": true,
+        "thermal_protection": true,
+        "algorithm_priority": ["autolykos_v2", "yescrypt", "randomx"],
+        "optimization_weights": {
+          "efficiency": 0.2,
+          "profitability": 0.5,
+          "eco_bonus": 0.2,
+          "stability": 0.1
+        }
+      },
+      "balanced_hybrid": {
+        "name": "Balanced Hybrid - CPU + GPU",
+        "description": "Balance between efficiency and performance",
+        "pool_host": "127.0.0.1",
+        "pool_port": 3333,
+        "ai_mode": "balanced",
+        "power_limit_watts": 250.0,
+        "afterburner_enabled": true,
+        "thermal_protection": true,
+        "algorithm_priority": ["yescrypt", "autolykos_v2"],
+        "optimization_weights": {
+          "efficiency": 0.3,
+          "profitability": 0.3,
+          "eco_bonus": 0.25,
+          "stability": 0.15
+        }
+      },
+      "cpu_only": {
+        "name": "CPU Only - Yescrypt Optimized",
+        "description": "CPU-only mining with Yescrypt for maximum efficiency",
+        "pool_host": "127.0.0.1",
+        "pool_port": 3333,
+        "ai_mode": "efficiency_first",
+        "power_limit_watts": 120.0,
+        "afterburner_enabled": true,
+        "thermal_protection": true,
+        "algorithm_priority": ["yescrypt"],
+        "optimization_weights": {
+          "efficiency": 0.5,
+          "profitability": 0.2,
+          "eco_bonus": 0.25,
+          "stability": 0.05
+        }
+      },
+      "gpu_only": {
+        "name": "GPU Only - Autolykos v2",
+        "description": "GPU-only mining with Autolykos v2 for high hashrate",
+        "pool_host": "127.0.0.1",
+        "pool_port": 3333,
+        "ai_mode": "profit_first",
+        "power_limit_watts": 200.0,
+        "afterburner_enabled": true,
+        "thermal_protection": true,
+        "algorithm_priority": ["autolykos_v2"],
+        "optimization_weights": {
+          "efficiency": 0.2,
+          "profitability": 0.4,
+          "eco_bonus": 0.3,
+          "stability": 0.1
+        }
+      },
+      "low_power": {
+        "name": "Low Power - 100W Limit",
+        "description": "Ultra-efficient mining under 100W power limit",
+        "pool_host": "127.0.0.1",
+        "pool_port": 3333,
+        "ai_mode": "efficiency_first",
+        "power_limit_watts": 100.0,
+        "afterburner_enabled": true,
+        "thermal_protection": true,
+        "algorithm_priority": ["yescrypt"],
+        "optimization_weights": {
+          "efficiency": 0.6,
+          "profitability": 0.1,
+          "eco_bonus": 0.25,
+          "stability": 0.05
+        }
+      }
+    }
+  },
+  "hardware_templates": {
+    "description": "Hardware-specific optimization templates",
+    "cpu_profiles": {
+      "intel_high_end": {
+        "description": "Intel i7/i9 CPUs (8+ cores)",
+        "recommended_algorithms": ["yescrypt", "randomx"],
+        "thread_allocation": {
+          "yescrypt": "threads // 2",
+          "randomx": "threads // 2"
+        },
+        "power_efficiency": "high",
+        "thermal_headroom": "good"
+      },
+      "amd_ryzen": {
+        "description": "AMD Ryzen CPUs (6+ cores)",
+        "recommended_algorithms": ["yescrypt", "randomx"],
+        "thread_allocation": {
+          "yescrypt": "threads // 2",
+          "randomx": "threads // 2"
+        },
+        "power_efficiency": "very_high",
+        "thermal_headroom": "excellent"
+      },
+      "low_end_cpu": {
+        "description": "Budget CPUs (4 cores or less)",
+        "recommended_algorithms": ["yescrypt"],
+        "thread_allocation": {
+          "yescrypt": "max(1, threads // 2)"
+        },
+        "power_efficiency": "good",
+        "thermal_headroom": "limited"
+      }
+    },
+    "gpu_profiles": {
+      "nvidia_rtx_40": {
+        "description": "NVIDIA RTX 4070/4080/4090 series",
+        "recommended_algorithms": ["autolykos_v2"],
+        "expected_hashrate": {
+          "autolykos_v2": "80-120 MH/s"
+        },
+        "power_consumption": "150-300W",
+        "eco_bonus_potential": "1.2x"
+      },
+      "nvidia_rtx_30": {
+        "description": "NVIDIA RTX 3070/3080/3090 series",
+        "recommended_algorithms": ["autolykos_v2"],
+        "expected_hashrate": {
+          "autolykos_v2": "60-90 MH/s"
+        },
+        "power_consumption": "120-250W",
+        "eco_bonus_potential": "1.2x"
+      },
+      "amd_rx_6000": {
+        "description": "AMD RX 6700/6800/6900 series",
+        "recommended_algorithms": ["autolykos_v2"],
+        "expected_hashrate": {
+          "autolykos_v2": "55-80 MH/s"
+        },
+        "power_consumption": "140-220W",
+        "eco_bonus_potential": "1.2x"
+      },
+      "amd_rx_5000": {
+        "description": "AMD RX 5600/5700 series",
+        "recommended_algorithms": ["autolykos_v2"],
+        "expected_hashrate": {
+          "autolykos_v2": "40-60 MH/s"
+        },
+        "power_consumption": "120-180W",
+        "eco_bonus_potential": "1.2x"
+      }
+    }
+  },
+  "pool_configurations": {
+    "description": "Pre-configured pool settings",
+    "zion_mainnet": {
+      "name": "ZION Mainnet Pool",
+      "host": "pool.zion.org",
+      "port": 3333,
+      "tls": true,
+      "backup_pools": [
+        {
+          "host": "backup1.zion.org",
+          "port": 3333,
+          "tls": true
+        },
+        {
+          "host": "backup2.zion.org", 
+          "port": 3333,
+          "tls": true
+        }
+      ]
+    },
+    "zion_testnet": {
+      "name": "ZION Testnet Pool",
+      "host": "testnet.zion.org",
+      "port": 3334,
+      "tls": false,
+      "backup_pools": []
+    },
+    "local_development": {
+      "name": "Local Development Pool",
+      "host": "127.0.0.1",
+      "port": 3333,
+      "tls": false,
+      "backup_pools": []
+    }
+  },
+  "algorithm_specifications": {
+    "description": "Detailed algorithm specifications and eco-bonus system",
+    "randomx": {
+      "name": "RandomX",
+      "type": "cpu",
+      "memory_requirement": "2GB",
+      "thread_efficiency": "high",
+      "power_consumption_estimate": "100W",
+      "eco_bonus_multiplier": 1.0,
+      "difficulty_adjustment": "auto",
+      "miner_software": "XMRig",
+      "pool_protocol": "stratum"
+    },
+    "yescrypt": {
+      "name": "Yescrypt",
+      "type": "cpu",
+      "memory_requirement": "1GB",
+      "thread_efficiency": "very_high",
+      "power_consumption_estimate": "80W",
+      "eco_bonus_multiplier": 1.15,
+      "difficulty_adjustment": "auto",
+      "miner_software": "ZION Hybrid Miner",
+      "pool_protocol": "stratum",
+      "c_extension_available": true,
+      "performance_boost": "5-10x with C extension"
+    },
+    "autolykos_v2": {
+      "name": "Autolykos v2",
+      "type": "gpu",
+      "memory_requirement": "4GB VRAM",
+      "thread_efficiency": "gpu_dependent",
+      "power_consumption_estimate": "150W",
+      "eco_bonus_multiplier": 1.2,
+      "difficulty_adjustment": "auto",
+      "miner_software": "SRBMiner-Multi",
+      "pool_protocol": "stratum"
+    }
+  },
+  "afterburner_configurations": {
+    "description": "AI Afterburner optimization profiles",
+    "gaming_optimized": {
+      "name": "Gaming Optimized",
+      "gpu_power_limit": 85,
+      "memory_clock_offset": 500,
+      "core_clock_offset": 100,
+      "fan_curve": "aggressive",
+      "temperature_target": 75
+    },
+    "mining_optimized": {
+      "name": "Mining Optimized",
+      "gpu_power_limit": 70,
+      "memory_clock_offset": 800,
+      "core_clock_offset": -100,
+      "fan_curve": "quiet_mining",
+      "temperature_target": 70
+    },
+    "efficiency_focused": {
+      "name": "Efficiency Focused",
+      "gpu_power_limit": 60,
+      "memory_clock_offset": 600,
+      "core_clock_offset": -200,
+      "fan_curve": "eco",
+      "temperature_target": 65
+    }
+  },
+  "cli_examples": {
+    "description": "Command-line usage examples",
+    "basic_start": "python mining/zion_ai_unified_miner.py",
+    "eco_mode": "python mining/zion_ai_unified_miner.py --ai-mode eco_bonus --power-limit 150",
+    "profit_mode": "python mining/zion_ai_unified_miner.py --ai-mode profit_first --power-limit 400",
+    "custom_pool": "python mining/zion_ai_unified_miner.py --pool pool.zion.org:3333 --wallet YOUR_ZION_ADDRESS",
+    "cpu_only": "python mining/zion_ai_unified_miner.py --ai-mode efficiency_first --power-limit 100 --no-afterburner",
+    "stats_check": "python mining/zion_ai_unified_miner.py --stats-only"
+  }
+}
