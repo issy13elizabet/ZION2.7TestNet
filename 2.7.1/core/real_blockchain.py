@@ -148,7 +148,7 @@ class ZionRealBlockchain:
         self.blocks: List[RealBlock] = []
         self.mempool = TransactionMempool()
         self.difficulty = 1000
-        self.block_reward = 100000000  # 1 ZION in atomic units
+        self.block_reward = 5479452054  # 5,479.45 ZION in atomic units (144B ZION / 50 years)
         self._lock = threading.Lock()
         
         # Mining algorithm settings
@@ -320,12 +320,66 @@ class ZionRealBlockchain:
         return hash_result.hex()
     
     def _create_genesis_block(self):
-        """Create genesis block"""
-        genesis_transactions = [{
-            'type': 'genesis',
-            'amount': 342857142857,  # Genesis reward
-            'to_address': 'ZION_GENESIS_REWARD_ADDRESS'
-        }]
+        """Create genesis block with pre-mine addresses"""
+        # Genesis reward distribution
+        genesis_transactions = [
+            # NETWORK ADMINISTRATOR - Maitreya Buddha pro mainnet upgrade
+            {
+                'type': 'network_admin',
+                'amount': 1000000000000000,  # 1 billion ZION in atomic units
+                'to_address': 'MAITREYA_BUDDHA_NETWORK_ADMINISTRATOR_2025'
+            },
+            {
+                'type': 'genesis',
+                'amount': 342857142857,  # 342.857M ZION - Genesis reward
+                'to_address': 'Z359Sdk6srUZvpAz653xcwsPMFUeew3f6Johmw5apsvMH4uaGY3864q24n9EfiWMUjaGihT7wzkXAr75HiPCbnaQq6'
+            },
+            # Pre-mine addresses with 2 billion ZION each (Mining operators)
+            {
+                'type': 'premine',
+                'amount': 2000000000000000,  # 2 billion ZION in atomic units
+                'to_address': 'ZIONSacredMiner123456789012345678901234567890'
+            },
+            {
+                'type': 'premine',
+                'amount': 2000000000000000,  # 2 billion ZION in atomic units
+                'to_address': 'ZIONQuantumMiner12345678901234567890123456789'
+            },
+            {
+                'type': 'premine',
+                'amount': 2000000000000000,  # 2 billion ZION in atomic units
+                'to_address': 'ZIONCosmicMiner123456789012345678901234567890'
+            },
+            {
+                'type': 'premine',
+                'amount': 2000000000000000,  # 2 billion ZION in atomic units
+                'to_address': 'ZIONEnlightenedMiner1234567890123456789012345'
+            },
+            {
+                'type': 'premine',
+                'amount': 2000000000000000,  # 2 billion ZION in atomic units
+                'to_address': 'ZIONTranscendentMiner123456789012345678901234'
+            },
+            # Special purpose addresses with 1 billion ZION each
+            {
+                'type': 'dev_fund',
+                'amount': 1000000000000000,  # 1 billion ZION in atomic units
+                'to_address': 'ZION_DEV_TEAM_FUND_2025_DEVELOPMENT_ADDRESS'
+            },
+            {
+                'type': 'network_fund',
+                'amount': 1000000000000000,  # 1 billion ZION in atomic units
+                'to_address': 'ZION_NETWORK_SITA_FUND_2025_INFRASTRUCTURE'
+            },
+            {
+                'type': 'children_fund',
+                'amount': 1000000000000000,  # 1 billion ZION in atomic units
+                'to_address': 'ZION_CHILDREN_FUND_2025_FUTURE_GENERATION'
+            }
+        ]
+        
+        # Calculate total pre-mine supply
+        total_premine = sum(tx['amount'] for tx in genesis_transactions)
         
         genesis_block = RealBlock(
             height=0,
@@ -335,7 +389,7 @@ class ZionRealBlockchain:
             nonce=0,
             difficulty=1,
             transactions=genesis_transactions,
-            reward=342857142857,
+            reward=total_premine,  # Total pre-mine + genesis reward
             miner_address="ZION_GENESIS_MINER",
             consciousness_level="ON_THE_STAR",
             sacred_multiplier=10.0
@@ -350,9 +404,15 @@ class ZionRealBlockchain:
         # Save to database
         self._save_block_to_db(genesis_block)
         
-        print("✨ Genesis block created with real blockchain hash")
+        print("✨ Genesis block created with pre-mine addresses")
         print(f"   Hash: {genesis_block.hash}")
-        print(f"   Reward: {genesis_block.reward} atomic units")
+        print(f"   🔑 MAITREYA BUDDHA: 1,000,000,000,000,000 atomic units (1B ZION)")
+        print(f"   ✨ Genesis reward: 342,857,142,857 atomic units (342.857M ZION)")
+        print(f"   ⚡ Mining operators: 5 addresses × 2,000,000,000,000,000 atomic units each (2B ZION)")
+        print(f"   👨‍💻 DEV TEAM fund: 1,000,000,000,000,000 atomic units (1B ZION)")
+        print(f"   🌐 SITA network fund: 1,000,000,000,000,000 atomic units (1B ZION)") 
+        print(f"   👶 CHILDREN fund: 1,000,000,000,000,000 atomic units (1B ZION)")
+        print(f"   📊 Total pre-mine supply: {total_premine} atomic units ({total_premine / 1_000_000:,.0f} ZION)")
     
     def add_transaction(self, tx: RealTransaction) -> bool:
         """Add transaction to mempool"""
