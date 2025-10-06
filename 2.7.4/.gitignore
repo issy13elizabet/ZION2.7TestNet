@@ -1,0 +1,131 @@
+# BEZPEČNOSTNÍ ZÁKAZ - PRIVATE KEYS A ZÁLOHY
+# ==========================================
+
+# Všechny private keys a mnemonic zálohy
+*private_key*
+*mnemonic*
+*paper_wallet*
+*backup*backup*
+*premine_backup*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Wallet soubory s private keys
+*wallet*.json
+*wallet*.dat
+*keystore*
+seed.txt
+recovery.txt
+
+# Databáze s citlivými daty
+*.db
+*.sqlite
+*.sqlite3
+zion_real_blockchain*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Build and dependency directories
+node_modules/
+target/
+npm-debug.log
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Environment and config files
+.env
+.env.local
+*.key
+*.pem
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Mining and pool data
+*.dat
+mining-data/
+pool-data/
+
+# Old local data - keep local only
+ZION VOL 30.9/
+
+# Large data files - keep local only
+2.7/data/perfect_memory.dat
+2.7/data/*.db
+.env.local
+
+# Mining binaries
+mining/*/
+legacy/miners/*/
+
+# Docker volumes and cache
+.docker/
+docker-volumes/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+randomx-build/
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Blockchain data
+blockchain/
+chaindata/
+
+# Large files
+*.tar.gz
+*.zip
+*.7z
