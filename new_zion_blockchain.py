@@ -54,7 +54,7 @@ class NewZionBlockchain:
             },
             'ZION_DEVELOPMENT_TEAM_FUND_378614887FEA27791540F45': {
                 'purpose': 'Development Team Fund',
-                'amount': 2_142_857_142,
+                'amount': 1_440_000_000,
                 'type': 'development'
             },
             'ZION_NETWORK_INFRASTRUCTURE_SITA_B5F3BE9968A1D90': {
