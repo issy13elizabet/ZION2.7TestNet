@@ -74,7 +74,7 @@ class NewZionBlockchain:
             },
             'ZION_ON_THE_STAR_0B461AB5BCACC40D1ECE95A2D82030': {
                 'purpose': 'Genesis Reward',
-                'amount': 200_000_000,
+                'amount': 333_000_000,
                 'type': 'genesis'
             }
         }
