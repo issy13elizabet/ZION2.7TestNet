@@ -1,0 +1,146 @@
+# ZION 2.7.4 - MAXIMUM SECURITY .gitignore
+# ==========================================
+
+# 🚫 PRIVATE KEYS & CREDENTIALS - ABSOLUTELY FORBIDDEN!
+*private_key*
+*PRIVATE_KEY*
+*Private_Key*
+*privatekey*
+*private-key*
+private_keys/
+keys/
+secrets/
+
+# 🚫 WALLETS & ADDRESSES - NEVER COMMIT!
+*wallet*.json
+*wallet*.dat
+*wallet*.backup
+*WALLET*
+wallet_*
+wallets/
+*keystore*
+keychain/
+*mnemonic*
+*seed*
+*recovery*
+
+# 🚫 BACKUPS - EXTERNAL ONLY!
+*backup*.json
+*backup*.enc
+*backup*.txt
+*BACKUP*
+*_backup_*
+backup/
+backups/
+paper_wallet*
+*paper_wallet*
+*CONFIDENTIAL*
+*confidential*
+
+# 🚫 DATABASES WITH SENSITIVE DATA
+*.db
+*.sqlite
+*.sqlite3
+zion_*.db
+blockchain_*.db
+*_real_*.db
+production_*.db
+
+# 🚫 CONFIGURATION WITH SECRETS
+.env
+.env.*
+*secret*
+*SECRET*
+*password*
+*PASSWORD*
+*api_key*
+*API_KEY*
+config/production/
+config/secrets/
+*production.yml
+*production.yaml
+*secrets.yml
+*secrets.yaml
+
+# 🚫 LOGS WITH SENSITIVE INFO
+*.log
+logs/
+api.log
+error.log
+debug.log
+*_access.log
+*production*.log
+
+# 🚫 MINING POOL CONFIGS
+pool_config.json
+*pool*.conf
+*miner*.conf
+mining_config.json
+stratum_config.json
+
+# 🚫 SSH & CERTIFICATES
+id_rsa
+id_rsa.pub
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cert
+ssh_keys/
+certificates/
+ssl/
+
+# 🚫 DEVELOPMENT ARTIFACTS
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.cache/
+.pytest_cache/
+node_modules/
+.next/
+dist/
+build/
+
+# 🚫 SYSTEM FILES
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 🚫 IDE FILES
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.sublime-*
+
+# 🚫 TEMPORARY FILES
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+temp/
+tmp/
+
+# ✅ ALLOWED FOR DEVELOPMENT
+# README.md files
+# Example configurations (with placeholders only)
+# Documentation
+# Source code (without secrets)
+# Tests (with mock data only)
+
+# 🔍 SECURITY SCAN EXCEPTIONS
+# Files containing only [REDACTED] or placeholders are OK
+# Demo/example files with fake data are OK
+# Documentation files are OK
