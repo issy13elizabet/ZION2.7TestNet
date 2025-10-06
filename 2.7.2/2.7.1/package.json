@@ -1,0 +1,14 @@
+{
+  "name": "zion-blockchain",
+  "version": "2.7.1",
+  "description": "ZION 2.7.1 - Clean RandomX Blockchain Implementation",
+  "main": "zion_cli.py",
+  "author": "ZION Development Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maitreya-ZionNet/Zion-2.6-TestNet"
+  },
+  "keywords": ["blockchain", "cryptocurrency", "randomx", "proof-of-work"],
+  "python_requires": ">=3.8"
+}
