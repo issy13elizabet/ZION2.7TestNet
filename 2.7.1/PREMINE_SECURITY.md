@@ -1,5 +1,10 @@
 # ZION 2.7.1 - Pre-mine Address Security Guide
 
+## ⚠️ BEZPEČNOSTNÍ UPOZORNĚNÍ ⚠️
+**TENTO DOKUMENT OBSAHUJE POUZE PLACEHOLDER INFORMACE!**
+Skutečné pre-mine adresy a private keys jsou uloženy v externí zabezpečené záloze.
+**NIKDY NEUKLÁDEJTE SKUTEČNÉ PRIVATE KEYS DO GIT REPOZITÁŘE!**
+
 ## 🔐 Záloha Pre-mine Adres
 
 Tento dokument popisuje bezpečné uložení a zálohu kritických pre-mine adres ZION 2.7.1.
@@ -8,23 +13,28 @@ Tento dokument popisuje bezpečné uložení a zálohu kritických pre-mine adre
 
 ### ⚡ Mining Operátoři (5 × 2B ZION)
 ```
-ZIONSacredMiner123456789012345678901234567890
-ZIONQuantumMiner12345678901234567890123456789
-ZIONCosmicMiner123456789012345678901234567890
-ZIONEnlightenedMiner1234567890123456789012345
-ZIONTranscendentMiner123456789012345678901234
+[REDACTED_FOR_SECURITY] - SACRED Mining Operator
+[REDACTED_FOR_SECURITY] - QUANTUM Mining Operator  
+[REDACTED_FOR_SECURITY] - COSMIC Mining Operator
+[REDACTED_FOR_SECURITY] - ENLIGHTENED Mining Operator
+[REDACTED_FOR_SECURITY] - TRANSCENDENT Mining Operator
 ```
 
 ### 👥 Speciální Fondy (3 × 1B ZION)
 ```
-ZION_DEV_TEAM_FUND_2025_DEVELOPMENT_ADDRESS
-ZION_NETWORK_SITA_FUND_2025_INFRASTRUCTURE
-ZION_CHILDREN_FUND_2025_FUTURE_GENERATION
+[REDACTED_FOR_SECURITY] - Development Team Fund
+[REDACTED_FOR_SECURITY] - Network Infrastructure (SITA)
+[REDACTED_FOR_SECURITY] - Children Future Fund
+```
+
+### 🔧 Network Administrator (1B ZION)
+```
+[REDACTED_FOR_SECURITY] - Network Administrator
 ```
 
 ### ✨ Genesis Reward
 ```
-Z359Sdk6srUZvpAz653xcwsPMFUeew3f6Johmw5apsvMH4uaGY3864q24n9EfiWMUjaGihT7wzkXAr75HiPCbnaQq6
+[REDACTED_FOR_SECURITY] - Genesis Reward Address
 ```
 
 ## 🛡️ Bezpečnostní Doporučení

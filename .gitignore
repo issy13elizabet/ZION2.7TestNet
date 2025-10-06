@@ -1,3 +1,30 @@
+# BEZPEČNOSTNÍ ZÁKAZ - PRIVATE KEYS A ZÁLOHY
+# ==========================================
+
+# Všechny private keys a mnemonic zálohy
+*private_key*
+*mnemonic*
+*paper_wallet*
+*backup*backup*
+*premine_backup*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Wallet soubory s private keys
+*wallet*.json
+*wallet*.dat
+*keystore*
+seed.txt
+recovery.txt
+
+# Databáze s citlivými daty
+*.db
+*.sqlite
+*.sqlite3
+zion_real_blockchain*.db
+
 # Python
 __pycache__/
 *.py[cod]

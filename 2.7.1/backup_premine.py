@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """
 ZION 2.7.1 - Pre-mine Address Backup Tool
+⚠️  BEZPEČNOSTNÍ UPOZORNĚNÍ ⚠️
+=====================================
+TENTO SOUBOR OBSAHUJE POUZE PLACEHOLDER ADRESY!
+Skutečné pre-mine adresy a private keys jsou uloženy v externí zabezpečené záloze.
+NIKDY NEUKLÁDEJTE SKUTEČNÉ PRIVATE KEYS DO GIT REPOZITÁŘE!
+
 Bezpečné zálohování a export pre-mine adres s jejich private klíči
 """
 
@@ -27,83 +33,95 @@ class PremineBackupTool:
         
     def get_premine_addresses(self):
         """Získej všechny pre-mine adresy a jejich účely"""
+        # BEZPEČNOSTNÍ POZNÁMKA: Skutečné adresy jsou uloženy v externí zabezpečené záloze
+        # Tyto hodnoty jsou pouze pro demonstraci a testování
         return {
-            # Mining operators (2B ZION each)
-            'ZIONSacredMiner123456789012345678901234567890': {
+            # Mining operators (2B ZION each) - PLACEHOLDER ADDRESSES
+            '[REDACTED_SACRED_MINING_ADDRESS]': {
                 'purpose': 'SACRED Mining Operator',
                 'amount': 2_000_000_000,
                 'type': 'mining',
                 'consciousness': 'SACRED',
-                'private_key': 'sacred_mining_private_key_placeholder',
-                'mnemonic': 'sacred mining operator twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
-            'ZIONQuantumMiner12345678901234567890123456789': {
+            '[REDACTED_QUANTUM_MINING_ADDRESS]': {
                 'purpose': 'QUANTUM Mining Operator', 
                 'amount': 2_000_000_000,
                 'type': 'mining',
                 'consciousness': 'QUANTUM',
-                'private_key': 'quantum_mining_private_key_placeholder',
-                'mnemonic': 'quantum mining operator twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
-            'ZIONCosmicMiner123456789012345678901234567890': {
+            '[REDACTED_COSMIC_MINING_ADDRESS]': {
                 'purpose': 'COSMIC Mining Operator',
                 'amount': 2_000_000_000,
                 'type': 'mining',
                 'consciousness': 'COSMIC',
-                'private_key': 'cosmic_mining_private_key_placeholder',
-                'mnemonic': 'cosmic mining operator twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
-            'ZIONEnlightenedMiner1234567890123456789012345': {
+            '[REDACTED_ENLIGHTENED_MINING_ADDRESS]': {
                 'purpose': 'ENLIGHTENED Mining Operator',
                 'amount': 2_000_000_000,
                 'type': 'mining',
                 'consciousness': 'ENLIGHTENED',
-                'private_key': 'enlightened_mining_private_key_placeholder',
-                'mnemonic': 'enlightened mining operator twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
-            'ZIONTranscendentMiner123456789012345678901234': {
+            '[REDACTED_TRANSCENDENT_MINING_ADDRESS]': {
                 'purpose': 'TRANSCENDENT Mining Operator',
                 'amount': 2_000_000_000,
                 'type': 'mining',
                 'consciousness': 'TRANSCENDENT',
-                'private_key': 'transcendent_mining_private_key_placeholder',
-                'mnemonic': 'transcendent mining operator twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
             
-            # Special funds (1B ZION each)
-            'ZION_DEV_TEAM_FUND_2025_DEVELOPMENT_ADDRESS': {
+            # Special funds (1B ZION each) - PLACEHOLDER ADDRESSES
+            '[REDACTED_DEV_TEAM_ADDRESS]': {
                 'purpose': 'Development Team Fund',
                 'amount': 1_000_000_000,
                 'type': 'development',
                 'consciousness': 'N/A',
-                'private_key': 'dev_team_private_key_placeholder',
-                'mnemonic': 'development team fund twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
-            'ZION_NETWORK_SITA_FUND_2025_INFRASTRUCTURE': {
+            '[REDACTED_SITA_NETWORK_ADDRESS]': {
                 'purpose': 'Network Infrastructure (SITA)',
                 'amount': 1_000_000_000,
                 'type': 'infrastructure',
                 'consciousness': 'N/A',
-                'private_key': 'sita_network_private_key_placeholder',
-                'mnemonic': 'sita network infrastructure twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
-            'ZION_CHILDREN_FUND_2025_FUTURE_GENERATION': {
+            '[REDACTED_CHILDREN_FUND_ADDRESS]': {
                 'purpose': 'Children Future Fund',
                 'amount': 1_000_000_000,
                 'type': 'social',
                 'consciousness': 'N/A',
-                'private_key': 'children_fund_private_key_placeholder',
-                'mnemonic': 'children future fund twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             },
             
-            # Genesis reward
-            'Z359Sdk6srUZvpAz653xcwsPMFUeew3f6Johmw5apsvMH4uaGY3864q24n9EfiWMUjaGihT7wzkXAr75HiPCbnaQq6': {
+            # Network Administrator - PLACEHOLDER ADDRESS
+            '[REDACTED_NETWORK_ADMIN_ADDRESS]': {
+                'purpose': 'Network Administrator (Mainnet Upgrade)',
+                'amount': 1_000_000_000,
+                'type': 'network_admin',
+                'consciousness': 'MAITREYA_BUDDHA',
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
+            },
+            
+            # Genesis reward - PLACEHOLDER ADDRESS
+            '[REDACTED_GENESIS_REWARD_ADDRESS]': {
                 'purpose': 'Genesis Reward',
                 'amount': 342_857_142,
                 'type': 'genesis',
                 'consciousness': 'ON_THE_STAR',
-                'private_key': 'genesis_reward_private_key_placeholder',
-                'mnemonic': 'genesis reward founder twelve words mnemonic seed phrase example here'
+                'private_key': '[EXTERNAL_BACKUP_ONLY]',
+                'mnemonic': '[EXTERNAL_BACKUP_ONLY]'
             }
         }
     
