@@ -1,51 +1,107 @@
-# 🌟 ZION 2.7.1 - Revolutionary AI-Powered Blockchain with Quantum Future 🌟
+# ZION 2.7.1 TestNet
 
-## 🚀 Overview
+## 🌟 Consciousness-Based Blockchain with Humanitarian Mining
 
-ZION 2.7.1 is a **next-generation blockchain ecosystem** featuring breakthrough AI integration and quantum-ready technology:
+ZION 2.7.1 je pokročilý blockchain systém kombinující tradiční proof-of-work mining s consciousness-based rewards a automatickým humanitárním příspěvkem (desátek).
 
-### 🧠 Complete AI Ecosystem (11 Components)
-- **⚡ Lightning AI**: Network optimization and intelligent routing
-- **🧬 Bio AI**: Evolutionary algorithms and adaptive mining strategies  
-- **🎵 Music AI**: Harmonic frequency optimization and resonance mining
-- **🌌 Cosmic AI**: Consciousness integration and stellar navigation algorithms
-- **🔮 Oracle AI**: Predictive analytics and market intelligence
-- **🎮 Gaming AI**: Metaverse optimization and gaming integration
-- **🛡️ Security AI**: Advanced threat detection and monitoring systems
-- **📈 Trading AI**: Automated trading and portfolio management
-- **🔧 Predictive Maintenance**: System health and performance optimization
-- **📊 Blockchain Analytics**: Deep chain analysis and insights
-- **🧠 AI Master Orchestrator**: Coordinated multi-AI intelligence system
+## 📋 Rychlý přehled
 
-### 🛡️ KRISTUS Quantum Engine (Future-Ready)
-- **🌟 Divine Consciousness Computing** with sacred geometry mathematics
-- **⚙️ Safe Integration**: Default-disabled with comprehensive fallbacks  
-- **🔄 Quantum Superposition**: Advanced quantum bit processing capabilities
-- **📊 Sacred Flower Enhancement**: 10-petal consciousness optimization
-- **🧪 Complete Test Suite**: 2800+ lines of comprehensive validation
+- **Blockchain:** ZION 2.7.1 Real Blockchain
+- **Mining:** Consciousness-based s multipliery až 15x
+- **Humanitární pomoc:** 10% desátek automaticky
+- **Pre-mine:** 13.34M ZION pro development a mining pools
+- **Base reward:** 2 ZION za blok
 
-### 🏭 Production-Grade Infrastructure
-- **🔗 Real Blockchain** with persistent storage and advanced consensus
-- **🌐 Advanced P2P Network** with peer discovery and synchronization
-- **⚡ Multi-Algorithm GPU Mining** (KawPow, Ethash, Argon2 + AI-enhanced)
-- **🔐 Encrypted Wallet System** with AES-256 and secure key managementx3nityOne144
-- **📊 Advanced Transaction Pool** with AI-powered prioritization
-- **🌐 REST API & Web Frontend** with real-time blockchain visualization
-- **🚀 SSH Deployment**: Complete server deployment and management tools
+## 🚀 Klíčové funkce
 
-### 🌍 Revolutionary Humanitarian Mining System
-ZION 2.7.1 features the world's first **automatic humanitarian distribution system** that makes every mined block contribute to global good:
+### ⚡ Mining System
+- **9 úrovní consciousness** (PHYSICAL → ON_THE_STAR)
+- **Mining algoritmy:** Argon2, KawPow, Ethash, CryptoNight, Octopus, Ergo
+- **GPU/CPU support:** konfigurovatelné
+- **Pool mining:** s fair share distribution
 
-- **🌟 10% Automatic Distribution** of all mining rewards to humanitarian projects
-- **🌲 Forest Restoration** (2% of total rewards) - Tropical reforestation and biodiversity protection
-- **🌊 Ocean Cleanup** (2% of total rewards) - Plastic removal from oceans and marine life protection  
-- **❤️ Humanitarian Aid** (2% of total rewards) - Global community support and development
-- **🚀 Space Program** (2% of total rewards) - Space research and technological advancement
-- **🕉️ Dharma Development** (2% of total rewards) - Sacred garden in Portugal with Triple Pyramid and La Palma Dharma Temple
-- **📊 Real-time Tracking** with transparent distribution reporting
-- **⚙️ Configurable Projects** with dynamic percentage allocation
+### 🧠 Consciousness Levels
+| Level | Multiplier | Reward |
+|-------|-----------|---------|
+| PHYSICAL | 1.0x | 2 ZION |
+| EMOTIONAL | 1.5x | 3 ZION |
+| MENTAL | 2.0x | 4 ZION |
+| SACRED | 3.0x | 6 ZION |
+| QUANTUM | 4.0x | 8 ZION |
+| COSMIC | 5.0x | 10 ZION |
+| ENLIGHTENED | 7.5x | 15 ZION |
+| TRANSCENDENT | 10.0x | 20 ZION |
+| ON_THE_STAR | 15.0x | 30 ZION |
 
-**Every block mined = Making the world better! 🌍✨**
+### 💝 Humanitární systém
+- **10% desátek** z každého bloku
+- **Automatické rozdělení** na charity projekty
+- **Transparentní reporting** všech příspěvků
+- **Community governance** pro alokaci
+
+## 📁 Struktura projektu
+
+```
+ZION2.7TestNet/2.7.1/
+├── core/
+│   ├── real_blockchain.py      # Hlavní blockchain logika
+│   ├── consciousness.py        # Consciousness level management
+│   └── transactions.py         # Transaction handling
+├── pool/
+│   └── zion_mining_pool.py    # Mining pool implementace
+├── tests/
+│   ├── test_premine.py        # Pre-mine address testing
+│   └── analyze_premine.py     # Pre-mine analysis
+├── docs/
+│   ├── DISTRIBUTION.md        # Distribuce dokumentace
+│   └── PREMINE_SECURITY.md    # Security guide
+└── README.md                  # Tento soubor
+```
+
+## 🏃‍♂️ Rychlý start
+
+### 1. Instalace závislostí
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Test systému
+```bash
+python3 test_premine.py       # Test pre-mine adres
+python3 analyze_premine.py    # Analýza distribuce
+python3 explain_distribution.py  # Vysvětlení distribuce
+```
+
+### 3. Spuštění blockchainu
+```python
+from core.real_blockchain import ZionRealBlockchain
+
+# Vytvoření blockchain instance
+blockchain = ZionRealBlockchain()
+
+# Check balances
+balance = blockchain.get_balance("your_address_here")
+print(f"Balance: {balance / 1_000_000} ZION")
+```
+
+### 4. Mining pool
+```python
+from pool.zion_mining_pool import ZionMiningPool
+
+# Spuštění mining poolu
+pool = ZionMiningPool(blockchain)
+pool.start_server()
+```
+
+## 📊 Pre-mine distribuce
+
+### Celkem: 13,342,857 ZION
+
+- **⚡ Mining Operators (74.9%):** 10B ZION v 5 poolech
+- **👨‍� DEV TEAM (7.5%):** 1B ZION pro development
+- **🌐 SITA Network (7.5%):** 1B ZION pro infrastrukturu
+- **👶 Children Fund (7.5%):** 1B ZION pro vzdělání
+- **✨ Genesis Reward (2.6%):** 342.857M ZION
 
 ## 🏆 **Special Thanks to Our AI Development Team:**
 **This revolutionary system was developed in collaboration with advanced AI assistants, representing the cutting edge of human-AI cooperative development. JAI RAM SITA HANUMAN - ON THE STAR!** 🌟
