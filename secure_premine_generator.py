@@ -9,17 +9,30 @@ import hashlib
 import base64
 import json
 import os
+import argparse
 from datetime import datetime
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+try:
+    # BIP39 mnemonic support (trezor's mnemonic)
+    from mnemonic import Mnemonic
+except Exception:
+    Mnemonic = None
+
 class SecurePremineGenerator:
     """Bezpečný generátor premine adres"""
     
-    def __init__(self):
+    def __init__(self, *, auto: bool = False, backup_mode: str = "interactive", words: int = 12, passphrase: str = ""):
         self.addresses = {}
         self.warning_shown = False
+        self.auto = auto
+        self.backup_mode = backup_mode  # interactive|enc|paper|both
+        self.words = words  # 12 nebo 24
+        self.passphrase = passphrase or ""
+        if self.words not in (12, 24):
+            raise ValueError("words must be 12 or 24")
         
     def show_security_warning(self):
         """Zobrazí bezpečnostní upozornění"""
@@ -37,23 +50,46 @@ class SecurePremineGenerator:
             print("4. 🔥 Smažte všechny dočasné soubory!")
             print("5. 🛡️ Použijte silné šifrování pro zálohy!")
             print()
-            print("Pokračovat? (yes/NO):", end=" ")
-            response = input().strip().lower()
-            
-            if response != 'yes':
-                print("❌ Operace zrušena uživatelem")
-                exit(1)
+            if not self.auto:
+                print("Pokračovat? (yes/NO):", end=" ")
+                response = input().strip().lower()
+                if response != 'yes':
+                    print("❌ Operace zrušena uživatelem")
+                    exit(1)
+            else:
+                print("Pokračuji v AUTO režimu…")
                 
             self.warning_shown = True
             print()
+
+    def _gen_mnemonic_and_privkey(self, purpose: str, entropy_bytes: bytes):
+        """Vygeneruje BIP39 mnemonic (12/24) a private key deterministicky z BIP39 seed + purpose.
+        Pokud není k dispozici knihovna mnemonic, fallback na bez-mnemonic režim.
+        """
+        mnemonic_words = None
+        seed = None
+        if Mnemonic is not None:
+            lang = "english"
+            mnemo = Mnemonic(lang)
+            # Pro 12 slov použijeme 128 bitů entropie (16B), pro 24 slov 256 bitů (32B)
+            needed = 16 if self.words == 12 else 32
+            entropy = entropy_bytes if len(entropy_bytes) >= needed else entropy_bytes + secrets.token_bytes(needed - len(entropy_bytes))
+            mnemonic_words = mnemo.to_mnemonic(entropy)
+            seed = mnemo.to_seed(mnemonic_words, passphrase=self.passphrase)
+            privkey_material = seed + purpose.encode()
+            private_key = hashlib.sha256(privkey_material).hexdigest()
+        else:
+            # Fallback: žádný mnemonic, pouze privkey z entropie
+            private_key = hashlib.sha256(entropy_bytes).hexdigest()
+        return mnemonic_words, private_key
     
     def generate_address(self, purpose, consciousness=None):
         """Generuje novou zabezpečenou adresu"""
         # Generate cryptographically secure entropy
         entropy = secrets.token_bytes(32)
-        
-        # Create private key
-        private_key = hashlib.sha256(entropy).hexdigest()
+
+        # Create mnemonic + private key (deterministic from seed + purpose)
+        mnemonic_words, private_key = self._gen_mnemonic_and_privkey(purpose, entropy)
         
         # Generate public address (simplified for demo)
         address_hash = hashlib.sha256((private_key + purpose).encode()).hexdigest()
@@ -66,6 +102,7 @@ class SecurePremineGenerator:
         return {
             'address': address,
             'private_key': private_key,
+            'mnemonic': mnemonic_words,
             'purpose': purpose,
             'consciousness': consciousness,
             'entropy_hex': entropy.hex(),
@@ -95,30 +132,37 @@ class SecurePremineGenerator:
             self.addresses[addr['address']] = addr
             print(f"✅ {purpose}: {addr['address'][:50]}...")
         
-        # Special funds (1B ZION each)
-        special_funds = [
-            'Development Team Fund',
-            'Network Infrastructure (SITA)',
-            'Children Future Fund'
-        ]
+        # Development Team Fund (1.44B ZION)
+        dev = self.generate_address('Development Team Fund')
+        dev['amount'] = 1_440_000_000
+        dev['type'] = 'development'
+        self.addresses[dev['address']] = dev
+        print(f"✅ Development Team Fund: {dev['address'][:50]}...")
+
+        # Network Infrastructure (SITA) (999M)
+        sita = self.generate_address('Network Infrastructure (SITA)')
+        sita['amount'] = 999_000_000
+        sita['type'] = 'infrastructure'
+        self.addresses[sita['address']] = sita
+        print(f"✅ Network Infrastructure (SITA): {sita['address'][:50]}...")
+
+        # Children Future Fund (999M)
+        chf = self.generate_address('Children Future Fund')
+        chf['amount'] = 999_000_000
+        chf['type'] = 'charity'
+        self.addresses[chf['address']] = chf
+        print(f"✅ Children Future Fund: {chf['address'][:50]}...")
         
-        for purpose in special_funds:
-            addr = self.generate_address(purpose)
-            addr['amount'] = 1_000_000_000  # 1B ZION
-            addr['type'] = 'fund'
-            self.addresses[addr['address']] = addr
-            print(f"✅ {purpose}: {addr['address'][:50]}...")
-        
-        # Network Administrator
+        # Network Administrator (999M)
         admin_addr = self.generate_address('Network Administrator', 'MAITREYA_BUDDHA')
-        admin_addr['amount'] = 1_000_000_000  # 1B ZION
+        admin_addr['amount'] = 999_000_000
         admin_addr['type'] = 'network_admin'
         self.addresses[admin_addr['address']] = admin_addr
         print(f"✅ Network Administrator: {admin_addr['address'][:50]}...")
         
-        # Genesis reward
+        # Genesis reward (333M)
         genesis_addr = self.generate_address('Genesis Reward', 'ON_THE_STAR')
-        genesis_addr['amount'] = 342_857_142  # 342.857M ZION
+        genesis_addr['amount'] = 333_000_000
         genesis_addr['type'] = 'genesis'
         self.addresses[genesis_addr['address']] = genesis_addr
         print(f"✅ Genesis Reward: {genesis_addr['address'][:50]}...")
@@ -204,6 +248,8 @@ class SecurePremineGenerator:
                 f.write(f"Purpose: {data['purpose']}\n")
                 f.write(f"Address: {address}\n")
                 f.write(f"Private Key: {data['private_key']}\n")
+                if data.get('mnemonic'):
+                    f.write(f"BIP39 ({self.words} words): {data['mnemonic']}\n")
                 f.write(f"Amount: {data['amount']:,} ZION\n")
                 f.write(f"Type: {data['type']}\n")
                 if data.get('consciousness'):
@@ -237,35 +283,51 @@ def main():
     print("🚀 ZION 2.7.4 - Secure Premine Generator")
     print("=" * 50)
     print()
-    
-    generator = SecurePremineGenerator()
+    # CLI args
+    parser = argparse.ArgumentParser(description="ZION Secure Premine Generator")
+    parser.add_argument("--auto", action="store_true", help="Automatický režim (žádné interaktivní dotazy)")
+    parser.add_argument("--backup", choices=["interactive","enc","paper","both"], default="interactive", help="Typ zálohy")
+    parser.add_argument("--words", type=int, choices=[12,24], default=12, help="Počet slov BIP39 (12/24)")
+    parser.add_argument("--password", type=str, default="", help="Heslo pro šifrovanou zálohu (min 12 znaků)")
+    args = parser.parse_args()
+
+    if args.words in (12,24) and Mnemonic is None:
+        print("⚠️ Varování: Knihovna 'mnemonic' není nainstalována. BIP39 seed nebude vytvořen. Použiji fallback bez seed frází.")
+
+    generator = SecurePremineGenerator(auto=args.auto, backup_mode=args.backup, words=args.words, passphrase="")
     generator.generate_premine_addresses()
-    
-    print("🔐 Možnosti zálohy:")
-    print("1. Šifrovaná záloha (doporučeno)")
-    print("2. Paper wallet") 
-    print("3. Obojí")
-    print("4. Přeskočit (NEBEZPEČNÉ!)")
-    print()
-    
-    choice = input("Vyber možnost (1-4): ").strip()
-    
-    if choice in ['1', '3']:
-        password = input("Zadej silné heslo pro šifrování: ")
-        if len(password) < 12:
-            print("❌ Heslo musí mít alespoň 12 znaků!")
-            return
-        generator.create_encrypted_backup(password)
-    
-    if choice in ['2', '3']:
-        generator.create_paper_wallet()
-    
-    if choice == '4':
-        print("⚠️  VAROVÁNÍ: Bez zálohy ztratíte přístup k premine adresám!")
-        confirm = input("Opravdu pokračovat bez zálohy? (yes/NO): ")
-        if confirm.lower() != 'yes':
-            return
-    
+
+    if args.backup == "interactive":
+        print("🔐 Možnosti zálohy:")
+        print("1. Šifrovaná záloha (doporučeno)")
+        print("2. Paper wallet") 
+        print("3. Obojí")
+        print("4. Přeskočit (NEBEZPEČNÉ!)")
+        print()
+        choice = input("Vyber možnost (1-4): ").strip()
+        if choice in ['1','3']:
+            password = input("Zadej silné heslo pro šifrování: ")
+            if len(password) < 12:
+                print("❌ Heslo musí mít alespoň 12 znaků!")
+                return
+            generator.create_encrypted_backup(password)
+        if choice in ['2','3']:
+            generator.create_paper_wallet()
+        if choice == '4':
+            print("⚠️  VAROVÁNÍ: Bez zálohy ztratíte přístup k premine adresám!")
+            confirm = input("Opravdu pokračovat bez zálohy? (yes/NO): ")
+            if confirm.lower() != 'yes':
+                return
+    else:
+        # Non-interactive backups
+        if args.backup in ("enc","both"):
+            if len(args.password) < 12:
+                print("❌ Pro šifrovanou zálohu je potřeba heslo (min 12 znaků) – použijte parametr --password")
+                return
+            generator.create_encrypted_backup(args.password)
+        if args.backup in ("paper","both"):
+            generator.create_paper_wallet()
+
     generator.security_checklist()
 
 if __name__ == "__main__":
