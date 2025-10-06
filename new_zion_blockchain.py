@@ -69,7 +69,7 @@ class NewZionBlockchain:
             },
             'ZION_MAITREYA_BUDDHA_D7A371ABD1FF1C5D42AB02AAE4F57': {
                 'purpose': 'Network Administrator',
-                'amount': 200_000_000,
+                'amount': 999_000_000,
                 'type': 'admin'
             },
             'ZION_ON_THE_STAR_0B461AB5BCACC40D1ECE95A2D82030': {
