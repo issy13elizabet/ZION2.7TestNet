@@ -1,0 +1,44 @@
+{
+  "blockchain": {
+    "enabled": true,
+    "log_level": "INFO",
+    "performance_profile": "balanced",
+    "auto_restart": true,
+    "health_check_interval": 30
+  },
+  "mining": {
+    "enabled": true,
+    "log_level": "INFO",
+    "performance_profile": "performance",
+    "auto_restart": true,
+    "health_check_interval": 10
+  },
+  "gpu_mining": {
+    "enabled": true,
+    "log_level": "INFO",
+    "performance_profile": "performance",
+    "auto_restart": true,
+    "health_check_interval": 15
+  },
+  "ai_afterburner": {
+    "enabled": true,
+    "log_level": "INFO",
+    "performance_profile": "balanced",
+    "auto_restart": true,
+    "health_check_interval": 20
+  },
+  "perfect_memory": {
+    "enabled": true,
+    "log_level": "INFO",
+    "performance_profile": "extreme",
+    "auto_restart": true,
+    "health_check_interval": 5
+  },
+  "network": {
+    "enabled": true,
+    "log_level": "WARNING",
+    "performance_profile": "balanced",
+    "auto_restart": true,
+    "health_check_interval": 60
+  }
+}

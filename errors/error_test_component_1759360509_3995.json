@@ -1,0 +1,15 @@
+{
+  "error_id": "test_component_1759360509_3995",
+  "component": "test_component",
+  "error_type": "ValueError",
+  "message": "Test error for error handler",
+  "severity": "ErrorSeverity.MEDIUM",
+  "timestamp": "2025-10-02 01:15:09.128883",
+  "stack_trace": "Traceback (most recent call last):\n  File \"/media/maitreya/ZION1/2.7/tests/comprehensive_test_suite.py\", line 434, in test_error_handling_system\n    raise ValueError(\"Test error for error handler\")\nValueError: Test error for error handler\n",
+  "context": {},
+  "recovery_attempts": 1,
+  "max_recovery_attempts": 3,
+  "recovery_strategy": "RecoveryStrategy.RETRY",
+  "resolved": false,
+  "resolution_time": null
+}

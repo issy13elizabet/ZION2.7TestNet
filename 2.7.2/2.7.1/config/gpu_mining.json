@@ -1,0 +1,44 @@
+{
+  "algorithms": ["kawpow", "octopus", "ethash"],
+  "pools": [
+    {
+      "url": "stratum+tcp://pool.ravenminer.com:3838",
+      "user": "R9VzJ1MzZDBHwfK4X8zN5oU5Q5j5j.worker",
+      "pass": "x"
+    }
+  ],
+  "gpu_settings": {
+    "intensity": 22,
+    "worksize": 16,
+    "threads": 1,
+    "platform": 1,
+    "core_clock_offset": 50,
+    "memory_clock_offset": 0,
+    "fan_speed_min": 70,
+    "fan_speed_max": 85
+  },
+  "gpu_types": {
+    "amd": {
+      "rx_5600_xt": {
+        "kawpow": {"intensity": 22, "worksize": 16, "threads": 1, "expected_hashrate": 28.0},
+        "octopus": {"intensity": 20, "worksize": 8, "threads": 1, "expected_hashrate": 52.0},
+        "ethash": {"intensity": 25, "worksize": 8, "threads": 1, "expected_hashrate": 78.0}
+      }
+    },
+    "nvidia": {
+      "rtx_30xx": {
+        "kawpow": {"intensity": 25, "worksize": 8, "threads": 2, "expected_hashrate": 35.0},
+        "octopus": {"intensity": 25, "worksize": 8, "threads": 2, "expected_hashrate": 65.0},
+        "ethash": {"intensity": 25, "worksize": 8, "threads": 2, "expected_hashrate": 95.0}
+      }
+    }
+  },
+  "auto_tune": true,
+  "optimal_algorithm": "kawpow",
+  "optimal_intensity": 22,
+  "gpu_platform": "amd",
+  "driver_requirements": {
+    "amd": "ROCm 5.4+ or AMDGPU-PRO",
+    "nvidia": "CUDA 11.8+"
+  }
+}

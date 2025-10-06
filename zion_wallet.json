@@ -1,0 +1,12 @@
+{
+  "version": "2.7.1",
+  "addresses": [
+    {
+      "address": "ZION_0254792844C2258398C0BCC84C832E9C",
+      "public_key": "382b734972c6763341f84104e7c8aef77b6c1ba2cb509345607694da941186ed",
+      "private_key": "94f8d009883e9d1b4240295fa3d2f118371935ae3b3629926b316821f5701f02",
+      "created_at": "2025-10-03T01:50:23.826164",
+      "label": "Default Address"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "height": 3,
+  "previous_hash": "0049be40b98fca19eb2a053e7a8d16de5e7688be31519cc0e726185a6100b38a",
+  "timestamp": 1759357020,
+  "miner": "ZIONSacredMiner123456789012345678901234567890",
+  "transactions": [
+    {
+      "id": "76eae708-e023-4cad-9c3a-8b1ef12f51e8",
+      "from_address": "ZIONGenesisAddress1234567890123456789012345678",
+      "to_address": "ZIONSacredMiner123456789012345678901234567890",
+      "amount": 1386857142856,
+      "timestamp": 1759357020,
+      "type": "mining_reward",
+      "config_type": "sacred",
+      "signature": "7cb1a39380a41791c114a16e65ed57990e1fbb2bf6c779a4b1eb4cadc6897067"
+    }
+  ],
+  "base_reward": 342857142857,
+  "ai_enhancement": 4.045,
+  "enhanced_reward": 1386857142856,
+  "mining_config": {
+    "type": "sacred",
+    "multiplier": 2.5,
+    "enhancement_factor": 4.045,
+    "sacred_geometry": true,
+    "consciousness_level": false
+  },
+  "nonce": 222,
+  "difficulty": 1300,
+  "version": "2.7-real-enhanced",
+  "sacred_mantras": "JAI RAM SITA HANUMAN",
+  "hash": "002b0ba0350f8314a473d3eb9e6357ba9ce4d2fb5dccc593d58d83fca309dcf9"
+}

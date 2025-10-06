@@ -1,0 +1,33 @@
+{
+  "height": 4,
+  "previous_hash": "002b0ba0350f8314a473d3eb9e6357ba9ce4d2fb5dccc593d58d83fca309dcf9",
+  "timestamp": 1759357020,
+  "miner": "ZIONQuantumMiner12345678901234567890123456789",
+  "transactions": [
+    {
+      "id": "294bca98-83d7-43d9-b2c0-8752963e92a1",
+      "from_address": "ZIONGenesisAddress1234567890123456789012345678",
+      "to_address": "ZIONQuantumMiner12345678901234567890123456789",
+      "amount": 1664228571427,
+      "timestamp": 1759357020,
+      "type": "mining_reward",
+      "config_type": "quantum",
+      "signature": "3bb62b9412ffb637592554b35c626fb45e5847b9f281fe766fc8303888216eb4"
+    }
+  ],
+  "base_reward": 342857142857,
+  "ai_enhancement": 4.853999999999999,
+  "enhanced_reward": 1664228571427,
+  "mining_config": {
+    "type": "quantum",
+    "multiplier": 3.0,
+    "enhancement_factor": 4.853999999999999,
+    "sacred_geometry": true,
+    "consciousness_level": false
+  },
+  "nonce": 70,
+  "difficulty": 1400,
+  "version": "2.7-real-enhanced",
+  "sacred_mantras": "ON THE STAR",
+  "hash": "00abb3d27ca6ebc18fa5b7267f044ee44bd7be6dfea7ac987514911a137d3910"
+}

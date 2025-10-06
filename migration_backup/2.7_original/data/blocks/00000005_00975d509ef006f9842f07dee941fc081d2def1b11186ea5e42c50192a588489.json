@@ -1,0 +1,33 @@
+{
+  "height": 5,
+  "previous_hash": "00abb3d27ca6ebc18fa5b7267f044ee44bd7be6dfea7ac987514911a137d3910",
+  "timestamp": 1759357020,
+  "miner": "ZIONCosmicMiner123456789012345678901234567890",
+  "transactions": [
+    {
+      "id": "5e916eed-fedd-493b-a5fe-7e1761384aa4",
+      "from_address": "ZIONGenesisAddress1234567890123456789012345678",
+      "to_address": "ZIONCosmicMiner123456789012345678901234567890",
+      "amount": 1098239999999,
+      "timestamp": 1759357020,
+      "type": "mining_reward",
+      "config_type": "cosmic",
+      "signature": "12e842c042b4be39725422acac2a01a94b431fdcc56af7cec9d7003dead7dd8e"
+    }
+  ],
+  "base_reward": 342857142857,
+  "ai_enhancement": 3.2031999999999994,
+  "enhanced_reward": 1098239999999,
+  "mining_config": {
+    "type": "cosmic",
+    "multiplier": 2.8,
+    "enhancement_factor": 3.2031999999999994,
+    "sacred_geometry": false,
+    "consciousness_level": true
+  },
+  "nonce": 142,
+  "difficulty": 1500,
+  "version": "2.7-real-enhanced",
+  "sacred_mantras": "OM NAMAH SHIVAYA",
+  "hash": "00975d509ef006f9842f07dee941fc081d2def1b11186ea5e42c50192a588489"
+}

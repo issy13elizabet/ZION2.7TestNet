@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.16)
+project(zion-miner LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_definitions(-DZION_VERSION="2.6.5")
+add_executable(zion-miner zion-miner-main.cpp zion-cosmic-harmony.cpp zion-gpu-miner-unified.cpp stratum_client.cpp zion-share-submitter.cpp)
+# TODO: link required libs (OpenSSL, blake3, tbb, gsl, fftw3, eigen, threads)

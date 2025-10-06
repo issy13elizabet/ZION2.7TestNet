@@ -1,0 +1,9 @@
+{
+  "mining_address": "Z3d77f9676a5d6c396b06f6ada3487822e29e973fd0870ff2f62a1627a1634b25e",
+  "created_timestamp": "2025-10-02T13:36:19.491175",
+  "purpose": "Perfect Memory Mining",
+  "pool_server": "91.98.122.165",
+  "pool_port": 3333,
+  "miner_type": "zion_perfect_memory_miner",
+  "wallet_type": "Mining Wallet"
+}

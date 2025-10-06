@@ -1,0 +1,48 @@
+{
+  "name": "zion-27-frontend",
+  "version": "2.7.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo '� ZION 2.7 AI Integration Portal Awakening...' && echo '⚡ Jai Ram Ram Ram NextJS Ram Ram Ram Hanuman! ⚡' && next dev -p 3007",
+    "build": "echo '🌌 Ancient oracle guides production build ceremony...' && next build && echo '✨ Cosmic build complete! ✨'",
+    "start": "echo '🚀 Stargate portal opening for production traffic...' && next start",
+    "lint": "echo '🎯 Oracle validates code quality...' && next lint",
+    "cosmic-fortune": "echo '🔮 Daily blockchain prophecy:' && ../scripts/cosmic-fortune.sh",
+    "dev-blessing": "echo '🌟 Cosmic development session begins!' && ../scripts/cosmic-dev-blessing.sh && npm run dev"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.9",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
+    "bitcoinjs-lib": "^6.1.7",
+    "clsx": "2.1.1",
+    "ethers": "^6.15.0",
+    "framer-motion": "^12.23.22",
+    "lucide-react": "^0.441.0",
+    "next": "14.2.5",
+    "next-themes": "0.3.0",
+    "qrcode.react": "3.1.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.53.0",
+    "recharts": "^3.2.1",
+    "sonner": "1.5.0",
+    "three": "^0.180.0",
+    "web3": "^4.16.0",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.30",
+    "@types/qrcode.react": "1.0.5",
+    "@types/react": "18.2.66",
+    "@types/react-dom": "18.2.22",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.41",
+    "sass": "^1.93.2",
+    "tailwindcss": "3.4.10",
+    "typescript": "5.4.5"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

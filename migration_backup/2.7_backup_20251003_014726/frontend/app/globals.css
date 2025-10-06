@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 255 255 255;
+  --fg: 15 23 42;
+  --cosmic-gold: 255 215 0;
+  --cosmic-violet: 153 51 255;
+  --cosmic-green: 0 255 102;
+  --cosmic-accent: 0 255 65;
+}
+
+.dark {
+  --bg: 2 6 23;
+  --fg: 203 213 225;
+}
+
+html, body { height: 100%; }
+
+/* Global Nebula background across the dApp */
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--fg));
+  /* Sacred background tint that works with ThemeShell layers */
+  background-image: radial-gradient(circle at 25% 25%, rgba(var(--cosmic-gold), 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(var(--cosmic-violet), 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(var(--cosmic-green), 0.04) 0%, transparent 70%);
+  background-attachment: fixed;
+}
+
+.matrix-title { @apply font-bold tracking-widest text-green-400 drop-shadow-[0_0_8px_rgba(58,235,137,0.3)]; }
+.card { @apply rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900; }
+.button { @apply inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 active:scale-[.99] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100; }
+.button.primary { @apply border-green-600 bg-green-600 text-white hover:bg-green-700; }
+.input { @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500; }
+.badge { @apply inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200; }
+.table { @apply w-full text-sm; }
+.table th { @apply text-left font-semibold text-slate-600 dark:text-slate-300; }
+.table td { @apply align-top text-slate-800 dark:text-slate-100; }
+
+.button {
+  @apply inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 active:scale-[.99];
+}
+.button.primary {
+  @apply border-green-500 bg-green-500 text-white hover:bg-green-600;
+}
+.input {
+  @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500/40;
+}
+.card {
+  @apply rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm;
+}
+.badge {
+  @apply inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700;
+}
+.table {
+  @apply w-full text-sm;
+}
+.table th {
+  @apply text-left font-semibold text-slate-600;
+}
+.table td {
+  @apply align-top text-slate-800;
+}
+
+/* Sacred utility tokens shared across the app */
+.sacred-title { @apply font-bold tracking-widest; text-shadow: 0 0 10px rgba(255,215,0,0.25); }
+.sacred-gradient-text { background: linear-gradient(45deg, #FFD700, #9933FF, #00FF66); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.panel {
+  background: rgba(0,0,0,0.8);
+  border: 2px solid rgba(255,215,0,0.3);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.panel.violet { border-color: rgba(153,51,255,0.35); }
+.status-bar {
+  background: rgba(0,0,0,0.85);
+  border: 2px solid rgba(0,255,102,0.4);
+  border-radius: 24px;
+  padding: 8px 16px;
+}
+.glow { box-shadow: 0 0 24px rgba(0,255,102,0.2), inset 0 0 24px rgba(0,255,102,0.08); }
+.vr-pill { background: rgba(255, 99, 0, 0.9); color: #fff; border-radius: 18px; padding: 6px 12px; font-weight: 700; font-size: 12px; }
+
+/* Subliminal floating text effect */
+@keyframes zionFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.06; }
+  50% { transform: translateY(-10px) scale(1.02); opacity: 0.1; }
+}
+.zion-subliminal-root { mix-blend-mode: normal; }
+.zion-subliminal-item { text-shadow: 0 0 20px rgba(255, 255, 255, 0.08); }

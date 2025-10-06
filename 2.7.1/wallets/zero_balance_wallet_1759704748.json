@@ -1,0 +1,19 @@
+{
+  "name": "zero_balance_wallet_1759704748",
+  "label": "Zero Balance Test Wallet",
+  "created_at": "2025-10-06T00:52:28.986533",
+  "version": "2.7.1",
+  "addresses": [
+    {
+      "address": "ZION_FEF0F46606C871F962B45779FA828BC2",
+      "public_key": "13b4f41c9dda7de0cef5236729ecbd7b9bf7d5d0529fd291e96d1815400bdf8e",
+      "private_key": "95de50cca0fdd89892ce962335f50e9146956902885f90c8c956d62ee0b86883",
+      "label": "Primary Address",
+      "created_at": "2025-10-06T00:52:28.986545",
+      "balance": 0
+    }
+  ],
+  "total_balance": 0,
+  "transaction_count": 0,
+  "encrypted": false
+}

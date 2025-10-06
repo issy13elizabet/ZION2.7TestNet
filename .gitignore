@@ -144,3 +144,51 @@ tmp/
 # Files containing only [REDACTED] or placeholders are OK
 # Demo/example files with fake data are OK
 # Documentation files are OK
+
+# BEZPEČNOSTNÍ ZÁKAZ - PRIVATE KEYS A ZÁLOHY
+# ==========================================
+
+# Všechny private keys a mnemonic zálohy
+*private_key*
+*mnemonic*
+*paper_wallet*
+*backup*backup*
+*premine_backup*
+
+# Wallet soubory s private keys
+*keystore*
+seed.txt
+recovery.txt
+
+# Old local data - keep local only
+ZION VOL 30.9/
+
+# Large data files - keep local only
+2.7/data/perfect_memory.dat
+2.7/data/*.db
+.env.local
+
+# Mining binaries
+mining/*/
+legacy/miners/*/
+
+# Docker volumes and cache
+.docker/
+docker-volumes/
+
+# Temporary files
+randomx-build/
+
+# Binary files
+*.exe
+*.dll
+*.dylib
+
+# Blockchain data
+blockchain/
+chaindata/
+
+# Large files
+*.tar.gz
+*.zip
+*.7z

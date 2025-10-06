@@ -1,0 +1,21 @@
+{
+  "cpu_threads": 11,
+  "cpu_affinity": [],
+  "cpu_priority": "normal",
+  "memory_limit_mb": 0,
+  "cache_size_mb": 1024,
+  "memory_pool_size": 1024,
+  "gpu_enabled": true,
+  "gpu_intensity": 0.8,
+  "gpu_memory_limit": 0.9,
+  "gpu_temperature_limit": 85,
+  "mining_threads": 4,
+  "mining_intensity": "auto",
+  "randomx_cache_size": 2048,
+  "ai_batch_size": 32,
+  "ai_model_precision": "float32",
+  "ai_inference_threads": 4,
+  "max_connections": 50,
+  "connection_timeout": 30,
+  "keepalive_interval": 60
+}

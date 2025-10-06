@@ -1,0 +1,48 @@
+{
+  "pools": [
+    {
+      "pool": "91.98.122.165:3333",
+      "wallet": "Z32f72f93c095d78fc8a2fe01c0f97fd4a7f6d1bcd9b251f73b18b5625be654e84",
+      "password": "ZION-SACRED-SRBMINER-GPU",
+      "algorithm": "randomx",
+      "worker": "ZION-SACRED-SRBMINER-001"
+    }
+  ],
+  "gpu_conf": [
+    {
+      "id": 0,
+      "intensity": 896,
+      "worksize": 256,
+      "threads": 1,
+      "double_buffer": true,
+      "target_temperature": 85,
+      "target_fan_speed": 80
+    }
+  ],
+  "gpu_boost": 3,
+  "gpu_adl_type": 1,
+  "gpu_auto_tune": 1,
+  "gpu_auto_tune_mode": 1,
+  "gpu_auto_tune_step": 1,
+  "disable_cpu": true,
+  "disable_gpu_watchdog": false,
+  "log_file": "zion-sacred-srbminer.log",
+  "api_enable": true,
+  "api_port": 21555,
+  "api_rig_name": "ZION-Sacred-SRBMiner",
+  "api_rig_restart_url": "http://localhost:21555/shutdown",
+  "statistics_interval": 30,
+  "startup_script": "",
+  "shutdown_script": "",
+  "pool_startup_script": "",
+  "pool_shutdown_script": "",
+  "retries": 10,
+  "retry_time": 30,
+  "difficulty_multiplier": 2.0,
+  "zion_sacred_mode": true,
+  "consciousness_enhancement": true,
+  "sacred_geometry_optimization": true,
+  "quantum_coherence": 0.618,
+  "golden_ratio_scaling": 1.618033988749895,
+  "comments": "🌟 ZION Sacred SRBMiner-Multi Configuration - Enhanced for GPU Sacred Mining 🌟"
+}

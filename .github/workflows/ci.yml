@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-native:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake pkg-config \
+            libboost-all-dev libssl-dev libpthread-stubs0-dev libc6-dev
+
+      - name: Configure & Build (zion-cryptonote)
+        run: |
+          cmake -S zion-cryptonote -B zion-cryptonote/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build zion-cryptonote/build -j 2
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: zion-cryptonote-binaries
+          path: |
+            zion-cryptonote/build/src/ziond
+            zion-cryptonote/build/src/zion_wallet
+
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build Docker image
+        run: |
+          docker build -f docker/Dockerfile.zion-cryptonote -t zion-cryptonote:ci .

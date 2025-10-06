@@ -1,0 +1,28 @@
+{
+  "pool_host": "localhost",
+  "pool_port": 4444,
+  "wallet_address": "ZioniXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "threads": null,
+  "eco_mode": true,
+  "log_level": "INFO",
+  
+  "mining_config": {
+    "difficulty": 8000,
+    "power_target": 80.0,
+    "eco_bonus": 1.15,
+    "stats_interval": 30
+  },
+  
+  "pool_config": {
+    "retry_attempts": 3,
+    "connection_timeout": 10,
+    "submit_timeout": 5
+  },
+  
+  "comments": {
+    "wallet_address": "Replace with your ZION wallet address",
+    "threads": "null = auto-detect optimal threads",
+    "eco_mode": "true = +15% bonus for energy efficiency",
+    "pool_host": "Change to your pool server IP/domain"
+  }
+}

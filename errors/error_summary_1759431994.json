@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-10-02T21:06:34.052966",
+  "total_errors": 0,
+  "component_health": {
+    "hybrid_algorithm": {
+      "component": "hybrid_algorithm",
+      "state": "ComponentState.HEALTHY",
+      "last_heartbeat": "2025-10-02 21:06:33.941146",
+      "error_count": 0,
+      "warning_count": 0,
+      "uptime": 0,
+      "performance_score": 1.0,
+      "resource_usage": {},
+      "last_error": null
+    }
+  },
+  "recent_errors": []
+}

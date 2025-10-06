@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ancient Arrow">
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <g fill="#E7C34E">
+    <polygon points="256,80 286,160 236,160"/>
+    <rect x="246" y="160" width="20" height="240"/>
+    <polygon points="256,432 216,372 296,372"/>
+  </g>
+</svg>

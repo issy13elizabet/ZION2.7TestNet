@@ -1,0 +1,25 @@
+# ZION 2.7.1 ASIC-Resistant Blockchain Requirements
+# Pure Argon2 mining for maximum decentralization
+
+# Core dependencies
+argon2-cffi>=23.1.0        # ASIC-resistant Argon2 password hashing
+pycryptodome>=3.19.0       # Cryptographic primitives
+cryptography>=41.0.0       # Advanced cryptographic library for wallet encryption
+typing-extensions>=4.5.0    # Type hints support
+
+# Development and testing
+pytest>=7.4.0              # Testing framework
+pytest-asyncio>=0.21.0     # Async testing support
+
+# Optional: For future enhancements
+# requests>=2.31.0         # HTTP client (for future P2P features)
+# aiohttp>=3.8.0           # Async HTTP (for future network features)
+
+# Platform-specific notes:
+# - macOS: Install via pip (works with Apple Silicon)
+# - Linux: Install via pip or system package manager
+# - Windows: Install via pip
+#
+# ASIC Resistance: This setup ensures mining power correlates
+# directly with CPU performance, preventing ASIC centralization.fastapi>=0.104.0
+uvicorn>=0.24.0

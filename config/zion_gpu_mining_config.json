@@ -1,0 +1,272 @@
+{
+  "zion_mining_config": {
+    "version": "2.7.1",
+    "network": {
+      "mode": "testnet",
+      "node_port": 19933,
+      "rpc_port": 19934,
+      "max_connections": 50,
+      "enable_upnp": true
+    },
+    "mining": {
+      "enabled": true,
+      "algorithm": "zion_hybrid_pow",
+      "difficulty_adjustment": "automatic",
+      "block_time_target_seconds": 120,
+      "miner_address": "ZiON_REPLACE_WITH_YOUR_ADDRESS",
+      "threads": "auto",
+      "cpu_affinity": "auto",
+      "memory_pool_size_mb": 4096,
+      "enable_optimizations": true
+    },
+    "gpu_mining": {
+      "enabled": true,
+      "auto_detect": true,
+      "preferred_gpu": "auto",
+      "nvidia": {
+        "enabled": true,
+        "devices": ["auto"],
+        "cuda_streams": 4,
+        "memory_usage_percent": 85,
+        "power_limit_percent": 90,
+        "temperature_limit_celsius": 83,
+        "fan_speed_percent": "auto",
+        "compute_capability_required": "5.0",
+        "optimization_flags": [
+          "--use_fast_math",
+          "--maxrregcount=64",
+          "--ptxas-options=-v"
+        ]
+      },
+      "amd": {
+        "enabled": true,
+        "devices": ["auto"],
+        "rocm_version": "auto",
+        "memory_usage_percent": 80,
+        "power_limit_percent": 85,
+        "temperature_limit_celsius": 90,
+        "fan_speed_percent": "auto",
+        "compute_units": "auto",
+        "wavefronts": "auto",
+        "optimization_flags": [
+          "-cl-fast-relaxed-math",
+          "-cl-mad-enable"
+        ]
+      },
+      "intel": {
+        "enabled": false,
+        "devices": ["auto"],
+        "memory_usage_percent": 70,
+        "compute_units": "auto"
+      }
+    },
+    "cpu_mining": {
+      "enabled": true,
+      "fallback_when_gpu_unavailable": true,
+      "threads": "auto",
+      "thread_priority": "normal",
+      "cpu_features": {
+        "use_sse4": true,
+        "use_avx": true,
+        "use_avx2": true,
+        "use_sha": true,
+        "use_aes": true
+      },
+      "memory_usage_mb": 2048,
+      "cache_optimization": true
+    },
+    "performance": {
+      "monitoring": {
+        "enabled": true,
+        "update_interval_seconds": 10,
+        "log_performance_stats": true,
+        "alert_on_low_hashrate": true,
+        "hashrate_threshold_percent": 80
+      },
+      "auto_tuning": {
+        "enabled": true,
+        "learning_period_minutes": 30,
+        "adjust_threads": true,
+        "adjust_memory": true,
+        "adjust_gpu_settings": false
+      },
+      "power_management": {
+        "enable_power_saving": false,
+        "reduce_performance_on_battery": true,
+        "temperature_throttling": true,
+        "emergency_shutdown_temperature": 95
+      }
+    },
+    "ai_integration": {
+      "enabled": true,
+      "quantum_engine": {
+        "enabled": false,
+        "safe_mode": true,
+        "fallback_to_classical": true
+      },
+      "components": {
+        "lightning_ai": {
+          "enabled": true,
+          "network_optimization": true,
+          "routing_enhancement": true
+        },
+        "bio_ai": {
+          "enabled": true,
+          "mining_evolution": true,
+          "adaptive_algorithms": true
+        },
+        "music_ai": {
+          "enabled": true,
+          "harmonic_mining": true,
+          "frequency_optimization": true
+        },
+        "cosmic_ai": {
+          "enabled": true,
+          "consciousness_integration": false,
+          "stellar_navigation": true
+        }
+      },
+      "orchestrator": {
+        "coordination_enabled": true,
+        "cross_component_optimization": true,
+        "learning_rate": 0.001,
+        "memory_limit_mb": 1024
+      }
+    },
+    "pool_mining": {
+      "enabled": false,
+      "pools": [
+        {
+          "name": "ZION Official Pool",
+          "url": "stratum+tcp://pool.zion.network:4444",
+          "backup_url": "stratum+tcp://backup.pool.zion.network:4444",
+          "username": "ZiON_MINER_ADDRESS",
+          "password": "x",
+          "priority": 1,
+          "keep_alive": true,
+          "retry_pause": 5
+        }
+      ],
+      "failover": {
+        "enabled": true,
+        "switch_threshold_failures": 3,
+        "retry_primary_interval_minutes": 10
+      },
+      "difficulty": {
+        "start_difficulty": "auto",
+        "minimum_difficulty": 1000,
+        "maximum_difficulty": 1000000,
+        "retarget_time": 15
+      }
+    },
+    "security": {
+      "encryption": {
+        "enabled": true,
+        "algorithm": "AES-256-GCM",
+        "key_derivation": "PBKDF2"
+      },
+      "authentication": {
+        "required": false,
+        "method": "token_based"
+      },
+      "network_security": {
+        "enable_ssl": false,
+        "verify_certificates": true,
+        "allowed_ips": ["*"],
+        "banned_ips": []
+      }
+    },
+    "logging": {
+      "level": "INFO",
+      "file": "zion_mining.log",
+      "max_file_size_mb": 100,
+      "max_files": 5,
+      "console_output": true,
+      "detailed_gpu_logs": false,
+      "benchmark_logging": true
+    },
+    "advanced": {
+      "memory_management": {
+        "use_huge_pages": false,
+        "memory_lock": false,
+        "preload_datasets": true,
+        "garbage_collection_interval": 300
+      },
+      "network_optimization": {
+        "tcp_nodelay": true,
+        "keep_alive": true,
+        "buffer_size_kb": 64,
+        "compression": false
+      },
+      "experimental": {
+        "enable_quantum_features": false,
+        "use_machine_learning_optimization": true,
+        "enable_adaptive_difficulty": false,
+        "use_sacred_geometry_enhancement": false
+      }
+    }
+  },
+  "hardware_profiles": {
+    "high_end_nvidia": {
+      "description": "RTX 4090, RTX 4080, RTX 3090, RTX 3080",
+      "settings": {
+        "threads": 8,
+        "memory_usage_percent": 90,
+        "power_limit_percent": 95,
+        "cuda_streams": 6
+      }
+    },
+    "mid_range_nvidia": {
+      "description": "RTX 4070, RTX 3070, RTX 2080",
+      "settings": {
+        "threads": 6,
+        "memory_usage_percent": 85,
+        "power_limit_percent": 90,
+        "cuda_streams": 4
+      }
+    },
+    "budget_nvidia": {
+      "description": "RTX 4060, RTX 3060, GTX 1660",
+      "settings": {
+        "threads": 4,
+        "memory_usage_percent": 80,
+        "power_limit_percent": 85,
+        "cuda_streams": 2
+      }
+    },
+    "high_end_amd": {
+      "description": "RX 7900 XTX, RX 7900 XT, RX 6900 XT",
+      "settings": {
+        "threads": 8,
+        "memory_usage_percent": 85,
+        "power_limit_percent": 90,
+        "wavefronts": 64
+      }
+    },
+    "mid_range_amd": {
+      "description": "RX 7800 XT, RX 6800 XT, RX 6700 XT",
+      "settings": {
+        "threads": 6,
+        "memory_usage_percent": 80,
+        "power_limit_percent": 85,
+        "wavefronts": 32
+      }
+    },
+    "budget_amd": {
+      "description": "RX 7600, RX 6600, RX 5700",
+      "settings": {
+        "threads": 4,
+        "memory_usage_percent": 75,
+        "power_limit_percent": 80,
+        "wavefronts": 16
+      }
+    }
+  },
+  "benchmarks": {
+    "enable_startup_benchmark": true,
+    "benchmark_duration_seconds": 60,
+    "auto_select_optimal_settings": true,
+    "save_benchmark_results": true,
+    "share_anonymous_stats": false
+  }
+}
