@@ -1,4 +1,19 @@
-# ZION 2.7.4 - NOVÝ BLOCKCHAIN S NOVÝMI PREMINE ADRESAMI
+# ZION 2.7.4 - NOVÝ BL### 🏢 **Development & Infrastructure (3.44 miliard ZION)**
+6. **Development Team Fund**: `ZION_DEVELOPMENT_TEAM_FUND_378614887FEA27791540F45...`
+   - Částka: 1,440,000,000 ZION
+   
+7. **Network Infrastructure (SITA)**: `ZION_NETWORK_INFRASTRUCTURE_SITA_B5F3BE9968A1D90...`
+   - Částka: 999,000,000 ZION
+   
+8. **Children Future Fund**: `ZION_CHILDREN_FUTURE_FUND_1ECCB72BC30AADD086656A59...`
+   - Částka: 999,000,000 ZION
+
+### 👑 **Administration (1.33 miliard ZION)**
+9. **Network Administrator**: `ZION_MAITREYA_BUDDHA_D7A371ABD1FF1C5D42AB02AAE4F57...`
+   - Částka: 999,000,000 ZION
+   
+10. **Genesis Reward**: `ZION_ON_THE_STAR_0B461AB5BCACC40D1ECE95A2D82030...`
+    - Částka: 333,000,000 ZIONI PREMINE ADRESAMI
 
 ## 🎉 NOVĚ VYGENEROVANÉ PREMINE ADRESY
 
@@ -30,9 +45,9 @@ Dne **6. října 2025** byly vygenerovány zcela nové premine adresy pro ZION b
 8. **Children Future Fund**: `ZION_CHILDREN_FUTURE_FUND_1ECCB72BC30AADD086656A59...`
    - Částka: 1,000,000,000 ZION
 
-### 👑 **Administration (400 milionů ZION)**
+### 👑 **Administration (1.4 miliardy ZION)**
 9. **Network Administrator**: `ZION_MAITREYA_BUDDHA_D7A371ABD1FF1C5D42AB02AAE4F57...`
-   - Částka: 200,000,000 ZION
+   - Částka: 1,200,000,000 ZION
    
 10. **Genesis Reward**: `ZION_ON_THE_STAR_0B461AB5BCACC40D1ECE95A2D82030...`
     - Částka: 200,000,000 ZION
@@ -43,12 +58,13 @@ Dne **6. října 2025** byly vygenerovány zcela nové premine adresy pro ZION b
 
 | Kategorie | Částka (ZION) | Procenta |
 |-----------|----------------|----------|
-| Mining Operators | 10,000,000,000 | 69.7% |
-| Development Fund | 2,142,857,142 | 14.9% |
-| Infrastructure | 1,000,000,000 | 7.0% |
-| Charity Fund | 1,000,000,000 | 7.0% |
-| Administration | 400,000,000 | 2.8% |
-| **CELKEM** | **14,542,857,142** | **100%** |
+| Mining Operators | 10,000,000,000 | 67.7% |
+| Development Fund | 1,440,000,000 | 9.7% |
+| SITA Infrastructure | 999,000,000 | 6.8% |
+| Children Fund | 999,000,000 | 6.8% |
+| Administrator | 999,000,000 | 6.8% |
+| Genesis Reward | 333,000,000 | 2.3% |
+| **CELKEM** | **14,770,000,000** | **100%** |
 
 ---
 
@@ -79,7 +95,7 @@ python3 new_zion_blockchain.py
 - **Genesis Block Hash**: `0000d2a0180ea43ac681d0c61b91be5b...`
 - **Mining Difficulty**: 4 (čtyři leading zeros)
 - **Block Reward**: 50 ZION
-- **Total Supply**: 14,542,857,142+ ZION (premine + mining rewards)
+- **Total Supply**: 14,770,000,000+ ZION (premine + mining rewards)
 
 ---
 
@@ -96,12 +112,38 @@ python3 new_zion_blockchain.py
 
 ## 📅 **CHANGELOG**
 
-### 2025-10-06 - ZION 2.7.4 NEW ADDRESSES
+### 2025-10-06 - ZION 2.7.4 NEW ADDRESSES & FUND OPTIMIZATION
 - ✅ Vygenerovány nové premine adresy
 - ✅ Vytvořen nový genesis block
 - ✅ Testovány transakce a mining
 - ✅ Kompletní bezpečnostní audit
+- ✅ **FUND UPGRADES:**
+  - 👑 Administrator: 200M → 999M ZION (+799M)
+  - ⭐ Genesis Reward: 200M → 333M ZION (+133M)
+  - 💻 Development Team: 2.14B → 1.44B ZION (-702M optimalizace)
+  - 🌐 SITA Infrastructure: 1B → 999M ZION (-1M)
+  - 👶 Children Fund: 1B → 999M ZION (-1M)
 - ✅ Připraveno pro produkční nasazení
+
+---
+
+## 🔄 **FUND UPGRADE HISTORY**
+
+### 📈 **Provedené změny (6. října 2025):**
+
+| Fond | Původní | Nová částka | Změna | Důvod |
+|------|---------|-------------|--------|-------|
+| 👑 Administrator | 200M | **999M** | +799M (+399%) | Posílení network management |
+| ⭐ Genesis Reward | 200M | **333M** | +133M (+66.5%) | Symbolické číslo 333 |
+| 💻 Development Team | 2.14B | **1.44B** | -702M (-33%) | Optimalizace rozpočtu |
+| 🌐 SITA Infrastructure | 1B | **999M** | -1M (-0.1%) | Krásné kulaté číslo |
+| 👶 Children Fund | 1B | **999M** | -1M (-0.1%) | Krásné kulaté číslo |
+
+### 🎯 **Výsledek upgradů:**
+- **Třikrát 999M**: Administrator, SITA, Children (krásná symetrie)
+- **Symbolické 333M**: Genesis Reward (magické číslo)
+- **Optimalizované 1.44B**: Development Team (efektivní rozpočet)
+- **Total premine**: 14.77 miliard ZION (kulaté číslo)
 
 ---
 
