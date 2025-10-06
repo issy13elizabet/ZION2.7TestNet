@@ -59,12 +59,12 @@ class NewZionBlockchain:
             },
             'ZION_NETWORK_INFRASTRUCTURE_SITA_B5F3BE9968A1D90': {
                 'purpose': 'Network Infrastructure (SITA)',
-                'amount': 1_000_000_000,
+                'amount': 999_000_000,
                 'type': 'infrastructure'
             },
             'ZION_CHILDREN_FUTURE_FUND_1ECCB72BC30AADD086656A59': {
                 'purpose': 'Children Future Fund',
-                'amount': 1_000_000_000,
+                'amount': 999_000_000,
                 'type': 'charity'
             },
             'ZION_MAITREYA_BUDDHA_D7A371ABD1FF1C5D42AB02AAE4F57': {
