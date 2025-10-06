@@ -1,0 +1,55 @@
+{
+  "humanitarian_percentage": 0.1,
+  "projects": [
+    {
+      "id": "forest_restoration",
+      "name": "🌲 Zalesňování pralesů",
+      "description": "Obnova tropických pralesů a ochrana biodiverzity",
+      "wallet_address": "ZION1ForestRestoration2024HumanitarianProject",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "164.00000000",
+      "last_payout": "2025-10-06T00:11:38.895060+00:00"
+    },
+    {
+      "id": "ocean_cleanup",
+      "name": "🌊 Vyčištění oceánů",
+      "description": "Odstranění plastů z oceánů a ochrana mořského života",
+      "wallet_address": "ZION1OceanCleanup2024EnvironmentalProtection",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "164.00000000",
+      "last_payout": "2025-10-06T00:11:38.895079+00:00"
+    },
+    {
+      "id": "humanitarian_aid",
+      "name": "❤️ Humanitární pomoc",
+      "description": "Pomoc potřebným komunitám po celém světě",
+      "wallet_address": "ZION1HumanitarianAid2024GlobalCommunitySupport",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "164.00000000",
+      "last_payout": "2025-10-06T00:11:38.895095+00:00"
+    },
+    {
+      "id": "space_program",
+      "name": "🚀 Space program",
+      "description": "Výzkum vesmíru a technologický rozvoj pro lidstvo",
+      "wallet_address": "ZION1SpaceProgram2024CosmicExplorationFund",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "164.00000000",
+      "last_payout": "2025-10-06T00:11:38.895111+00:00"
+    },
+    {
+      "id": "dharma_development",
+      "name": "🕉️ Dharma vývoj",
+      "description": "Zahrada v Portugalsku s Triple pyramid a La Palma Dharma Temple se stromem Bodhi",
+      "wallet_address": "ZION1DharmaDevelopment2024SacredGardenPortugal",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "164.00000000",
+      "last_payout": "2025-10-06T00:11:38.895128+00:00"
+    }
+  ]
+}

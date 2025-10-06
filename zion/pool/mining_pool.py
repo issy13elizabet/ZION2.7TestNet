@@ -1,6 +1,7 @@
 """
 ZION Enhanced Mining Pool - Advanced Stratum server with share validation
 Production-ready mining pool with real-time statistics and payout system
+Includes 10% humanitarian distribution to 5 global projects
 """
 
 import asyncio
@@ -22,6 +23,18 @@ from decimal import Decimal
 import secrets
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
+import sys
+import os
+
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
+try:
+    from mining.humanitarian_distribution import get_humanitarian_distributor
+    HUMANITARIAN_AVAILABLE = True
+except ImportError:
+    HUMANITARIAN_AVAILABLE = False
 
 
 class StratumMessageType(Enum):
@@ -100,6 +113,17 @@ class ZionMiningPool:
         self.web_port = web_port
         self.pool_fee = pool_fee / 100.0  # Convert to decimal
         self.min_payout = min_payout
+        
+        # Humanitarian distribution (10% of all rewards)
+        self.humanitarian_enabled = HUMANITARIAN_AVAILABLE
+        self.humanitarian_distributor = None
+        if self.humanitarian_enabled:
+            try:
+                self.humanitarian_distributor = get_humanitarian_distributor()
+                self.logger.info("🌟 Humanitarian distribution system initialized")
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize humanitarian distributor: {e}")
+                self.humanitarian_enabled = False
         
         # Pool state
         self.miners: Dict[str, MinerConnection] = {}
@@ -708,7 +732,7 @@ class ZionMiningPool:
         return 0.0
     
     async def _process_block_found(self, share: ShareSubmission, miner: MinerConnection):
-        """Process found block"""
+        """Process found block with humanitarian distribution"""
         try:
             self.blocks_found += 1
             self.pool_stats['blocks_found'] += 1
@@ -717,17 +741,48 @@ class ZionMiningPool:
             # Submit block to network
             # TODO: Implement actual block submission
             
+            # Calculate block reward (example: 1000 ZION per block)
+            block_reward = Decimal('1000.0')
+            
+            # Process humanitarian distribution if enabled
+            humanitarian_report = None
+            if self.humanitarian_enabled and self.humanitarian_distributor:
+                try:
+                    humanitarian_report = await self.humanitarian_distributor.distribute_rewards(
+                        block_reward, 
+                        share.block_height
+                    )
+                    self.logger.info(
+                        f"🌟 Humanitarian distribution: {humanitarian_report['total_distributed']} ZION "
+                        f"to {len(humanitarian_report['distributions'])} projects"
+                    )
+                except Exception as e:
+                    self.logger.error(f"Humanitarian distribution failed: {e}")
+            
             # Update statistics
             if self.redis_client:
                 await self.redis_client.incr("zion_pool:blocks_found")
-                await self.redis_client.set(f"zion_pool:last_block", json.dumps({
+                block_data = {
                     'height': share.block_height,
                     'hash': share.result_hash,
                     'miner': miner.username,
-                    'timestamp': share.timestamp
-                }))
+                    'timestamp': share.timestamp,
+                    'reward': str(block_reward),
+                    'humanitarian_distributed': str(humanitarian_report['total_distributed']) if humanitarian_report else '0'
+                }
+                await self.redis_client.set(f"zion_pool:last_block", json.dumps(block_data))
+                
+                # Store humanitarian report if available
+                if humanitarian_report:
+                    await self.redis_client.set(
+                        f"zion_pool:humanitarian_report:{share.block_height}", 
+                        json.dumps(humanitarian_report)
+                    )
             
-            self.logger.info(f"Block {share.block_height} found by {miner.username[:20]}...")
+            self.logger.info(
+                f"🎉 Block {share.block_height} found by {miner.username[:20]}... "
+                f"Reward: {block_reward} ZION"
+            )
             
         except Exception as e:
             self.logger.error(f"Block processing error: {e}")

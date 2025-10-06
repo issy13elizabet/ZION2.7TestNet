@@ -2,11 +2,13 @@
 """
 ZION 2.7.1 ASIC-Resistant Mining Configuration
 Supports multiple algorithms for flexibility while maintaining ASIC resistance
+Includes humanitarian distribution system (10% of rewards)
 """
 
 import os
 from typing import Dict, Any, Optional
 from mining.algorithms import AlgorithmFactory, verify_asic_resistance
+from mining.humanitarian_distribution import get_humanitarian_distributor
 
 class MiningConfig:
     """
@@ -36,16 +38,29 @@ class MiningConfig:
             'pool_host': 'localhost',
             'pool_ports': {
                 'argon2': 3333,
-                'kawpow': 3334,
-                'ethash': 3335,
-                'cryptonight': 3336,
-                'octopus': 3337,
-                'ergo': 3338
+                'yescrypt': 3334,
+                'autolykos2': 3335,
+                'kawpow': 3336,
+                'ethash': 3337,
+                'cryptonight': 3338,
+                'octopus': 3339,
+                'ergo': 3340
+            },
+            
+            # Humanitarian distribution (10% of all rewards)
+            'humanitarian_enabled': True,
+            'humanitarian_percentage': 0.10,  # 10% of mining rewards
+            'humanitarian_projects': {
+                'forest_restoration': 0.02,    # 2% total (20% of humanitarian fund)
+                'ocean_cleanup': 0.02,         # 2% total (20% of humanitarian fund)
+                'humanitarian_aid': 0.02,      # 2% total (20% of humanitarian fund)
+                'space_program': 0.02,         # 2% total (20% of humanitarian fund)
+                'dharma_development': 0.02     # 2% total (20% of humanitarian fund)
             },
 
             # ASIC resistance settings
             'asic_resistance_enforced': True,
-            'allowed_algorithms': ['argon2', 'cryptonight', 'ergo', 'kawpow', 'ethash', 'octopus'],
+            'allowed_algorithms': ['argon2', 'yescrypt', 'autolykos2', 'cryptonight', 'ergo', 'kawpow', 'ethash', 'octopus'],
             'blocked_algorithms': ['sha256', 'scrypt'],
 
             # GPU mining settings
@@ -138,6 +153,18 @@ class MiningConfig:
     def get_pool_port(self, algorithm: str) -> int:
         """Get pool port for algorithm"""
         return self._config['pool_ports'].get(algorithm.lower(), 3333)
+    
+    def get_humanitarian_distributor(self):
+        """Get humanitarian distribution system"""
+        return get_humanitarian_distributor()
+    
+    def is_humanitarian_enabled(self) -> bool:
+        """Check if humanitarian distribution is enabled"""
+        return self._config.get('humanitarian_enabled', True)
+    
+    def get_humanitarian_percentage(self) -> float:
+        """Get humanitarian distribution percentage"""
+        return self._config.get('humanitarian_percentage', 0.10)
 
     def print_config_summary(self) -> None:
         """Print configuration summary"""
@@ -149,6 +176,15 @@ class MiningConfig:
         print(f"Pool Host: {self._config['pool_host']}")
         print(f"Block Time: {self._config['block_time']}s")
         print(f"Max Threads: {self._config['max_threads']}")
+        
+        # Humanitarian info
+        if self.is_humanitarian_enabled():
+            print(f"\n🌟 Humanitarian Distribution: {self.get_humanitarian_percentage() * 100}%")
+            distributor = self.get_humanitarian_distributor()
+            for project in distributor.projects:
+                if project.active:
+                    total_pct = self.get_humanitarian_percentage() * project.percentage / 100.0 * 100
+                    print(f"  {project.name}: {total_pct:.1f}% of total rewards")
 
         print("\n📊 Available Algorithms:")
         categories = self.get_algorithm_categories()

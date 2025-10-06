@@ -1,0 +1,19 @@
+{
+  "name": "demo_wallet_1759704941",
+  "label": "Demo Mining Wallet",
+  "created_at": "2025-10-06T00:55:41.950868",
+  "version": "2.7.1",
+  "addresses": [
+    {
+      "address": "ZION_84744A48ED83CE7C01E9AD7079438201",
+      "public_key": "4205df5447d4599c5f439f91a26ca23cf81b7db074d152a755bf99ac0bb7606f",
+      "private_key": "601d1648b26d1188bc04e1dbebe04c978264f6913c769320a06b7b335ef5dab7",
+      "label": "Primary Address",
+      "created_at": "2025-10-06T00:55:41.950902",
+      "balance": 0
+    }
+  ],
+  "total_balance": 0,
+  "transaction_count": 0,
+  "encrypted": false
+}

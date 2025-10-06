@@ -29,10 +29,23 @@ ZION 2.7.1 is a **next-generation blockchain ecosystem** featuring breakthrough 
 - **🌐 Advanced P2P Network** with peer discovery and synchronization
 - **⚡ Multi-Algorithm GPU Mining** (KawPow, Ethash, Argon2 + AI-enhanced)
 - **🔐 Encrypted Wallet System** with AES-256 and secure key managementx3nityOne144
-
 - **📊 Advanced Transaction Pool** with AI-powered prioritization
 - **🌐 REST API & Web Frontend** with real-time blockchain visualization
 - **🚀 SSH Deployment**: Complete server deployment and management tools
+
+### 🌍 Revolutionary Humanitarian Mining System
+ZION 2.7.1 features the world's first **automatic humanitarian distribution system** that makes every mined block contribute to global good:
+
+- **🌟 10% Automatic Distribution** of all mining rewards to humanitarian projects
+- **🌲 Forest Restoration** (2% of total rewards) - Tropical reforestation and biodiversity protection
+- **🌊 Ocean Cleanup** (2% of total rewards) - Plastic removal from oceans and marine life protection  
+- **❤️ Humanitarian Aid** (2% of total rewards) - Global community support and development
+- **🚀 Space Program** (2% of total rewards) - Space research and technological advancement
+- **🕉️ Dharma Development** (2% of total rewards) - Sacred garden in Portugal with Triple Pyramid and La Palma Dharma Temple
+- **📊 Real-time Tracking** with transparent distribution reporting
+- **⚙️ Configurable Projects** with dynamic percentage allocation
+
+**Every block mined = Making the world better! 🌍✨**
 
 ## 🏆 **Special Thanks to Our AI Development Team:**
 **This revolutionary system was developed in collaboration with advanced AI assistants, representing the cutting edge of human-AI cooperative development. JAI RAM SITA HANUMAN - ON THE STAR!** 🌟
@@ -135,6 +148,65 @@ python zion_cli.py network broadcast-transaction --tx-id YOUR_TX_ID
 
 ### ⚡ Advanced Mining System
 - **`mining/zion_gpu_mining_optimizer.py`**: AI-powered GPU optimization (2800+ lines)
+- **`mining/algorithms.py`**: ASIC-resistant algorithm suite with YesCrypt and Autolykos v2
+- **`mining/humanitarian_distribution.py`**: Automatic 10% humanitarian distribution system
+- **`mining/config.py`**: Multi-algorithm mining configuration with pool integration
+- **`zion/pool/mining_pool.py`**: Production-grade mining pool with Stratum protocol
+
+### 🎯 Supported Mining Algorithms
+#### Primary ASIC-Resistant:
+- **🔐 Argon2** (Port 3333) - Memory-hard, CPU-optimized (~12 H/s, 64MB)
+- **🔐 YesCrypt** (Port 3334) - Memory-hard, balanced performance (~16 H/s, 64KB) 
+- **⚡ Autolykos v2** (Port 3335) - GPU-optimized ASIC-resistant (~2,000 H/s, 32MB)
+
+#### Alternative & GPU-Friendly:
+- **🎮 KawPow** (Port 3336) - GPU-friendly, moderate ASIC resistance
+- **💎 Ethash** (Port 3337) - Ethereum-compatible GPU mining
+- **🐙 Octopus** (Port 3339) - High-performance GPU algorithm
+- **🔒 CryptoNight** (Port 3338) - Privacy-focused ASIC-resistant
+- **🎯 Ergo** (Port 3340) - Autolykos-based ASIC-resistant
+
+### 🌍 Humanitarian Distribution System
+Every mined block automatically contributes **10% of rewards** to global humanitarian projects:
+
+#### 🎯 Supported Projects (Each receives 2% of total rewards):
+- **🌲 Forest Restoration**: Tropical reforestation and biodiversity protection
+  - Wallet: `ZION1ForestRestoration2024HumanitarianProject`
+  - Impact: Tree planting, ecosystem protection, community support
+  
+- **🌊 Ocean Cleanup**: Plastic removal from oceans and marine conservation
+  - Wallet: `ZION1OceanCleanup2024EnvironmentalProtection`  
+  - Impact: Ocean plastic collection, recycling technology, marine protection
+
+- **❤️ Humanitarian Aid**: Global community support and development
+  - Wallet: `ZION1HumanitarianAid2024GlobalCommunitySupport`
+  - Impact: Basic needs, healthcare, education, disaster relief
+
+- **🚀 Space Program**: Space research and technological advancement
+  - Wallet: `ZION1SpaceProgram2024CosmicExplorationFund`
+  - Impact: Space exploration, technology development, scientific missions
+
+- **🕉️ Dharma Development**: Sacred garden in Portugal with spiritual center
+  - Wallet: `ZION1DharmaDevelopment2024SacredGardenPortugal`
+  - Impact: Triple Pyramid, La Palma Dharma Temple, meditation spaces
+
+#### 📊 Example Distribution (1000 ZION block reward):
+```
+👤 Miner receives:     900 ZION (90%)
+🌍 Humanitarian fund:  100 ZION (10%)
+├── 🌲 Forest:          20 ZION (2%)
+├── 🌊 Ocean:           20 ZION (2%)  
+├── ❤️ Aid:             20 ZION (2%)
+├── 🚀 Space:           20 ZION (2%)
+└── 🕉️ Dharma:          20 ZION (2%)
+```
+
+#### 🎮 Test Humanitarian System:
+```bash
+python demo_humanitarian_system.py
+python demo_enhanced_algorithms.py
+```
+
 - **`mining/`**: Multi-algorithm system with consciousness integration
 - **GPU Support**: AMD RX 5000+ and NVIDIA RTX 20+ optimization
 - **Auto-Tuning**: AI-powered parameter optimization and thermal management

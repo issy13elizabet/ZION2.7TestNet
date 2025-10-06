@@ -1,0 +1,55 @@
+{
+  "humanitarian_percentage": 0.1,
+  "projects": [
+    {
+      "id": "forest_restoration",
+      "name": "🌲 Zalesňování pralesů",
+      "description": "Obnova tropických pralesů a ochrana biodiverzity. Projekt zaměřený na obnovu zničených pralesních oblastí, výsadbu nových stromů a ochranu existujících ekosystémů. Podporuje místní komunity a vytváří udržitelné ekonomické příležitosti.",
+      "wallet_address": "ZION1ForestRestoration2024HumanitarianProject",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "0",
+      "last_payout": null
+    },
+    {
+      "id": "ocean_cleanup",
+      "name": "🌊 Vyčištění oceánů",
+      "description": "Odstranění plastů z oceánů a ochrana mořského života. Inovativní technologie pro sběr plastového odpadu z oceánů, podpora recyklace a prevence dalšího znečištění. Ochrana mořských ekosystémů a biodiverzity.",
+      "wallet_address": "ZION1OceanCleanup2024EnvironmentalProtection",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "0",
+      "last_payout": null
+    },
+    {
+      "id": "humanitarian_aid",
+      "name": "❤️ Humanitární pomoc",
+      "description": "Pomoc potřebným komunitám po celém světě. Poskytování základních potřeb, zdravotní péče, vzdělání a podpory komunitám postižených přírodními katastrofami, konflikty nebo chudobou. Zaměření na dlouhodobé řešení a rozvoj.",
+      "wallet_address": "ZION1HumanitarianAid2024GlobalCommunitySupport",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "0",
+      "last_payout": null
+    },
+    {
+      "id": "space_program",
+      "name": "🚀 Space program",
+      "description": "Výzkum vesmíru a technologický rozvoj pro lidstvo. Podporuje vesmírný výzkum, vývoj nových technologií a mise zaměřené na pochopení vesmíru. Investice do budoucnosti lidstva a technologického pokroku.",
+      "wallet_address": "ZION1SpaceProgram2024CosmicExplorationFund",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "0",
+      "last_payout": null
+    },
+    {
+      "id": "dharma_development",
+      "name": "🕉️ Dharma vývoj",
+      "description": "Zahrada v Portugalsku s Triple pyramid a vase La Palma Dharma Temple se stromem Bodhi. Duchovní centrum zaměřené na meditaci, osobní rozvoj a spojení s přírodou. Vytváří prostor pro duchovní růst a komunitní setkávání.",
+      "wallet_address": "ZION1DharmaDevelopment2024SacredGardenPortugal",
+      "percentage": 20.0,
+      "active": true,
+      "total_received": "0",
+      "last_payout": null
+    }
+  ]
+}
