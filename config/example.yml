@@ -1,0 +1,33 @@
+# ZION 2.7.4 Example Configuration
+# POUZE PLACEHOLDER HODNOTY!
+
+network:
+  name: "ZION-TestNet"
+  version: "2.7.4"
+  port: 8333
+
+mining:
+  algorithm: "multi-algo"
+  difficulty: 4
+  reward: 50
+
+security:
+  # VŠECHNY SKUTEČNÉ KEYS JSOU EXTERNÍ!
+  key_generation: "local_only"
+  private_keys: "external_backup_only"
+  addresses: "runtime_generated"
+
+premine:
+  # POUZE PLACEHOLDERS - SKUTEČNÉ ADRESY JSOU EXTERNÍ!
+  total_amount: 14342857142
+  addresses:
+    - "[MINING_OPERATOR_1]"
+    - "[MINING_OPERATOR_2]"
+    - "[MINING_OPERATOR_3]"
+    - "[MINING_OPERATOR_4]"
+    - "[MINING_OPERATOR_5]"
+    - "[DEV_TEAM_FUND]"
+    - "[NETWORK_INFRASTRUCTURE]"
+    - "[CHILDREN_FUND]"
+    - "[NETWORK_ADMIN]"
+    - "[GENESIS_REWARD]"

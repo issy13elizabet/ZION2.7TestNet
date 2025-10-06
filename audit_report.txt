@@ -1,0 +1,711 @@
+🔍 Spouštím bezpečnostní audit: .
+
+🔍 ZION 2.7.4 - BEZPEČNOSTNÍ AUDIT REPORT
+============================================================
+⚠️  NALEZENO 11 PODEZŘELÝCH SOUBORŮ:
+
+📁 security_audit.py
+   🚨 Pattern: mongodb://[^"\'\\s]+
+   📍 Line 38: mongodb://[^
+   📄 Context:
+           36:             
+           37:             # Database connections
+      >>>  38:             r'mongodb://[^"\'\\s]+',
+           39:             r'mysql://[^"\'\\s]+',
+           40:             r'postgresql://[^"\'\\s]+',
+
+   🚨 Pattern: mysql://[^"\'\\s]+
+   📍 Line 39: mysql://[^
+   📄 Context:
+           37:             # Database connections
+           38:             r'mongodb://[^"\'\\s]+',
+      >>>  39:             r'mysql://[^"\'\\s]+',
+           40:             r'postgresql://[^"\'\\s]+',
+           41:         ]
+
+   🚨 Pattern: postgresql://[^"\'\\s]+
+   📍 Line 40: postgresql://[^
+   📄 Context:
+           38:             r'mongodb://[^"\'\\s]+',
+           39:             r'mysql://[^"\'\\s]+',
+      >>>  40:             r'postgresql://[^"\'\\s]+',
+           41:         ]
+           42:         
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/typing_extensions.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 3611: 986a4e1b6fcae7fe7a1d0a26aea44610
+   📄 Context:
+          3609: 
+          3610:     if sys.version_info < (3, 10):
+      >>> 3611:         # Copied and pasted from https://github.com/python/cpython/blob/986a4e1b
+          3612:         # so that we emulate the behaviour of `types.GenericAlias`
+          3613:         # on the latest versions of CPython
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/cryptography/hazmat/primitives/asymmetric/ec.py
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 221: 3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF...
+   📄 Context:
+          219:     name = "sect571r1"
+          220:     key_size = 570
+      >>> 221:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          222: 
+          223: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 221: FFFFFFFE661CE18FF55987308059B186823851EC7DD9CA1161...
+   📄 Context:
+          219:     name = "sect571r1"
+          220:     key_size = 570
+      >>> 221:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          222: 
+          223: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 227: 10000000000000000000000000000000000000000000000000...
+   📄 Context:
+          225:     name = "sect409r1"
+          226:     key_size = 409
+      >>> 227:     group_order = 0x10000000000000000000000000000000000000000000000000001E2AAD6A
+          228: 
+          229: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 233: 3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF90399660FC938...
+   📄 Context:
+          231:     name = "sect283r1"
+          232:     key_size = 283
+      >>> 233:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF90399660FC938A90165B042
+          234: 
+          235: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 251: 20000000000000000000000000000000000000000000000000...
+   📄 Context:
+          249:     name = "sect571k1"
+          250:     key_size = 571
+      >>> 251:     group_order = 0x200000000000000000000000000000000000000000000000000000000000
+          252: 
+          253: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 251: 0000000131850E1F19A63E4B391A8DB917F4138B630D84BE5D...
+   📄 Context:
+          249:     name = "sect571k1"
+          250:     key_size = 571
+      >>> 251:     group_order = 0x200000000000000000000000000000000000000000000000000000000000
+          252: 
+          253: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 257: 7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF...
+   📄 Context:
+          255:     name = "sect409k1"
+          256:     key_size = 409
+      >>> 257:     group_order = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE5F83B2D4
+          258: 
+          259: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 263: 1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9AE2ED07577265...
+   📄 Context:
+          261:     name = "sect283k1"
+          262:     key_size = 283
+      >>> 263:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9AE2ED07577265DFF7F94451
+          264: 
+          265: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 281: 1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF...
+   📄 Context:
+          279:     name = "secp521r1"
+          280:     key_size = 521
+      >>> 281:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          282: 
+          283: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 281: FFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8899C47A...
+   📄 Context:
+          279:     name = "secp521r1"
+          280:     key_size = 521
+      >>> 281:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          282: 
+          283: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 287: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7...
+   📄 Context:
+          285:     name = "secp384r1"
+          286:     key_size = 384
+      >>> 287:     group_order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F437
+          288: 
+          289: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 294: FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3...
+   📄 Context:
+          292:     key_size = 256
+          293:     group_order = (
+      >>> 294:         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+          295:     )
+          296: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 302: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBF...
+   📄 Context:
+          300:     key_size = 256
+          301:     group_order = (
+      >>> 302:         0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+          303:     )
+          304: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 322: A9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F790...
+   📄 Context:
+          320:     key_size = 256
+          321:     group_order = (
+      >>> 322:         0xA9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7
+          323:     )
+          324: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 329: 8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B31F...
+   📄 Context:
+          327:     name = "brainpoolP384r1"
+          328:     key_size = 384
+      >>> 329:     group_order = 0x8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B31F166E6CAC04
+          330: 
+          331: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 335: AADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6...
+   📄 Context:
+          333:     name = "brainpoolP512r1"
+          334:     key_size = 512
+      >>> 335:     group_order = 0xAADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA7033
+          336: 
+          337: 
+
+   🚨 Pattern: [0-9a-fA-F]{64}
+   📍 Line 335: 553E5C414CA92619418661197FAC10471DB1D381085DDADDB5...
+   📄 Context:
+          333:     name = "brainpoolP512r1"
+          334:     key_size = 512
+      >>> 335:     group_order = 0xAADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA7033
+          336: 
+          337: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 221: 3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          219:     name = "sect571r1"
+          220:     key_size = 570
+      >>> 221:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          222: 
+          223: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 221: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          219:     name = "sect571r1"
+          220:     key_size = 570
+      >>> 221:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          222: 
+          223: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 221: FFFFFFFE661CE18FF55987308059B186
+   📄 Context:
+          219:     name = "sect571r1"
+          220:     key_size = 570
+      >>> 221:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          222: 
+          223: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 221: 823851EC7DD9CA1161DE93D5174D66E8
+   📄 Context:
+          219:     name = "sect571r1"
+          220:     key_size = 570
+      >>> 221:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          222: 
+          223: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 227: 10000000000000000000000000000000
+   📄 Context:
+          225:     name = "sect409r1"
+          226:     key_size = 409
+      >>> 227:     group_order = 0x10000000000000000000000000000000000000000000000000001E2AAD6A
+          228: 
+          229: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 227: 000000000000000000001E2AAD6A612F
+   📄 Context:
+          225:     name = "sect409r1"
+          226:     key_size = 409
+      >>> 227:     group_order = 0x10000000000000000000000000000000000000000000000000001E2AAD6A
+          228: 
+          229: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 227: 33307BE5FA47C3C9E052F838164CD37D
+   📄 Context:
+          225:     name = "sect409r1"
+          226:     key_size = 409
+      >>> 227:     group_order = 0x10000000000000000000000000000000000000000000000000001E2AAD6A
+          228: 
+          229: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 233: 3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          231:     name = "sect283r1"
+          232:     key_size = 283
+      >>> 233:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF90399660FC938A90165B042
+          234: 
+          235: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 233: FFFEF90399660FC938A90165B042A7CE
+   📄 Context:
+          231:     name = "sect283r1"
+          232:     key_size = 283
+      >>> 233:     group_order = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF90399660FC938A90165B042
+          234: 
+          235: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 239: 1000000000000000000000000000013E
+   📄 Context:
+          237:     name = "sect233r1"
+          238:     key_size = 233
+      >>> 239:     group_order = 0x1000000000000000000000000000013E974E72F8A6922031D2603CFE0D7
+          240: 
+          241: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 245: 40000000000000000000292FE77E70C1
+   📄 Context:
+          243:     name = "sect163r2"
+          244:     key_size = 163
+      >>> 245:     group_order = 0x40000000000000000000292FE77E70C12A4234C33
+          246: 
+          247: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 251: 20000000000000000000000000000000
+   📄 Context:
+          249:     name = "sect571k1"
+          250:     key_size = 571
+      >>> 251:     group_order = 0x200000000000000000000000000000000000000000000000000000000000
+          252: 
+          253: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 251: 00000000000000000000000000000000
+   📄 Context:
+          249:     name = "sect571k1"
+          250:     key_size = 571
+      >>> 251:     group_order = 0x200000000000000000000000000000000000000000000000000000000000
+          252: 
+          253: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 251: 0000000131850E1F19A63E4B391A8DB9
+   📄 Context:
+          249:     name = "sect571k1"
+          250:     key_size = 571
+      >>> 251:     group_order = 0x200000000000000000000000000000000000000000000000000000000000
+          252: 
+          253: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 251: 17F4138B630D84BE5D639381E91DEB45
+   📄 Context:
+          249:     name = "sect571k1"
+          250:     key_size = 571
+      >>> 251:     group_order = 0x200000000000000000000000000000000000000000000000000000000000
+          252: 
+          253: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 257: 7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          255:     name = "sect409k1"
+          256:     key_size = 409
+      >>> 257:     group_order = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE5F83B2D4
+          258: 
+          259: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 257: FFFFFFFFFFFFFFFFFFFE5F83B2D4EA20
+   📄 Context:
+          255:     name = "sect409k1"
+          256:     key_size = 409
+      >>> 257:     group_order = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE5F83B2D4
+          258: 
+          259: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 257: 400EC4557D5ED3E3E7CA5B4B5C83B8E0
+   📄 Context:
+          255:     name = "sect409k1"
+          256:     key_size = 409
+      >>> 257:     group_order = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE5F83B2D4
+          258: 
+          259: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 263: 1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          261:     name = "sect283k1"
+          262:     key_size = 283
+      >>> 263:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9AE2ED07577265DFF7F94451
+          264: 
+          265: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 263: FFFE9AE2ED07577265DFF7F94451E061
+   📄 Context:
+          261:     name = "sect283k1"
+          262:     key_size = 283
+      >>> 263:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9AE2ED07577265DFF7F94451
+          264: 
+          265: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 269: 8000000000000000000000000000069D
+   📄 Context:
+          267:     name = "sect233k1"
+          268:     key_size = 233
+      >>> 269:     group_order = 0x8000000000000000000000000000069D5BB915BCD46EFB1AD5F173ABDF
+          270: 
+          271: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 275: 4000000000000000000020108A2E0CC0
+   📄 Context:
+          273:     name = "sect163k1"
+          274:     key_size = 163
+      >>> 275:     group_order = 0x4000000000000000000020108A2E0CC0D99F8A5EF
+          276: 
+          277: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 281: 1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          279:     name = "secp521r1"
+          280:     key_size = 521
+      >>> 281:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          282: 
+          283: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 281: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          279:     name = "secp521r1"
+          280:     key_size = 521
+      >>> 281:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          282: 
+          283: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 281: FFA51868783BF2F966B7FCC0148F709A
+   📄 Context:
+          279:     name = "secp521r1"
+          280:     key_size = 521
+      >>> 281:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          282: 
+          283: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 281: 5D03BB5C9B8899C47AEBB6FB71E91386
+   📄 Context:
+          279:     name = "secp521r1"
+          280:     key_size = 521
+      >>> 281:     group_order = 0x1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          282: 
+          283: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 287: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+   📄 Context:
+          285:     name = "secp384r1"
+          286:     key_size = 384
+      >>> 287:     group_order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F437
+          288: 
+          289: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 287: FFFFFFFFFFFFFFFFC7634D81F4372DDF
+   📄 Context:
+          285:     name = "secp384r1"
+          286:     key_size = 384
+      >>> 287:     group_order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F437
+          288: 
+          289: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 287: 581A0DB248B0A77AECEC196ACCC52973
+   📄 Context:
+          285:     name = "secp384r1"
+          286:     key_size = 384
+      >>> 287:     group_order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F437
+          288: 
+          289: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 294: FFFFFFFF00000000FFFFFFFFFFFFFFFF
+   📄 Context:
+          292:     key_size = 256
+          293:     group_order = (
+      >>> 294:         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+          295:     )
+          296: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 294: BCE6FAADA7179E84F3B9CAC2FC632551
+   📄 Context:
+          292:     key_size = 256
+          293:     group_order = (
+      >>> 294:         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+          295:     )
+          296: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 302: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE
+   📄 Context:
+          300:     key_size = 256
+          301:     group_order = (
+      >>> 302:         0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+          303:     )
+          304: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 302: BAAEDCE6AF48A03BBFD25E8CD0364141
+   📄 Context:
+          300:     key_size = 256
+          301:     group_order = (
+      >>> 302:         0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+          303:     )
+          304: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 309: FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2
+   📄 Context:
+          307:     name = "secp224r1"
+          308:     key_size = 224
+      >>> 309:     group_order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D
+          310: 
+          311: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 315: FFFFFFFFFFFFFFFFFFFFFFFF99DEF836
+   📄 Context:
+          313:     name = "secp192r1"
+          314:     key_size = 192
+      >>> 315:     group_order = 0xFFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831
+          316: 
+          317: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 322: A9FB57DBA1EEA9BC3E660A909D838D71
+   📄 Context:
+          320:     key_size = 256
+          321:     group_order = (
+      >>> 322:         0xA9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7
+          323:     )
+          324: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 322: 8C397AA3B561A6F7901E0E82974856A7
+   📄 Context:
+          320:     key_size = 256
+          321:     group_order = (
+      >>> 322:         0xA9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7
+          323:     )
+          324: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 329: 8CB91E82A3386D280F5D6F7E50E641DF
+   📄 Context:
+          327:     name = "brainpoolP384r1"
+          328:     key_size = 384
+      >>> 329:     group_order = 0x8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B31F166E6CAC04
+          330: 
+          331: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 329: 152F7109ED5456B31F166E6CAC0425A7
+   📄 Context:
+          327:     name = "brainpoolP384r1"
+          328:     key_size = 384
+      >>> 329:     group_order = 0x8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B31F166E6CAC04
+          330: 
+          331: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 329: CF3AB6AF6B7FC3103B883202E9046565
+   📄 Context:
+          327:     name = "brainpoolP384r1"
+          328:     key_size = 384
+      >>> 329:     group_order = 0x8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B31F166E6CAC04
+          330: 
+          331: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 335: AADD9DB8DBE9C48B3FD4E6AE33C9FC07
+   📄 Context:
+          333:     name = "brainpoolP512r1"
+          334:     key_size = 512
+      >>> 335:     group_order = 0xAADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA7033
+          336: 
+          337: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 335: CB308DB3B3C9D20ED6639CCA70330870
+   📄 Context:
+          333:     name = "brainpoolP512r1"
+          334:     key_size = 512
+      >>> 335:     group_order = 0xAADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA7033
+          336: 
+          337: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 335: 553E5C414CA92619418661197FAC1047
+   📄 Context:
+          333:     name = "brainpoolP512r1"
+          334:     key_size = 512
+      >>> 335:     group_order = 0xAADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA7033
+          336: 
+          337: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 335: 1DB1D381085DDADDB58796829CA90069
+   📄 Context:
+          333:     name = "brainpoolP512r1"
+          334:     key_size = 512
+      >>> 335:     group_order = 0xAADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA7033
+          336: 
+          337: 
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/pip/_internal/exceptions.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 615: abcdeabcdeabcdeabcdeabcdeabcdeab
+   📄 Context:
+          613:         Example::
+          614: 
+      >>> 615:                Expected sha256 abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
+          616:                             or 123451234512345123451234512345123451234512345
+          617:                     Got        bcdefbcdefbcdefbcdefbcdefbcdefbcdefbcdefbcdef
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 616: 12345123451234512345123451234512
+   📄 Context:
+          614: 
+          615:                Expected sha256 abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
+      >>> 616:                             or 123451234512345123451234512345123451234512345
+          617:                     Got        bcdefbcdefbcdefbcdefbcdefbcdefbcdefbcdefbcdef
+          618: 
+
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 617: bcdefbcdefbcdefbcdefbcdefbcdefbc
+   📄 Context:
+          615:                Expected sha256 abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
+          616:                             or 123451234512345123451234512345123451234512345
+      >>> 617:                     Got        bcdefbcdefbcdefbcdefbcdefbcdefbcdefbcdefbcdef
+          618: 
+          619:         """
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/pip/_internal/network/auth.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 119: 97689324abcf01bd1793d49063e7ca01
+   📄 Context:
+          117:     def get_auth_info(self, url: str, username: str | None) -> AuthInfo | None:
+          118:         # This is the default implementation of keyring.get_credential
+      >>> 119:         # https://github.com/jaraco/keyring/blob/97689324abcf01bd1793d49063e7ca0
+          120:         if username is not None:
+          121:             password = self._get_password(url, username)
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/pip/_internal/network/utils.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 8: 22c562429a61bb77172039e480873fb2
+   📄 Context:
+            6: 
+            7: # The following comments and HTTP headers were originally added by
+      >>>   8: # Donald Stufft in git commit 22c562429a61bb77172039e480873fb239dd8c03.
+            9: #
+           10: # We use Accept-Encoding: identity here because requests defaults to
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/pip/_internal/utils/glibc.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 17: fcf1d003bf4f0100c9d0921ff3d70e11
+   📄 Context:
+           15:     # to be broken or missing. This strategy is used in the standard library
+           16:     # platform module:
+      >>>  17:     # https://github.com/python/cpython/blob/fcf1d003bf4f0100c9d0921ff3d70e1127c
+           18:     if sys.platform == "win32":
+           19:         return None
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/pip/_vendor/packaging/_elffile.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 7: f51579ae8d93c8657a5564aefc2ffbca
+   📄 Context:
+            5: interface to ``ZipFile``. Only the read interface is implemented.
+            6: 
+      >>>   7: Based on: https://gist.github.com/lyssdod/f51579ae8d93c8657a5564aefc2ffbca
+            8: ELF header: https://refspecs.linuxfoundation.org/elf/gabi4+/ch4.eheader.html
+            9: """
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/setuptools/_vendor/packaging/tags.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 448: fcf1d003bf4f0100c9d0921ff3d70e11
+   📄 Context:
+          446:     # to be broken or missing. This strategy is used in the standard library
+          447:     # platform module.
+      >>> 448:     # https://github.com/python/cpython/blob/fcf1d003bf4f0100c9d0921ff3d70e1127c
+          449:     try:
+          450:         # os.confstr("CS_GNU_LIBC_VERSION") returns a string like "glibc 2.17".
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/tags.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 448: fcf1d003bf4f0100c9d0921ff3d70e11
+   📄 Context:
+          446:     # to be broken or missing. This strategy is used in the standard library
+          447:     # platform module.
+      >>> 448:     # https://github.com/python/cpython/blob/fcf1d003bf4f0100c9d0921ff3d70e1127c
+          449:     try:
+          450:         # os.confstr("CS_GNU_LIBC_VERSION") returns a string like "glibc 2.17".
+
+----------------------------------------
+📁 venv/lib/python3.9/site-packages/_distutils_hack/__init__.py
+   🚨 Pattern: [0-9a-fA-F]{32}
+   📍 Line 21: be829135bc0d758997b3566062999ee8
+   📄 Context:
+           19:     if is_pypy and sys.version_info < (3, 7):
+           20:         # PyPy for 3.6 unconditionally imports distutils, so bypass the warning
+      >>>  21:         # https://foss.heptapod.net/pypy/pypy/-/blob/be829135bc0d758997b35660629
+           22:         return
+           23:     warnings.warn(
+
+----------------------------------------
+❌ AUDIT FAILED - 11 souborů vyžaduje úpravu!
+
+🔧 NÁVHRY NA OPRAVU:
+1. Nahraďte skutečné adresy za [REDACTED_*] placeholders
+2. Přesuňte private keys do externí zálohy
+3. Použijte environment variables pro konfigurace
+4. Zkontrolujte .gitignore pravidla
+5. Implementujte runtime key generation
