@@ -17,6 +17,9 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
+# Import the real ZION blockchain
+from new_zion_blockchain import NewZionBlockchain
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -516,6 +519,10 @@ class ZionUniversalPool:
         # Database integration
         self.db = ZIONPoolDatabase()
 
+        # Real blockchain integration
+        self.blockchain = NewZionBlockchain()
+        self.pool_wallet_address = 'ZION_SACRED_B0FA7E2A234D8C2F08545F02295C98'  # Sacred Mining Operator from premine
+
         # API server (will be started in start_server)
         self.api_server = ZIONPoolAPIServer(self, port=self.port + 1)
 
@@ -734,8 +741,7 @@ class ZionUniversalPool:
 
     def check_block_found(self) -> bool:
         """
-        Check if a block has been found based on accumulated shares
-        Simplified block finding simulation
+        Check if a block has been found and submit it to the real blockchain
         """
         if not self.pool_blocks:
             return False
@@ -744,25 +750,37 @@ class ZionUniversalPool:
         if current_block.status != "pending":
             return False
 
-        # Simplified block finding: accumulate shares until threshold
-        # In production, this would be based on actual network hashrate and difficulty
-        block_threshold = 1000  # Simplified: 1000 shares = 1 block
+        # Real block finding: mine pending transactions when enough shares accumulated
+        # This replaces the mock simulation with actual blockchain mining
+        block_threshold = 1000  # Shares needed to trigger block mining
 
         if current_block.total_shares >= block_threshold:
-            current_block.status = "confirmed"
-            current_block.hash = secrets.token_hex(32)
-            current_block.timestamp = time.time()
+            try:
+                # Mine the block on the real blockchain
+                block_hash = self.blockchain.mine_pending_transactions(self.pool_wallet_address)
+                
+                if block_hash:
+                    current_block.status = "confirmed"
+                    current_block.hash = block_hash
+                    current_block.timestamp = time.time()
 
-            logger.info(f"🎉 BLOCK FOUND! Height: {current_block.height}, Hash: {current_block.hash}")
-            print(f"🎉 BLOCK FOUND! Height: {current_block.height}, Total shares: {current_block.total_shares}")
+                    logger.info(f"🎉 REAL BLOCK MINED! Height: {current_block.height}, Hash: {block_hash}")
+                    print(f"🎉 REAL BLOCK MINED! Height: {current_block.height}, Hash: {block_hash[:16]}...")
 
-            # Calculate rewards
-            self.calculate_block_rewards(current_block)
+                    # Calculate and distribute rewards via blockchain transactions
+                    self.calculate_block_rewards_via_blockchain(current_block)
 
-            # Start new block
-            self.start_new_block()
+                    # Start new block
+                    self.start_new_block()
 
-            return True
+                    return True
+                else:
+                    logger.error("Failed to mine block on blockchain")
+                    return False
+                    
+            except Exception as e:
+                logger.error(f"Block mining error: {e}")
+                return False
 
         return False
 
@@ -821,6 +839,58 @@ class ZionUniversalPool:
                 
                 # Update miner balance
                 stats.balance_pending += final_reward
+                
+                eco_info = f"(eco: {eco_multiplier}x)" if eco_multiplier != 1.0 else ""
+                logger.info(f"Miner {address} [{algorithm}]: {miner_shares} shares ({proportion:.4f}) = {final_reward:.8f} ZION {eco_info}")
+
+    def calculate_block_rewards_via_blockchain(self, block: PoolBlock) -> None:
+        """Calculate proportional rewards and create blockchain transactions"""
+        if block.total_shares == 0:
+            return
+
+        # Calculate pool fee (reduce fee for eco algorithms)
+        base_pool_fee = block.reward_amount * self.pool_fee_percent
+        eco_fee_reduction = 0.0
+        
+        # Count eco-friendly shares for fee reduction
+        eco_shares = 0
+        for address, shares in block.miner_shares.items():
+            stats = self.get_miner_stats(address)
+            if stats.algorithm in ['randomx', 'yescrypt']:
+                eco_shares += shares
+                
+        eco_ratio = eco_shares / block.total_shares if block.total_shares > 0 else 0
+        eco_fee_reduction = base_pool_fee * 0.2 * eco_ratio  # Up to 20% fee reduction
+        
+        pool_fee_amount = base_pool_fee - eco_fee_reduction
+        miner_reward_total = block.reward_amount - pool_fee_amount
+
+        logger.info(f"Block reward: {block.reward_amount} ZION, Pool fee: {pool_fee_amount:.4f} (eco reduction: {eco_fee_reduction:.4f}), Miner total: {miner_reward_total}")
+
+        # Calculate proportional rewards with eco bonuses and create transactions
+        for address, miner_shares in block.miner_shares.items():
+            if miner_shares > 0:
+                proportion = miner_shares / block.total_shares
+                base_reward = miner_reward_total * proportion
+                
+                # Apply eco-friendly algorithm bonus/penalty
+                stats = self.get_miner_stats(address)
+                algorithm = stats.algorithm
+                eco_multiplier = self.eco_rewards.get(algorithm, 1.0)
+                
+                final_reward = base_reward * eco_multiplier
+                
+                # Create blockchain transaction for the reward
+                try:
+                    self.blockchain.create_transaction(
+                        self.pool_wallet_address,  # From pool wallet
+                        address,                   # To miner
+                        final_reward,              # Reward amount
+                        f"Pool mining reward for block {block.height} - {miner_shares} shares ({algorithm})"
+                    )
+                    logger.info(f"✅ Created blockchain transaction: {final_reward:.8f} ZION to {address}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to create reward transaction for {address}: {e}")
                 
                 eco_info = f"(eco: {eco_multiplier}x)" if eco_multiplier != 1.0 else ""
                 logger.info(f"Miner {address} [{algorithm}]: {miner_shares} shares ({proportion:.4f}) = {final_reward:.8f} ZION {eco_info}")
@@ -936,7 +1006,7 @@ class ZionUniversalPool:
                 logger.warning(f"Unknown method from {addr}: {method}")
                 print(f"❓ Unknown method: {method}")
                 return json.dumps({
-                    "id": data.get('id'),
+                    "id": data.get('id', 1),
                     "jsonrpc": "2.0",
                     "error": {"code": -32601, "message": "Method not found"}
                 }) + '\n'

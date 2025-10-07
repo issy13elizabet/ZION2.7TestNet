@@ -26,22 +26,23 @@ logger = logging.getLogger(__name__)
 class ZionAIMiner:
     """AI Miner s Sacred Flower enhancement pro eliZabet"""
     
-    def __init__(self):
-        self.logger = logger  # Use global logger
+    def __init__(self, pool_host="127.0.0.1", pool_port=3333):
+        self.pool_host = pool_host
+        self.pool_port = pool_port
+        self.worker_name = "elizabet.sacred.ai"  # Aktivuje Sacred Flower blessing
+        self.password = "x"
         
-        # REAL TESTNET POOL CONNECTION - NO SIMULATION!
-        self.pool_host = '127.0.0.1'
-        self.pool_port = 3333
-        self.wallet_address = 'eliZabet'  # Sacred worker name
-        self.worker_name = 'eliZabet'  # Sacred worker
-        self.password = 'x'
-        self.worker_id = 'AI_MINER_SACRED'
-        
-        # Mining state
-        self.socket = None
-        self.sock = None
-        self.running = False
+        # Mining statistics
+        self.shares_found = 0
+        self.shares_accepted = 0
+        self.shares_rejected = 0
+        self.blocks_found = 0
+        self.hashrate = 0.0
+        self.average_hashrate = 0.0
+        self.peak_hashrate = 0.0
+        self.total_hashes = 0
         self.start_time = time.time()
+        self.last_share_time = None
         
         # Pool connection stats
         self.connected = False
@@ -50,17 +51,6 @@ class ZionAIMiner:
         self.difficulty = 1
         self.pool_ping = 0
         self.pool_uptime = 0
-        self.target = '0000ffff00000000000000000000000000000000000000000000000000000000'
-        self.blob = None
-        
-        # Mining statistics
-        self.total_hashes = 0
-        self.total_shares = 0
-        self.accepted_shares = 0
-        self.last_share_time = None
-        self.hash_times = []
-        self.max_hashrate = 0.0
-        self.blocks_found = 0
         
         # Target: 100 blocks
         self.target_blocks = 100
