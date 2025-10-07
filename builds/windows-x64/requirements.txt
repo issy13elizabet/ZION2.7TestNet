@@ -1,0 +1,8 @@
+# ZION Multi-AI Miner Requirements
+numpy>=1.21.0
+requests>=2.25.0
+psutil>=5.8.0
+
+# Optional GPU acceleration
+# pyopencl>=2021.2.13  # For AMD GPU
+# pycuda>=2021.1       # For NVIDIA GPU

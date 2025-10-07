@@ -47,7 +47,22 @@ ZION 2.7.4 je bezpečnostní release připravující systém pro veřejné nasaz
 - [ ] Create deployment guides
 - [ ] Prepare incident response
 
-### 🚀 PŘIPRAVA PRO 2.7.5
+### � Strukturovaná dokumentace 2.7.4
+
+Veškeré logy, reporty a plány byly přesunuty do verzované složky:
+
+```
+2.7.4/
+	docs/
+		INDEX.md
+		logs/      # Provozní a integrační logy
+		reports/   # Finální reporty, audity, testovací výstupy
+		plans/     # Roadmapy, manuály, migration & recovery
+```
+
+Rychlý odkaz: `2.7.4/docs/INDEX.md`
+
+### �🚀 PŘIPRAVA PRO 2.7.5
 
 Po dokončení všech bezpečnostních kontrol bude systém připraven pro:
 - **Veřejné repository**
